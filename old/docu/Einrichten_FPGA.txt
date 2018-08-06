@@ -1,0 +1,87 @@
+
+1.	Starte QuartusPrimeLiteEdition
+
+2.	Starte Qys
+	unter: Tools->Qsys
+
+2.1	Öffne Projekt Garfield_system.qsys
+2.2	Hinzufügen von FPGA_Design/ip_intern und FPGA_Design/ip_extern
+	unter: Tools->Options->IP Search Path Options
+2.3	Generiere Synthesis-Datei
+	unter: Generate->Generate HDL... 
+	       (Beachte: Wähle als HDL Design: VHDL)
+
+[ 3.	Start Analysis & Synthesis ]
+
+3.	In QuartusPrime
+
+3.1	Starte "Compile Design"
+
+
+4.	Start Programmer
+	unter: Tools->Programmer
+
+4.1	Klicke auf Button "Hardware Setup"
+	-> Ändere "currently selected hardware: "
+
+4.2	Klicke auf "Auto Detect"
+	-> Wähle 2ten Eintrag
+
+4.3	Klicke auf "Start"
+
+
+5.	Start NIOS Eclipse
+	unter: Tools->NIOS II Software Build Tools for Eclipse
+
+5.1	Generiere neues Projekt
+	unter: File->New->NIOS II Application and BSP from Template
+	(angeben von FPGA_Design\Garfield_Design\Garfield_system.sopcinfo)
+
+5.2	Einfügen der folgenden Ordner von Garfield:
+	- Software/Software_NIOS2/driver
+	- Software/Software_NIOS2/os
+	- Software/Software_NIOS2/tasks
+	- Software/common/ARM_NIOS
+	- Software/common/ARM_NIOS_HQ
+
+5.3	Einbinden folgender Dateien in Include Path
+	unter: Project->Properties->NIOS II Application Properties->NIOS II Application Path->Application Include Directory->Add
+	- os
+	- os/Source
+	- os/Source/include
+	- os/Source/portable
+	- driver
+	- task
+	- common/ARM_NIOS
+	- common/ARM_NIOS_HQ
+	- ../<projectname>_bsp
+	- ../<projectname>_bsp/drivers/inc
+	- ../<projectname>_bsp/drivers/src
+
+5.4	Entferne File common/ARM_NIOS/using_shared_memory_example.cpp
+	Dieses File wird nicht benötigt
+
+5.5	Angleichen von <projectname>_bsp/system.h aufgrund von NIOS II Kompatibilität:
+	Ersetze:
+		#define ALT_ENHANCED_INTERRUPT_API_PRESENT 
+	mit:
+		#define ALT_LEGACY_INTERRUPT_API_PRESENT
+	
+	=> Anschließend Rebuild <projectname>_bsp
+
+5.6	Anpassen von <projectname>/Makefile für Unterstützung von c++11:
+	Ersetze:
+		# Arguments only for the C++ compiler.
+ 		APP_CXXFLAGS := $(ALT_CXXFLAGS) $(CXXFLAGS)
+	mit:
+		# Arguments only for the C++ compiler.
+		APP_CXXFLAGS := $(ALT_CXXFLAGS) $(CXXFLAGS) -std=c++11
+
+5.7	Abspielen von C-Code auf NIOSII
+	unter: Run Configurations 
+		-> im Tab: Target Connection
+			-> Drücke Refresh Connection
+			-> Aktiviere falls nötig:
+			   "Ignore mismatched systemID" und "Ignore mismatched system timestamp"
+			-> Drücke Apply
+			-> Drücke Run

@@ -1,0 +1,29 @@
+Innerhalb von Ubuntu 16.04-64 Bit:
+
+Davor:
+Rechner mit Netzwerk von Vehikel verbunden sein.
+
+1. 	Starte SSH-Verbindung mit Putty:
+	-> Einstellungen:
+		- IP: 	192.168.100.149
+		- Port:	22
+
+		In SSH-Verbindung/Putty:
+	1.1	Einloggen mit:
+		- Login: ubuntu
+		- Pwd:	 temppwd
+
+	1.2	Ausführen von:
+		- sudo -s
+		- ./startup im Home-Verzeichnis
+		- bin/HSP_ARM_Gateway im Home-Verzeichnis
+
+2. 	Starte GUI zur Steuerung des Vehikels
+	über sudo ./Garfield_Control
+	(Shell-Skript ist unter Software\Software_HQ\Garfield_Control_Standalone.zip)
+
+	2.1	Einstellungen:
+		- IP: 	192.168.100.149
+		- Port:	6667
+
+	
