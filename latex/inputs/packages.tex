@@ -1,0 +1,40 @@
+
+%\renewcommand{\familydefault}{\sfdefault}
+\renewcommand*\familydefault{\rmdefault}		% family font
+
+
+\usepackage[margin=0.7in]{geometry}				% geometry settings in document
+\usepackage[utf8]{inputenc}						% encoding
+\usepackage{amsmath,amssymb,amsfonts,amsthm}	% related to math
+
+\usepackage{multirow}  							% statement \multirow
+\usepackage{graphicx}  							% statement \includegraphics
+\usepackage{setspace}							% statement \begin{doublespace}
+\usepackage{varioref}
+%\usepackage[
+%	automark,								 	% chapter in headline
+%	headsepline,								% dividing line under header
+%	ilines										% align the dividing line to the left
+%]{scrpage2}
+
+\usepackage[acronym,toc,automake]{glossaries}   % list of abbreviation, toc
+\usepackage{scrlayer-scrpage}
+\usepackage{color, xcolor}						% change the color of the font
+\usepackage{calc}								% calculation
+
+% show all cross-references and URLs as a link
+\usepackage[
+colorlinks=true, bookmarks, bookmarksnumbered, bookmarksopen, bookmarksopenlevel=1,
+linkcolor=black, citecolor=black, urlcolor=blue, filecolor=blue,
+pdfpagelayout=OneColumn, pdfnewwindow=true,
+pdfstartview=XYZ, plainpages=false, pdfpagelabels,
+pdfauthor={LyX Team}, pdftex,
+pdftitle={LyX's Figure, Table, Floats, Notes, and Boxes manual},
+pdfsubject={LyX-documentation about figures, tables, floats, notes, and boxes},
+pdfkeywords={LyX, Tables, Figures, Floats, Boxes, Notes}]{hyperref}
+
+\usepackage{textcomp,units}
+
+\usepackage{booktabs}
+
+\usepackage{listings}

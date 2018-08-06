@@ -1,0 +1,62 @@
+
+
+\chapter{Example for a table and a listing}
+
+
+
+\subsection{Table with subtitle}
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{||c c c c||} 
+ \hline
+ Col1 & Col2 & Col2 & Col3 \\ [0.5ex] 
+ \hline\hline
+ 1 & 6 & 87837 & 787 \\ 
+ 2 & 7 & 78 & 5415 \\
+ 3 & 545 & 778 & 7507 \\
+ 4 & 545 & 18744 & 7560 \\
+ 5 & 88 & 788 & 6344 \\ [1ex] 
+ \hline
+\end{tabular}
+\caption{Table to test captions and labels}
+\label{table:1}
+\end{table}
+
+
+
+%\newpage
+\section{Show code nicely}
+
+Here´s an example of how to correctly render program code:
+
+\begin{figure}[h]
+\begin{lstlisting}[
+backgroundcolor={\color{lightgray}},
+basicstyle={\normalsize\sffamily},
+breaklines=true,
+frame={leftline,bottomline,rightline,topline},
+language=C,
+numbers=left,
+showstringspaces=false,
+xleftmargin=15pt
+]
+#include <stdio.h> 
+
+
+main() 
+	{
+        int i;
+        for (i = 0; i<=2; i++)
+        {
+        fork();
+        setvbuf(stdout, NULL, _IOLBF, 0); //(Stream, Pufferangabe, Puffertyp, Puffergroesse)
+        printf("PID=%6d, i=%d\n", getpid(), i);
+        }
+} 
+\end{lstlisting}
+
+
+\protect\caption{Modified program with setvbuf()}
+\end{figure}
+

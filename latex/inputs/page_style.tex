@@ -1,0 +1,69 @@
+
+% line spacing 1.5 lines
+\onehalfspacing
+
+% side edges
+\setlength{\topskip}{\ht\strutbox} 
+\geometry{paper=a4paper,left=30mm,right=30mm,top=10mm,bottom=40mm}
+
+
+
+% head and foot line
+%-------------------------------------------------------------
+\pagestyle{scrheadings}
+\renewcommand*{\chapterpagestyle}{scrheadings}
+
+\renewcommand{\headfont}{\normalfont}			% font family of the header
+
+
+% head line
+%-------------------------------------------------------------
+%\ihead{\small{\textsc{\titelum}}}  
+\ihead{\textit{\headmark}}
+%\ihead{\headmark}
+\ohead{\includegraphics[scale=0.12]{images/page_style/OTH_Regensburg_Logo_aktuell.jpg}}
+\setlength{\headheight}{21mm} 					% height of the header
+
+\setheadsepline[text]{0.4pt} 					% dividing line under header
+
+
+% foot line
+%-------------------------------------------------------------
+%\setfootsepline[text]{0.4pt} 					% dividing line over foot
+\cfoot{\textit{\pagemark}}
+%\ofoot{}
+
+
+
+
+
+% chapter number very large
+\makeatletter
+ \renewcommand*{\chapterformat}{ 
+   \begingroup
+     \setlength{\unitlength}{1mm}
+     \begin{picture}(10,10)(0,5) 
+       \setlength{\fboxsep}{0pt} 
+       %\put(0,0){\framebox(20,40){}}% 
+       %\put(0,20){\makebox(20,20){\rule{20\unitlength}{20\unitlength}}}% 
+       \put(10,15){\line(1,0){\dimexpr 
+           \textwidth-20\unitlength\relax\@gobble}}% 
+       \put(0,0){\makebox(10,20)[r]{% 
+           \fontsize{28\unitlength}{28\unitlength}\selectfont\thechapter 
+           \kern-.05em
+         }}
+       \put(10,15){\makebox(\dimexpr 
+           \textwidth-20\unitlength\relax\@gobble,\ht\strutbox\@gobble)[l]{ 
+             \ \normalsize\color{black}\chapapp~\thechapter\autodot 
+           }} 
+     \end{picture} 
+   \endgroup 
+}
+\makeatother
+
+%set fonts for nicer pdf view
+\IfFileExists{lmodern.sty}{\usepackage{lmodern}}
+  {\usepackage[scaled=0.92]{helvet}
+    \usepackage{mathptmx}
+    \usepackage{courier} }
+%\fi
