@@ -1,0 +1,37 @@
+diff --git a/arch/arm/boot/dts/socfpga_cyclone5_de0_sockit.dts b/arch/arm/boot/dts/socfpga_cyclone5_de0_sockit.dts
+index aa8b38c..800dbbb 100644
+--- a/arch/arm/boot/dts/socfpga_cyclone5_de0_sockit.dts
++++ b/arch/arm/boot/dts/socfpga_cyclone5_de0_sockit.dts
+@@ -115,3 +115,31 @@
+ &usb1 {
+ 	status = "okay";
+ };
++
++/* enabling all fpga bridges*/
++&fpga_bridge0 {
++	bridge-enable = <1>;
++};
++
++&fpga_bridge1 {
++	bridge-enable = <1>;
++};
++
++&fpga_bridge2 {
++	bridge-enable = <1>;
++};
++
++/* we are extending the soc device with a specific interrupt! */
++/ {
++	soc {
++	
++		mbox_rx: mailbox@0x00070000 {
++			compatible = "altr,mailbox-1.0";
++			reg = <0x70000 0x8>;
++			interrupt-parent = < &intc >;
++			interrupts = <GIC_SPI 60 4>;
++			#mbox-cells = <1>;
++		};
++	};
++
++};
+\ No newline at end of file
