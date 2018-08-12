@@ -68,5 +68,24 @@ fabric.properties
 /**/.idea/vcs.xml
 /**/__pycache__/**
 
+#Latex
+/latex/*.acn
+/latex/*.acr
+/latex/*.alg
+/latex/*.aux
+/latex/*.bbl
+/latex/*.blg
+/latex/*.glg
+/latex/*.glo
+/latex/*.gls
+/latex/*.ist
+/latex/*.lof
+/latex/*.log
+/latex/*.lot
+/latex/*.out
+/latex/*.synctex.gz
+/latex/*.toc
+/latex/**/*.aux
+
 #Project
 
