@@ -1,0 +1,14 @@
+- code vom letzten hsp mit libbreezyslam.so von ubuntu laden und in git pushen
+- arduino + raspberrypi3b+ + motorboard bestellen
+- sensoren zum laufen bringen
+- projekt insbesondere sourcecode einheitlich strukturieren
+- entwickeln in c++ & build tool cmake/makefiles
+- beiden guis vereinheitlichen in ein groﬂes gui
+- daten aufnehmen zum entwicklen
+- odometriewerte zum laufen bringen - MPU Werte eignen sich anscheinend nicht, letztes hsp?
+- slam mit lidardaten + odometriewerten
+- geeigneten slam finden
+
+
+UbuntuVM
+passwort: lex
