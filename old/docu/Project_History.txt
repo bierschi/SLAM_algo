@@ -1,0 +1,54 @@
+Großes Ziel:
+Autonomes erkunden, erstellen einer Karte, Visualisierung
+
+
+Ursprungszustand: 
+Kartographierung und Lokalisierung an externem PC
+Raspi mit Ros, Lidar-Daten werden mit Ros abgerufen
+Raspi sendet Daten mittels Ros an externen PC
+Dieser stellt Karte mit Rviz dar.
+
+1. Gruppe (SS2016):
+Problem: Ros auf Raspi zu langsam
+Lösung: Ros entfernen und Daten über Socket manuell an ext. PC senden
+auf ext. PC wieder zu Ros-Daten zusammenbauen und mit Rviz darstellen
+Übersicht SLAM Algorithmen
+
+2. Gruppe (WS16/17):
+Problem: Raspi ohne ROS immer noch zu langsam, um Daten schnell genug an ext. PC weiterzugeben
+Lösung: Raspi entfernen, FPGA (NIOSII) mit OS FreeRTOS zur Kommunikation (über SPI, I2C, ...) mit Hardware (Lidar, Ultraschallsensoren, Licht, etc.) 
+Hard Processor System (HPS) hat eigenes Linux auf interner SD-Karte, spricht FPGA (über shared Memory) an und sendet Daten über Wlan an ext. PC.
+
+3. Gruppe (SS17):
+Problem: kein Autonomes Fahren, keine erstellte Karte
+Lösung: 
+1) SLAM auswählen und auf HPS ausführen (HSP nicht voll auslasten, um Echtzeitverhalten weiter zu garantieren
+2) HSP soll Lidar direkt ansprechen und Rohdaten verwenden
+3) SLAM implementieren
+4) Echtzeitdarstellung der Karte (mit eigener Position) an ext. PC
+aufgetretene, nicht gelöste Probleme:
+- Hardware liefert keine zuverlässigen Odometriewerte
+- SLAM verwendet keine Odometrie (Probleme insbesondere bei 180° Drehungen)
+- Wollten SLAM ohne Odometrie verbessern, indem folgende Werte als zu Odometriedaten umgerechnet werden:
+	1) Durchschnitts-Geschwindigkeit 
+	2) Rad-Rotary-Encoder für aktuelle Geschwindigkeit 
+	3) MPU Beschleunigung und Rotationswerte
+		Probleme:
+		1) liefert keine verwendbare Geschwindigkeit, 
+		2) HW defekt und nicht aussagekräftig, da Reifen durchdrehen
+		3) zu ungenaue Beschleunigungswerte -> Offsets addieren sich
+
+
+
+4. Gruppe - WIR (SS18):
+Problem: komplizierter, teilweise nicht funktionsfähiger Hardwareaufbau 
+(Rad-Rotary-Encoder defekt, Licht defekt, Lenkbefehle kommen nicht an, Beschleunigung 0% oder 100%)
+SLAM ohne Odometrie (nur nachträglich versucht mit Beschleunigungswerten zu verbessern)
+Lösung: Neuer Hardwareaufbau mit Arduino, Raspi und ?Spannungsversorgungsboard?
+Ansprechen der Hardware (Ultraschall, Motor, Lenk-Servo) über Arduino, Auswertung der LIDAR-Daten über Raspi
+Erstellung einer Karte durch SLAM-Algo MIT Odometrie (können Beschleunigungssensoren verwendet werden?)
+Eigenpositionierung in Karte
+Autonomes Erkundschaften des Raumes
+
+
+
