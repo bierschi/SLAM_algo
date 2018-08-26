@@ -43,6 +43,8 @@
 #include "MotorControl.h"
 #include "ComModule.h"
 #include "PlannerModule.h"
+#include "MPUSensor.h"
+#include "Odometry.h"
 
 /* USER CODE BEGIN Includes */
 
@@ -121,6 +123,7 @@ int main(void)
   COM_Init();
   PLM_Init();
   HAL_Delay(3000u);
+  MPU_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
@@ -137,9 +140,9 @@ int main(void)
       //COM_ExecuteCommands();
 
       //PLM_MainCycle();
-      HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
-
-      HAL_Delay(10u);
+      
+      MPU_ReadValues();
+      HAL_Delay(100u);
 
   }
   /* USER CODE END 3 */
@@ -215,7 +218,8 @@ static void MX_I2C1_Init(void)
 {
 
   hi2c1.Instance = I2C1;
-  hi2c1.Init.Timing = 0x2000090E;
+  //hi2c1.Init.Timing = 0x2000090E;
+  hi2c1.Init.Timing = 0x4000090E;
   hi2c1.Init.OwnAddress1 = 0;
   hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
   hi2c1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
@@ -223,6 +227,7 @@ static void MX_I2C1_Init(void)
   hi2c1.Init.OwnAddress2Masks = I2C_OA2_NOMASK;
   hi2c1.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
   hi2c1.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
+  
   if (HAL_I2C_Init(&hi2c1) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
@@ -230,7 +235,7 @@ static void MX_I2C1_Init(void)
 
     /**Configure Analogue filter 
     */
-  if (HAL_I2CEx_ConfigAnalogFilter(&hi2c1, I2C_ANALOGFILTER_ENABLE) != HAL_OK)
+  if (HAL_I2CEx_ConfigAnalogFilter(&hi2c1, I2C_ANALOGFILTER_DISABLE) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
@@ -403,12 +408,6 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
   
   /*Configure GPIO pin : PB5 */
-  GPIO_InitStruct.Pin = GPIO_PIN_5;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-  
   GPIO_InitStruct.Pin = GPIO_PIN_5;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;

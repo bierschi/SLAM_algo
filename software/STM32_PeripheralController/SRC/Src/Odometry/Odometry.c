@@ -1,21 +1,30 @@
 #include "Odometry.h"
 
+// distance measurement variables:
+CurrentPosition_Y;
+CurrentPosition_X;
+
+CurrentVelocity_Y;
+CurrentVelocity_X;
+
+CurrentVelocity;
+
 int ODO_GetCurrentVelocityY(void)
 {
     return 0;
 }
 
-extern int ODO_GetCurrentPositionY(void)
+int ODO_GetCurrentPositionY(void)
 {
     return 0;
 }
 
-extern int ODO_GetCurrentVelocityX(void)
+int ODO_GetCurrentVelocityX(void)
 {
     return 0;
 }
 
-extern int ODO_GetCurrentPositionX(void)
+int ODO_GetCurrentPositionX(void)
 {
     return 0;
 }
