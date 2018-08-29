@@ -14,22 +14,17 @@ float SCM_CurrentAngle;
 void SCM_SetTimerValueForAngle(float angle)
 {
     float temp = 0.0f;
-    uint32_t timerValue = 640u;
+    uint32_t timerValue = 750u;
 
     if ((angle <= 90.0f) && (angle >= -90.0f))
     {
-        temp = (angle * 7.1111f) + 900.0f;
-    }
-
-    if ((temp >= 320.0f) && (temp <= 1600.0f))
-    {
-        timerValue = (uint32_t) temp;
+        temp = (angle * 2.777f) + 750.0f;
     }
 
     SCM_CurrentAngle = angle;
 
     /* write result to timer compare register 1 (TIM2 Channel 1) */
-    htim2.Instance->CCR1 = timerValue;
+    htim3.Instance->CCR2 = timerValue;
 }
 
 void SCM_TrackOrientation(int32_t transversalError)

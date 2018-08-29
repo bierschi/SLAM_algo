@@ -45,6 +45,7 @@
 #include "PlannerModule.h"
 #include "MPUSensor.h"
 #include "Odometry.h"
+#include "ServoControl.h"
 
 /* USER CODE BEGIN Includes */
 
@@ -121,8 +122,9 @@ int main(void)
 
   MTC_Init();
   COM_Init();
-  PLM_Init();
+  ODO_Init();
   HAL_Delay(3000u);
+  PLM_Init();
   MPU_Init();
   /* USER CODE BEGIN 2 */
 
@@ -134,15 +136,16 @@ int main(void)
   {
 
   /* USER CODE END WHILE */
+
+      MPU_ReadValues();
+      ODO_PropagateOdometry();
   
       //MSC_SensorAcquirePosition();
 
       //COM_ExecuteCommands();
 
-      //PLM_MainCycle();
-      
-      MPU_ReadValues();
-      HAL_Delay(100u);
+      PLM_MainCycle();
+      HAL_Delay(10u);
 
   }
   /* USER CODE END 3 */
@@ -310,9 +313,9 @@ static void MX_TIM3_Init(void)
   TIM_OC_InitTypeDef sConfigOC;
 
   htim3.Instance = TIM3;
-  htim3.Init.Prescaler = 1;
+  htim3.Init.Prescaler = 128;
   htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim3.Init.Period = 10000;
+  htim3.Init.Period = 10000; // servo pwm duration, 20ms period
   htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
@@ -339,7 +342,7 @@ static void MX_TIM3_Init(void)
   }
 
   sConfigOC.OCMode = TIM_OCMODE_PWM1;
-  sConfigOC.Pulse = 3000;
+  sConfigOC.Pulse = 750;
   sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
   sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
   if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_2) != HAL_OK)
@@ -358,7 +361,7 @@ static void MX_USART3_UART_Init(void)
 {
 
   huart3.Instance = USART3;
-  huart3.Init.BaudRate = 38400;
+  huart3.Init.BaudRate = 115200;
   huart3.Init.WordLength = UART_WORDLENGTH_8B;
   huart3.Init.StopBits = UART_STOPBITS_1;
   huart3.Init.Parity = UART_PARITY_NONE;

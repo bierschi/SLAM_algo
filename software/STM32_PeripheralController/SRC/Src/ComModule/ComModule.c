@@ -73,3 +73,8 @@ void COM_ValidateCommands(void)
         HAL_UART_Receive_IT(&huart3, COM_RxBuffer, COM_RXTX_BUFFER_SIZE);
     }
 }
+
+void COM_PrintToUART(uint8_t *data, uint16_t size)
+{
+    HAL_UART_Transmit(&huart3, data, size, 9u);
+}

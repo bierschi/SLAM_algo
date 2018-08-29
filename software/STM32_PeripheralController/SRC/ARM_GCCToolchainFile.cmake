@@ -3,7 +3,7 @@ set(CMAKE_SYSTEM_PROCESSOR ARM)
 
 set(TOOLCHAIN_PREFIX arm-none-eabi-)
 
-set(BINUTILS_PATH ${CMAKE_CURRENT_LIST_DIR}/../TOOLS/gcc-arm-none-eabi-7-2018-q2-update)
+set(BINUTILS_PATH "${CMAKE_CURRENT_LIST_DIR}/../TOOLS/gcc-arm-none-eabi-7-2018-q2-update-linux")
 
 set(CMAKE_EXE_LINKER_FLAGS_INIT "--specs=nano.specs --specs=nosys.specs")
 

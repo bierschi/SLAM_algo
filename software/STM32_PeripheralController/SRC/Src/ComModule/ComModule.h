@@ -20,5 +20,6 @@ extern void COM_Init(void);
 extern void COM_ValidateCommands(void);
 extern void COM_ExecuteCommands(void);
 extern void COM_SetTransmitCommand(uint8_t *command);
+extern void COM_PrintToUART(uint8_t *data, uint16_t size);
 
 #endif /* SRC_COMMODULE_COMMODULE_H_ */

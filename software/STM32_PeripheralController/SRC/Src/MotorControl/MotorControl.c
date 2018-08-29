@@ -12,26 +12,81 @@
 
 uint8_t MTC_CurrentMotorDirection;
 
+void waitNCycles(uint16_t cycles)
+{
+    for(int wait = 0; wait < cycles; wait++)
+    {
+        __NOP;
+    }
+}
+
+void MTC_ShiftMotorDirToOutput(uint8_t direction)
+{
+    uint8_t data = 0u;
+
+    if(direction == MTC_MOTOR_DIRECTION_FWD)
+    {
+        data = 0x1;
+    }
+    else if(MTC_MOTOR_DIRECTION_RWD)
+    {
+        data = 0x4;
+    }
+
+    for(int ctr = 0; ctr < 8; ctr++)
+    {
+        if((data & 0x1) > 0)
+        {
+            GPIOA->BSRR = GPIO_BSRR_BS_9;
+        }
+        else
+        {
+            GPIOA->BSRR = GPIO_BSRR_BR_9;
+        }
+
+        data >>= 1;
+
+        waitNCycles(5);
+
+        // shift data out
+        GPIOB->BSRR = GPIO_BSRR_BS_5;
+        
+        waitNCycles(10);
+
+        GPIOB->BSRR = GPIO_BSRR_BR_5;
+
+        waitNCycles(5);
+    }
+
+    GPIOA->BSRR = GPIO_BSRR_BR_6;
+
+    waitNCycles(5);
+
+    GPIOA->BSRR = GPIO_BSRR_BS_6;
+
+    waitNCycles(5);
+
+    GPIOA->BSRR = GPIO_BSRR_BR_6;
+}
+
 void MTC_Init(void)
 {
     MTC_CurrentMotorDirection = MTC_MOTOR_DIRECTION_FWD;
-
-    HAL_GPIO_WritePin(MOTA_1_GPIO_Port, MOTA_1_Pin, GPIO_PIN_RESET);
-    HAL_GPIO_WritePin(MOTA_2_GPIO_Port, MOTA_2_Pin, GPIO_PIN_SET);
+    MTC_SetMotorDirection(MTC_MOTOR_DIRECTION_FWD);
+    GPIOA->BSRR = GPIO_BSRR_BR_8;
 }
 
 void MTC_SetMotorDirection(uint8_t direction)
 {
     if(MTC_MOTOR_DIRECTION_FWD == direction)
     {
-        HAL_GPIO_WritePin(MOTA_1_GPIO_Port, MOTA_1_Pin, GPIO_PIN_RESET);
-        HAL_GPIO_WritePin(MOTA_2_GPIO_Port, MOTA_2_Pin, GPIO_PIN_SET);
+        // set motor forward:
+        MTC_ShiftMotorDirToOutput(MTC_MOTOR_DIRECTION_FWD);
         MTC_CurrentMotorDirection = MTC_MOTOR_DIRECTION_FWD;
     }
     else
     {
-        HAL_GPIO_WritePin(MOTA_1_GPIO_Port, MOTA_1_Pin, GPIO_PIN_SET);
-        HAL_GPIO_WritePin(MOTA_2_GPIO_Port, MOTA_2_Pin, GPIO_PIN_RESET);
+        MTC_ShiftMotorDirToOutput(MTC_MOTOR_DIRECTION_RWD);
         MTC_CurrentMotorDirection = MTC_MOTOR_DIRECTION_RWD;
     }
 }
@@ -46,13 +101,11 @@ void MTC_SetMotorSpeed(uint16_t speed)
 {
     if(speed <= MTC_CONTROL_REGISTER->ARR)
     {
-        MTC_CONTROL_REGISTER->CCR1 = speed;
+        MTC_CONTROL_REGISTER->CCR3 = speed;
     }
 }
 
 void MTC_ShutdownMotor(void)
 {
-    MTC_CONTROL_REGISTER->CCR1 = 0u;
-    HAL_GPIO_WritePin(MOTA_1_GPIO_Port, MOTA_1_Pin, GPIO_PIN_RESET);
-    HAL_GPIO_WritePin(MOTA_2_GPIO_Port, MOTA_2_Pin, GPIO_PIN_RESET);
+    MTC_CONTROL_REGISTER->CCR3 = 0u;
 }

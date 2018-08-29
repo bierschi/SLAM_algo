@@ -14,6 +14,7 @@
 #define MPU_ACCEL_CONFIG_REGISTER 0x1C
 #define MPU_PWR_MNGMT_REGISTER 0x6B
 #define MPU_PAYLOAD_SIZE 14u
+#define MPU_AVERAGE_CYCLES 50
 
 /* acceleration values: */
 volatile LateralAccelValueRawType CurrentRaw_X_Accel;
@@ -32,22 +33,25 @@ volatile AngularAccelValuePhysType CurrentPhys_XR_Accel;
 volatile AngularAccelValuePhysType CurrentPhys_YR_Accel;
 volatile AngularAccelValuePhysType CurrentPhys_ZR_Accel;
 
+LateralAccelValuePhysType offsetX, offsetY, offsetZ;
+AngularAccelValuePhysType offsetXR, offsetYR, offsetZR;
+
 uint8_t payloadBufferI2C[15] = {0x0};
 
 /* velocity values: */
 
 void MPU_SetPhysLateralAccelerations(void)
 {
-    CurrentPhys_X_Accel = (((LateralAccelValuePhysType) CurrentRaw_X_Accel) * MPU_LATERAL_ACCEL_CONV_FACTOR);
-    CurrentPhys_Y_Accel = (((LateralAccelValuePhysType) CurrentRaw_Y_Accel) * MPU_LATERAL_ACCEL_CONV_FACTOR);
-    CurrentPhys_Z_Accel = (((LateralAccelValuePhysType) CurrentRaw_Z_Accel) * MPU_LATERAL_ACCEL_CONV_FACTOR);
+    CurrentPhys_X_Accel = (((LateralAccelValuePhysType) CurrentRaw_X_Accel) * MPU_LATERAL_ACCEL_CONV_FACTOR) - offsetX;
+    CurrentPhys_Y_Accel = (((LateralAccelValuePhysType) CurrentRaw_Y_Accel) * MPU_LATERAL_ACCEL_CONV_FACTOR) - offsetY;
+    CurrentPhys_Z_Accel = (((LateralAccelValuePhysType) CurrentRaw_Z_Accel) * MPU_LATERAL_ACCEL_CONV_FACTOR) - offsetZ;
 }
 
 void MPU_SetPhysAngularAccelerations(void)
 {
-    CurrentPhys_XR_Accel = (((AngularAccelValuePhysType) CurrentRaw_XR_Accel) * MPU_ANGULAR_ACCEL_CONV_FACTOR);
-    CurrentPhys_YR_Accel = (((AngularAccelValuePhysType) CurrentRaw_YR_Accel) * MPU_ANGULAR_ACCEL_CONV_FACTOR);
-    CurrentPhys_ZR_Accel = (((AngularAccelValuePhysType) CurrentRaw_ZR_Accel) * MPU_ANGULAR_ACCEL_CONV_FACTOR);
+    CurrentPhys_XR_Accel = (((AngularAccelValuePhysType) CurrentRaw_XR_Accel) * MPU_ANGULAR_ACCEL_CONV_FACTOR) - offsetXR;
+    CurrentPhys_YR_Accel = (((AngularAccelValuePhysType) CurrentRaw_YR_Accel) * MPU_ANGULAR_ACCEL_CONV_FACTOR) - offsetYR;
+    CurrentPhys_ZR_Accel = (((AngularAccelValuePhysType) CurrentRaw_ZR_Accel) * MPU_ANGULAR_ACCEL_CONV_FACTOR) - offsetZR;
 }
 
 void MPU_GetPhysLateralAccelerations(LateralAccelValuePhysType * currentXAccel, LateralAccelValuePhysType * currentYAccel, LateralAccelValuePhysType * currentZAccel)
@@ -64,6 +68,58 @@ void MPU_GetPhysAngularAccelerations(LateralAccelValuePhysType * currentXRAccel,
     (*currentZRAccel) = CurrentPhys_ZR_Accel;
 }
 
+void MPU_Calibrate(void)
+{
+    uint16_t temp = 0u;
+    int16_t *ptrToTemp = (int16_t *) &temp;
+
+    LateralAccelValueRawType averageXvalues[MPU_AVERAGE_CYCLES], averageYvalues[MPU_AVERAGE_CYCLES], averageZvalues[MPU_AVERAGE_CYCLES];
+    AngularAccelValueRawType averageXRvalues[MPU_AVERAGE_CYCLES], averageYRvalues[MPU_AVERAGE_CYCLES], averageZRvalues[MPU_AVERAGE_CYCLES];
+
+    for(int cycles = 0; cycles < MPU_AVERAGE_CYCLES; cycles++)
+    {
+        // get values from sensor
+        HAL_I2C_Mem_Read(&hi2c1, MPU_DEVICE_ADDRESS, MPU_REQUEST_DATA_COMMAND, I2C_MEMADD_SIZE_8BIT, payloadBufferI2C, 14, 50u);
+
+        temp = ((uint16_t)payloadBufferI2C[1] | (uint16_t)(payloadBufferI2C[0]) << 8);
+        averageXvalues[cycles] = (*ptrToTemp);
+        temp = ((uint16_t)payloadBufferI2C[3] | (uint16_t)(payloadBufferI2C[2]) << 8);
+        averageYvalues[cycles] = (*ptrToTemp);
+        temp = ((uint16_t)payloadBufferI2C[5] | (uint16_t)(payloadBufferI2C[4]) << 8);
+        averageZvalues[cycles] = (*ptrToTemp);
+        temp = ((uint16_t)payloadBufferI2C[9] | (uint16_t)(payloadBufferI2C[8]) << 8);
+        averageXRvalues[cycles] = (*ptrToTemp);
+        temp = ((uint16_t)payloadBufferI2C[11] | (uint16_t)(payloadBufferI2C[10]) << 8);
+        averageYRvalues[cycles] = (*ptrToTemp);
+        temp = ((uint16_t)payloadBufferI2C[13] | (uint16_t)(payloadBufferI2C[12]) << 8);
+        averageZRvalues[cycles] = (*ptrToTemp);
+
+        HAL_Delay(100);
+    }
+
+    offsetX = 0.0f; offsetY = 0.0f; offsetZ = 0.0f;
+    offsetXR = 0.0f; offsetYR = 0.0f; offsetZR = 0.0f;
+
+    for(int i = 0; i < MPU_AVERAGE_CYCLES; i++)
+    {
+        offsetX += ((LateralAccelValuePhysType) averageXvalues[i]) * MPU_LATERAL_ACCEL_CONV_FACTOR;
+        offsetY += ((LateralAccelValuePhysType) averageYvalues[i]) * MPU_LATERAL_ACCEL_CONV_FACTOR;
+        offsetZ += ((LateralAccelValuePhysType) averageZvalues[i]) * MPU_LATERAL_ACCEL_CONV_FACTOR;
+        offsetXR += ((AngularAccelValuePhysType) averageXRvalues[i]) * MPU_ANGULAR_ACCEL_CONV_FACTOR;
+        offsetYR += ((AngularAccelValuePhysType) averageYRvalues[i]) * MPU_ANGULAR_ACCEL_CONV_FACTOR;
+        offsetZR += ((AngularAccelValuePhysType) averageZRvalues[i]) * MPU_ANGULAR_ACCEL_CONV_FACTOR;
+    }
+
+    // finally calculate offset:
+    offsetX /= (LateralAccelValuePhysType) MPU_AVERAGE_CYCLES;
+    offsetY /= (LateralAccelValuePhysType) MPU_AVERAGE_CYCLES;
+    offsetZ /= (LateralAccelValuePhysType) MPU_AVERAGE_CYCLES;
+    offsetXR /= (AngularAccelValuePhysType) MPU_AVERAGE_CYCLES;
+    offsetYR /= (AngularAccelValuePhysType) MPU_AVERAGE_CYCLES;
+    offsetZR /= (AngularAccelValuePhysType) MPU_AVERAGE_CYCLES;
+
+}
+
 
 void MPU_Init(void)
 {
@@ -75,11 +131,12 @@ void MPU_Init(void)
     HAL_I2C_Mem_Write(&hi2c1, MPU_DEVICE_ADDRESS, MPU_GYRO_CONFIG_REGISTER, I2C_MEMADD_SIZE_8BIT, payload, 1, 50u);
     payload[0] = 0x8; // set sensivity to level 1 +-(4g)
     HAL_I2C_Mem_Write(&hi2c1, MPU_DEVICE_ADDRESS, MPU_ACCEL_CONFIG_REGISTER, I2C_MEMADD_SIZE_8BIT, payload, 1, 50u);
+
+    MPU_Calibrate();
 }
 
 void MPU_ReadValues(void)
 {
-    uint8_t payload[1] = {MPU_REQUEST_DATA_COMMAND};
     uint16_t temp;
     int16_t *ptrToTemp = (int16_t *) &temp;
     /* Trigge Measurement from MPU */

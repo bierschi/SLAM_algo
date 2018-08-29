@@ -257,7 +257,7 @@ void PLM_ControllerCycle(void)
         MainEngine.velMeasInput = ODO_GetCurrentVelocityY();
         MainEngine.stepMeasInput = ODO_GetCurrentPositionY();
         MainEngine.stepTargetInput = PLM_CurrentCoordinateTarget.y;
-        MainEngine.velTargetInput = PLM_CurrentVelocityTarget / 3.0f;
+        MainEngine.velTargetInput = PLM_CurrentVelocityTarget;
     }
     else if (PLM_MODULE_STATE_TRANSIT_FWD == PLM_CurrentControlState)
     {
@@ -292,7 +292,7 @@ void PLM_Init(void)
 {
     PIDC_resetStates(&MainEngine);
 
-    PLM_CurrentControlState = PLM_MODULE_STATE_STOP;
+    PLM_CurrentControlState = PLM_MODULE_STATE_START;
     PLM_CurrentReceiveCommand[0] = PLM_MODULE_COMMAND_START_CONTROL;
 
     MainEngine.constantKdStep = 0.0f;
@@ -304,13 +304,13 @@ void PLM_Init(void)
     MainEngine.stepMeasInput = 0;
     MainEngine.velMeasInput = 0;
 
-    MainEngine.stepTargetInput = -200;
+    MainEngine.stepTargetInput = 200;
     MainEngine.velTargetInput = 2.0f; /* -> 2cm/s */
 
-    PLM_CurrentCoordinateTarget.x = -2000;
-    PLM_CurrentCoordinateTarget.y = 1236;
+    PLM_CurrentCoordinateTarget.x = -200;
+    PLM_CurrentCoordinateTarget.y = -200;
 
-    PLM_CurrentVelocityTarget = 3.0f;
+    PLM_CurrentVelocityTarget = 5.0f;
 
     PLM_WaitTimer = -1.0f;
 
