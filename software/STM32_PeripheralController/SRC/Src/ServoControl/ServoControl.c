@@ -13,12 +13,11 @@ float SCM_CurrentAngle;
 
 void SCM_SetTimerValueForAngle(float angle)
 {
-    float temp = 0.0f;
     uint32_t timerValue = 750u;
 
     if ((angle <= 90.0f) && (angle >= -90.0f))
     {
-        temp = (angle * 2.777f) + 750.0f;
+        timerValue = (uint32_t) ((angle * 2.777f) + 750.0f);
     }
 
     SCM_CurrentAngle = angle;

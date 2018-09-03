@@ -12,6 +12,13 @@
 #include "ComModule.h"
 #include "Odometry.h"
 
+#ifdef DEBUG_PLANNER
+#include <stdio.h>
+#include <string.h>
+
+char bufferString[200] = {0u};
+#endif
+
 /* local module data types */
 typedef struct CoordinatePoint
 {
@@ -74,7 +81,7 @@ void PLM_StartWaitTimer(float time)
 
 uint8_t PLM_IsWaitTimerRunning(void)
 {
-    if (0.0f <= PLM_WaitTimer)
+    if (0.0f < PLM_WaitTimer)
     {
         return 1u;
     }
@@ -238,6 +245,10 @@ void PLM_CommandReceiveCycle(void)
     case PLM_MODULE_COMMAND_START_CONTROL:
         PLM_CurrentControlState = PLM_MODULE_STATE_ROTATE_SCM_SWD;
         PLM_StartWaitTimer(3.0f);
+        #ifdef DEBUG_PLANNER
+        snprintf(bufferString, 199, "SetServoDirection!\n");
+        COM_PrintToUART((uint8_t *) bufferString, (uint8_t) strlen(bufferString));
+        #endif
         break;
     case PLM_MODULE_COMMAND_STOP_CONTROL:
         PLM_CurrentControlState = PLM_MODULE_STATE_STOP;
@@ -255,14 +266,14 @@ void PLM_ControllerCycle(void)
     if (PLM_MODULE_STATE_TRANSIT_SWD == PLM_CurrentControlState)
     {
         MainEngine.velMeasInput = ODO_GetCurrentVelocityY();
-        MainEngine.stepMeasInput = ODO_GetCurrentPositionY();
+        MainEngine.stepMeasInput = 15748 * ODO_GetCurrentPositionY();
         MainEngine.stepTargetInput = PLM_CurrentCoordinateTarget.y;
         MainEngine.velTargetInput = PLM_CurrentVelocityTarget;
     }
     else if (PLM_MODULE_STATE_TRANSIT_FWD == PLM_CurrentControlState)
     {
         MainEngine.velMeasInput = ODO_GetCurrentVelocityX();
-        MainEngine.stepMeasInput = ODO_GetCurrentPositionX();
+        MainEngine.stepMeasInput = 15748 * ODO_GetCurrentPositionX();
         MainEngine.stepTargetInput = PLM_CurrentCoordinateTarget.x;
         MainEngine.velTargetInput = PLM_CurrentVelocityTarget;
     }

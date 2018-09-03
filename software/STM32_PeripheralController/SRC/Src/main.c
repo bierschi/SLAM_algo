@@ -141,9 +141,7 @@ int main(void)
       ODO_PropagateOdometry();
   
       //MSC_SensorAcquirePosition();
-
       //COM_ExecuteCommands();
-
       PLM_MainCycle();
       HAL_Delay(10u);
 
@@ -290,7 +288,7 @@ static void MX_TIM2_Init(void)
   }
 
   sConfigOC.OCMode = TIM_OCMODE_PWM1;
-  sConfigOC.Pulse = 500;
+  sConfigOC.Pulse = 100;
   sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
   sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
   if (HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_3) != HAL_OK)
@@ -315,7 +313,7 @@ static void MX_TIM3_Init(void)
   htim3.Instance = TIM3;
   htim3.Init.Prescaler = 128;
   htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim3.Init.Period = 10000; // servo pwm duration, 20ms period
+  htim3.Init.Period = 9999; // servo pwm duration, 20ms period
   htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim3) != HAL_OK)

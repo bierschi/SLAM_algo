@@ -1,9 +1,15 @@
 #include "Odometry.h"
 #include "ComModule.h"
+
+#define DEBUG_ODOMETRY
+
+#ifdef DEBUG_ODOMETRY
 #include <stdio.h>
 #include <string.h>
 
 char bufferString[200] = {0u};
+#endif
+
 
 // distance measurement variables:
 OdometryDistanceType CurrentPosition_Y;
@@ -48,19 +54,41 @@ void ODO_PropagateOdometry(void)
 {
     LateralAccelValuePhysType x_accel, y_accel, z_accel;
     AngularAccelValuePhysType xr_accel, yr_accel, zr_accel;
+    float velocityDecay = 0.02f;
 
     MPU_GetPhysLateralAccelerations(&x_accel, &y_accel, &z_accel);
     MPU_GetPhysAngularAccelerations(&xr_accel, &yr_accel, &zr_accel);
 
-    CurrentVelocity_X += (x_accel * 0.1f);
-    CurrentVelocity_X += (y_accel * 0.1f);
-    CurrentVelocity_X += (z_accel * 0.1f);
+    // enter Sample Rate here (v = v0 + a * tSA)!!!
+    CurrentVelocity_X += (x_accel * 0.01f);
+    CurrentVelocity_Y += (y_accel * 0.01f);
+    if(CurrentVelocity_X > 0.0f)
+    {
+        CurrentVelocity_X -= velocityDecay;
+    }
+    else if(CurrentVelocity_X < 0.0f)
+    {
+        CurrentVelocity_X += velocityDecay;
+    }
 
-    CurrentPosition_X += CurrentVelocity_X * 0.1f;
-    CurrentPosition_Y += CurrentVelocity_Y * 0.1f;
+    if(CurrentVelocity_Y > 0.0f)
+    {
+        CurrentVelocity_Y -= velocityDecay;
+    }
+    else if(CurrentVelocity_Y < 0.0f)
+    {
+        CurrentVelocity_Y += velocityDecay;
+    }
 
-    // snprintf(bufferString, 199,
-    // "xAccel:%.2fm/s2\nyAccel%.2fm/s2\nzAccel%.2fm/s2\nxrAccel%.2fdg/s\nyrAccel%.2fdg/s\nzrAccel%.2fdg/s\n",
-    // x_accel, y_accel, z_accel, xr_accel, yr_accel, zr_accel);
-    // COM_PrintToUART((uint8_t *)bufferString, (uint8_t) strlen(bufferString));
+    // x = x0 + v * tSA
+    CurrentPosition_X += CurrentVelocity_X * 0.01f;
+    CurrentPosition_Y += CurrentVelocity_Y * 0.01f;
+
+    #ifdef DEBUG_ODOMETRY
+     //snprintf(bufferString, 199,
+     //"xAccel:%.2fm/s2\nyAccel%.2fm/s2\nzAccel%.2fm/s2\nxrAccel%.2fdg/s\nyrAccel%.2fdg/s\nzrAccel%.2fdg/s\n",
+     //x_accel, y_accel, z_accel, xr_accel, yr_accel, zr_accel);
+    snprintf(bufferString, 199, "Distance X: %.4f , Distance Y: %.4f\n", CurrentPosition_X, CurrentPosition_Y);
+    COM_PrintToUART((uint8_t *) bufferString, (uint8_t) strlen(bufferString));
+    #endif
 }
