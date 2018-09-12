@@ -35,6 +35,8 @@ set(SRC_FILES
     ${CMAKE_CURRENT_LIST_DIR}/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_rcc_ex.c
     ${CMAKE_CURRENT_LIST_DIR}/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.c
     ${CMAKE_CURRENT_LIST_DIR}/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim_ex.c
+    ${CMAKE_CURRENT_LIST_DIR}/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_spi.c
+    ${CMAKE_CURRENT_LIST_DIR}/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_spi_ex.c
     ${CMAKE_CURRENT_LIST_DIR}/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart.c
     ${CMAKE_CURRENT_LIST_DIR}/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart_ex.c
 )

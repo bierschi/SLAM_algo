@@ -1,7 +1,7 @@
 #include "Odometry.h"
 #include "ComModule.h"
 
-#define DEBUG_ODOMETRY
+//#define DEBUG_ODOMETRY
 
 #ifdef DEBUG_ODOMETRY
 #include <stdio.h>

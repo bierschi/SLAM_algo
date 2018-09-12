@@ -132,7 +132,7 @@ void MPU_Init(void)
     payload[0] = 0x8; // set sensivity to level 1 +-(4g)
     HAL_I2C_Mem_Write(&hi2c1, MPU_DEVICE_ADDRESS, MPU_ACCEL_CONFIG_REGISTER, I2C_MEMADD_SIZE_8BIT, payload, 1, 50u);
 
-    MPU_Calibrate();
+    //MPU_Calibrate();
 }
 
 void MPU_ReadValues(void)
