@@ -6,11 +6,14 @@
  */
 
 #include "PlannerModule.h"
+#include "Timing.h"
 #include "PIDControl.h"
 #include "MotorControl.h"
 #include "ServoControl.h"
 #include "ComModule.h"
 #include "Odometry.h"
+
+#define PLM_SERVO_ROTATION_WAIT_TIME    2.0f
 
 //#define DEBUG_PLANNER
 
@@ -22,10 +25,9 @@ char bufferString[200] = {0u};
 #endif
 
 /* local module data types */
-typedef struct CoordinatePoint
-{
-    int32_t x;
-    int32_t y;
+typedef struct CoordinatePoint {
+	int32_t x;
+	int32_t y;
 } CoordinatePointType;
 
 /* local module variable instances */
@@ -37,49 +39,39 @@ float PLM_CurrentVelocityTarget;
 
 float PLM_WaitTimer;
 
-void PLM_StartWaitTimer(float time)
-{
-    PLM_WaitTimer = time;
+void PLM_StartWaitTimer(float time) {
+	PLM_WaitTimer = time;
 }
 
-uint8_t PLM_IsWaitTimerRunning(void)
-{
-    if (0.0f < PLM_WaitTimer)
-    {
-        return 1u;
-    }
-    else
-    {
-        return 0u;
-    }
+uint8_t PLM_IsWaitTimerRunning(void) {
+	if (0.0f < PLM_WaitTimer) {
+		return 1u;
+	} else {
+		return 0u;
+	}
 }
 
-void PLM_PropagateWaitTimer(void)
-{
-    if (0.0f <= PLM_WaitTimer)
-    {
-        PLM_WaitTimer -= 0.01f;
-    }
+void PLM_PropagateWaitTimer(void) {
+	if (0.0f <= PLM_WaitTimer) {
+		PLM_WaitTimer -= MAIN_SAMPLE_TIME_S;
+	}
 }
 
-void PLM_DetermineSteering(void)
-{
-	if(COM_Struct.CurrentSteeringMode == COM_STEERING_MODE_AUTO)
-	{
-		PLM_CurrentCoordinateTarget.x = (PIDC_ControllerInputBaseType) (COM_Struct.Target_X * 400.0f / 0.0254f) ;
-		PLM_CurrentCoordinateTarget.y = (PIDC_ControllerInputBaseType) (COM_Struct.Target_Y * 400.0f / 0.0254f) ;
-	} else if (COM_Struct.CurrentSteeringMode == COM_STEERING_MODE_MANUAL)
-	{
+void PLM_DetermineSteering(void) {
+	if (COM_Struct.CurrentSteeringMode == COM_STEERING_MODE_AUTO) {
+		PLM_CurrentCoordinateTarget.x =
+				(PIDC_ControllerInputBaseType) (COM_Struct.Target_X * 400.0f / 25.4f);
+		PLM_CurrentCoordinateTarget.y =
+				(PIDC_ControllerInputBaseType) (COM_Struct.Target_Y * 400.0f / 25.4f);
+	} else if (COM_Struct.CurrentSteeringMode == COM_STEERING_MODE_MANUAL) {
 		float directionTemp = COM_Struct.CurrentSteeringDirection;
-		if(directionTemp > -90.0f && directionTemp < 90.0f)
-		{
+		if (directionTemp > -90.0f && directionTemp < 90.0f) {
 			SCM_SetTimerValueForAngle(directionTemp);
 		}
 
 		uint16_t speed = COM_Struct.CurrentSteeringSpeed;
 		uint8_t direction = COM_Struct.CurrentSteeringDirection;
-		if(speed <= 1000 && direction < 3u)
-		{
+		if (speed <= 1000 && direction < 3u) {
 			MTC_SetMotorSpeed(speed);
 			MTC_SetMotorDirection(direction);
 		}
@@ -87,80 +79,70 @@ void PLM_DetermineSteering(void)
 }
 
 /* main cycle routines for planner execution */
-void PLM_PlannerCycle(void)
-{
-    switch (PLM_CurrentControlState)
-    {
-    case PLM_MODULE_STATE_STOP:
-        /* immediately stop motors */
-        MTC_SetMotorSpeed(0u);
+void PLM_PlannerCycle(void) {
+	switch (PLM_CurrentControlState) {
+	case PLM_MODULE_STATE_STOP:
+		/* immediately stop motors */
+		MTC_SetMotorSpeed(0u);
 
-        PLM_CurrentControlState = PLM_MODULE_STATE_WAITING;
-        break;
-    case PLM_MODULE_STATE_TRANSIT_FWD:
+		PLM_CurrentControlState = PLM_MODULE_STATE_WAITING;
+		break;
+	case PLM_MODULE_STATE_TRANSIT_FWD:
 
-        /* check if target was reached: */
-        if (1u == PIDC_CheckControlQuality(&MainEngine))
-        {
-            PLM_CurrentControlState = PLM_MODULE_STATE_STOP;
-        }
+		/* check if target was reached: */
+		if (1u == PIDC_CheckControlQuality(&MainEngine)) {
+			PLM_CurrentControlState = PLM_MODULE_STATE_STOP;
+		}
 
-        break;
-    case PLM_MODULE_STATE_TRANSIT_SWD:
+		break;
+	case PLM_MODULE_STATE_TRANSIT_SWD:
 
-        /* check if target was reached: */
-        if (1u == PIDC_CheckControlQuality(&MainEngine))
-        {
-            PLM_CurrentControlState = PLM_MODULE_STATE_ROTATE_SCM_FWD;
+		/* check if target was reached: */
+		if (1u == PIDC_CheckControlQuality(&MainEngine)) {
+			PLM_CurrentControlState = PLM_MODULE_STATE_ROTATE_SCM_FWD;
 
-            /* start wait timer for next transition */
-            PLM_StartWaitTimer(2.0f);
-        }
+			/* start wait timer for next transition */
+			PLM_StartWaitTimer(PLM_SERVO_ROTATION_WAIT_TIME);
+		}
 
-        break;
-    case PLM_MODULE_STATE_ROTATE_SCM_FWD:
+		break;
+	case PLM_MODULE_STATE_ROTATE_SCM_FWD:
 
-        if (0u == PLM_IsWaitTimerRunning())
-        {
-            PLM_CurrentControlState = PLM_MODULE_STATE_TRANSIT_FWD;
-            MainEngine.controlQuality = 0.0f;
-            PIDC_resetStates(&MainEngine);
-        }
-        else
-        {
-            SCM_SetTimerValueForAngle(0.0f);
-        }
+		if (0u == PLM_IsWaitTimerRunning()) {
+			PLM_CurrentControlState = PLM_MODULE_STATE_TRANSIT_FWD;
+			MainEngine.controlQuality = 0.0f;
+			PIDC_resetStates(&MainEngine);
+		} else {
+			SCM_SetTimerValueForAngle(0.0f);
+		}
 
-        break;
-    case PLM_MODULE_STATE_ROTATE_SCM_SWD:
+		break;
+	case PLM_MODULE_STATE_ROTATE_SCM_SWD:
 
-        if (0u == PLM_IsWaitTimerRunning())
-        {
-            PLM_CurrentControlState = PLM_MODULE_STATE_TRANSIT_SWD;
-            MainEngine.controlQuality = 0.0f;
-            PIDC_resetStates(&MainEngine);
-        }
-        else
-        {
-            SCM_SetTimerValueForAngle(90.0f);
-        }
+		if (0u == PLM_IsWaitTimerRunning()) {
+			PLM_CurrentControlState = PLM_MODULE_STATE_TRANSIT_SWD;
+			MainEngine.controlQuality = 0.0f;
+			PIDC_resetStates(&MainEngine);
+		} else {
+			SCM_SetTimerValueForAngle(90.0f);
+		}
 
-        break;
-    default:
-        break;
-    }
+		break;
+	default:
+		break;
+	}
 }
 
 void PLM_ControllerCycle(void) {
 
 	if (PLM_MODULE_STATE_TRANSIT_SWD == PLM_CurrentControlState) {
 		MainEngine.velMeasInput = ODO_GetCurrentVelocityY();
-		MainEngine.stepMeasInput = 15748 * ODO_GetCurrentPositionY();
+		MainEngine.stepMeasInput = ODO_GetCurrentPositionY_mm();
 		MainEngine.stepTargetInput = PLM_CurrentCoordinateTarget.y;
 		MainEngine.velTargetInput = PLM_CurrentVelocityTarget;
 	} else if (PLM_MODULE_STATE_TRANSIT_FWD == PLM_CurrentControlState) {
 		MainEngine.velMeasInput = ODO_GetCurrentVelocityX();
-		MainEngine.stepMeasInput = 15748 * ODO_GetCurrentPositionX();
+		MainEngine.stepMeasInput = ODO_GetCurrentPositionX_mm();
 		MainEngine.stepTargetInput = PLM_CurrentCoordinateTarget.x;
 		MainEngine.velTargetInput = PLM_CurrentVelocityTarget;
 	}
@@ -183,51 +165,49 @@ void PLM_ControllerCycle(void) {
 	}
 }
 
-void PLM_Init(void)
-{
-    PIDC_resetStates(&MainEngine);
+void PLM_Init(void) {
+	PIDC_resetStates(&MainEngine);
 
-    PLM_CurrentControlState = PLM_MODULE_STATE_START;
+	PLM_CurrentControlState = PLM_MODULE_STATE_START;
 
-    MainEngine.constantKdStep = 0.0f;
-    MainEngine.constantKiStep = 0.04f;
-    MainEngine.constantKpStep = 0.14f;
-    MainEngine.constantKiVel = 0.9f;
-    MainEngine.constantKpVel = 15.0f;
+	MainEngine.constantKdStep = 0.0f;
+	MainEngine.constantKiStep = 0.04f;
+	MainEngine.constantKpStep = 0.14f;
+	MainEngine.constantKiVel = 0.9f;
+	MainEngine.constantKpVel = 15.0f;
 
-    MainEngine.stepMeasInput = 0;
-    MainEngine.velMeasInput = 0;
+	MainEngine.stepMeasInput = 0;
+	MainEngine.velMeasInput = 0;
 
-    MainEngine.stepTargetInput = 200;
-    MainEngine.velTargetInput = 2.0f; /* -> 2cm/s */
+	MainEngine.stepTargetInput = 0;
+	MainEngine.velTargetInput = 2.0f; /* -> 2cm/s */
 
-    PLM_CurrentCoordinateTarget.x = -200;
-    PLM_CurrentCoordinateTarget.y = -200;
+	PLM_CurrentCoordinateTarget.x = 0; // steps in mm
+	PLM_CurrentCoordinateTarget.y = 0; // steps in mm
 
-    PLM_CurrentVelocityTarget = 5.0f;
+	PLM_CurrentVelocityTarget = 5.0f;
 
-    PLM_WaitTimer = -1.0f;
+	PLM_WaitTimer = -1.0f;
 
-    SCM_SetTimerValueForAngle(0.0f);
+	SCM_SetTimerValueForAngle(0.0f);
 }
 
-void PLM_MainCycle(void)
-{
-    PLM_DetermineSteering();
-    /* do main trajectory planning an control planning */
+void PLM_MainCycle(void) {
+	PLM_DetermineSteering();
+	/* do main trajectory planning an control planning */
 
 	if (COM_STEERING_MODE_AUTO == COM_Struct.CurrentSteeringMode) {
 		PLM_PlannerCycle();
 
-	    /* update controllers */
-	    PLM_ControllerCycle();
+		/* update controllers */
+		PLM_ControllerCycle();
 	}
 
-    /* propagate local delay timer */
-    PLM_PropagateWaitTimer();
+	/* propagate local delay timer */
+	PLM_PropagateWaitTimer();
 
 #ifdef DEBUG_PLANNER
-    snprintf(bufferString, 199, "SteeringMode: %i\n", COM_Struct.CurrentSteeringMode);
-    COM_PrintToUART((uint8_t *) bufferString, (uint8_t) strlen(bufferString));
+	snprintf(bufferString, 199, "SteeringMode: %i\n", COM_Struct.CurrentSteeringMode);
+	COM_PrintToUART((uint8_t *) bufferString, (uint8_t) strlen(bufferString));
 #endif
 }

@@ -39,6 +39,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "stm32f3xx_hal.h"
+#include "Timing.h"
 #include "PIDControl.h"
 #include "MotorControl.h"
 #include "ComModule.h"
@@ -150,7 +151,7 @@ int main(void)
   
       //MSC_SensorAcquirePosition();
       PLM_MainCycle();
-      HAL_Delay(100u);
+      HAL_Delay(MAIN_SAMPLE_TIME_MS);
 
   }
   /* USER CODE END 3 */
@@ -226,7 +227,6 @@ static void MX_I2C1_Init(void)
 {
 
   hi2c1.Instance = I2C1;
-  //hi2c1.Init.Timing = 0x2000090E;
   hi2c1.Init.Timing = 0x4000090E;
   hi2c1.Init.OwnAddress1 = 0;
   hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;

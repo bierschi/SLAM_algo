@@ -13,10 +13,12 @@ float SCM_CurrentAngle;
 
 void SCM_SetTimerValueForAngle(float angle)
 {
+	// init value of timer register:
     uint32_t timerValue = 750u;
 
-    if ((angle <= 90.0f) && (angle >= -90.0f))
+    if ((angle <= SCM_SERVO_MAX_ANGLE_POS) && (angle >= SCM_SERVO_MIN_ANGLE_POS))
     {
+    	// calculations derived from CPU Frequency, Timer register max, and Servo steering conventions
         timerValue = (uint32_t) ((angle * 2.777f) + 750.0f);
     }
 
@@ -39,13 +41,13 @@ void SCM_TrackOrientation(int32_t transversalError)
         y = e * -0.7f;
 
     /* set bounds of y value */
-    if (y > 90.0f)
+    if (y > SCM_SERVO_MAX_ANGLE_POS)
     {
-        y = 90.0f;
+        y = SCM_SERVO_MAX_ANGLE_POS;
     }
-    if (y < -90.0f)
+    if (y < SCM_SERVO_MIN_ANGLE_POS)
     {
-        y = -90.0f;
+        y = SCM_SERVO_MIN_ANGLE_POS;
     }
 
     SCM_SetTimerValueForAngle(y);

@@ -10,14 +10,6 @@
 
 #include "stdint.h"
 
-#define PLM_MODULE_COMMAND_SET_INVALID      0u
-#define PLM_MODULE_COMMAND_SET_POSITION     'p'
-#define PLM_MODULE_COMMAND_SET_ORIENTATION  'o'
-#define PLM_MODULE_COMMAND_SET_TARGET       't'
-#define PLM_MODULE_COMMAND_SET_VELOCITY     'v'
-#define PLM_MODULE_COMMAND_START_CONTROL    's'
-#define PLM_MODULE_COMMAND_STOP_CONTROL     'x'
-
 #define PLM_MODULE_STATE_START              1u
 #define PLM_MODULE_STATE_STOP               2u
 #define PLM_MODULE_STATE_TRANSIT_FWD        3u
@@ -30,7 +22,7 @@
 #define PLM_MODULE_TRANSMIT_MSG_READY       1u
 #define PLM_MODULE_TRANSMIT_MSG_ERROR       255u
 
-#define PLM_MODULE_INT32_TO_FLT_SCALING     (0.001)
+#define PLM_MODULE_INT32_TO_FLT_SCALING     (0.001f)
 
 
 extern void PLM_SetTransmitCommand(uint8_t *command);

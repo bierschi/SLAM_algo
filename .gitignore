@@ -89,3 +89,7 @@ fabric.properties
 
 #Project
 /images/*
+
+# STM32 Build Path
+/software/STM32_PeripheralController/BUILD/
+/software/STM32_PeripheralController/TOOLS/

@@ -1,5 +1,6 @@
 #include "Odometry.h"
 #include "ComModule.h"
+#include "Timing.h"
 
 //#define DEBUG_ODOMETRY
 
@@ -40,6 +41,16 @@ OdometryDistanceType ODO_GetCurrentPositionX(void)
     return CurrentPosition_X;
 }
 
+OdometryDistanceType_mm ODO_GetCurrentPositionX_mm(void)
+{
+	return (OdometryDistanceType_mm) (CurrentPosition_X * 1000.0f);
+}
+
+OdometryDistanceType_mm ODO_GetCurrentPositionY_mm(void)
+{
+	return (OdometryDistanceType_mm) (CurrentPosition_Y * 1000.0f);
+}
+
 void ODO_Init(void)
 {
     CurrentPosition_Y = 0.0f;
@@ -50,6 +61,7 @@ void ODO_Init(void)
     CurrentVelocity = 0.0f;
 }
 
+// main loop to determine current position and velocity
 void ODO_PropagateOdometry(void)
 {
     LateralAccelValuePhysType x_accel, y_accel, z_accel;
@@ -60,8 +72,8 @@ void ODO_PropagateOdometry(void)
     MPU_GetPhysAngularAccelerations(&xr_accel, &yr_accel, &zr_accel);
 
     // enter Sample Rate here (v = v0 + a * tSA)!!!
-    CurrentVelocity_X += (x_accel * 0.01f);
-    CurrentVelocity_Y += (y_accel * 0.01f);
+    CurrentVelocity_X += (x_accel * MAIN_SAMPLE_TIME_S);
+    CurrentVelocity_Y += (y_accel * MAIN_SAMPLE_TIME_S);
     if(CurrentVelocity_X > 0.0f)
     {
         CurrentVelocity_X -= velocityDecay;
@@ -81,8 +93,8 @@ void ODO_PropagateOdometry(void)
     }
 
     // x = x0 + v * tSA
-    CurrentPosition_X += CurrentVelocity_X * 0.01f;
-    CurrentPosition_Y += CurrentVelocity_Y * 0.01f;
+    CurrentPosition_X += CurrentVelocity_X * MAIN_SAMPLE_TIME_S;
+    CurrentPosition_Y += CurrentVelocity_Y * MAIN_SAMPLE_TIME_S;
 
     #ifdef DEBUG_ODOMETRY
      //snprintf(bufferString, 199,
