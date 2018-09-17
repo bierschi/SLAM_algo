@@ -11,18 +11,21 @@
 #include "MPUSensor.h"
 
 typedef float OdometryDistanceType; // type for odometry distance measurements
+typedef float OdometryAngularType;  // type for odometry angular measurements
 typedef float OdometryVelocityType; // type for odometry velocity measurements
 typedef int32_t OdometryDistanceType_mm; // type for odometry distance measurements in mm
 
-extern OdometryVelocityType ODO_GetCurrentVelocityY(void);
-extern OdometryDistanceType ODO_GetCurrentPositionY(void);
-
 extern OdometryVelocityType ODO_GetCurrentVelocityX(void);
+extern OdometryVelocityType ODO_GetCurrentVelocityY(void);
+
 extern OdometryDistanceType ODO_GetCurrentPositionX(void);
-
 extern OdometryDistanceType_mm ODO_GetCurrentPositionX_mm(void);
-
+extern OdometryDistanceType ODO_GetCurrentPositionY(void);
 extern OdometryDistanceType_mm ODO_GetCurrentPositionY_mm(void);
+
+extern OdometryAngularType ODO_GetCurrentOrientationXR(void);
+extern OdometryAngularType ODO_GetCurrentOrientationYR(void);
+extern OdometryAngularType ODO_GetCurrentOrientationZR(void);
 
 extern void ODO_Init(void);
 

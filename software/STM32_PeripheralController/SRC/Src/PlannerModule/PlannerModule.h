@@ -8,7 +8,7 @@
 #ifndef PLANNERMODULE_PLANNERMODULE_H_
 #define PLANNERMODULE_PLANNERMODULE_H_
 
-#include "stdint.h"
+#include <stdint.h>
 
 #define PLM_MODULE_STATE_START              1u
 #define PLM_MODULE_STATE_STOP               2u

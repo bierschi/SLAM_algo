@@ -8,7 +8,7 @@
 #ifndef SRC_SERVOCONTROL_SERVOCONTROL_H_
 #define SRC_SERVOCONTROL_SERVOCONTROL_H_
 
-#include "stdint.h"
+#include <stdint.h>
 
 // maximum angle of sero in degree
 #define SCM_SERVO_MAX_ANGLE_POS    90.0f

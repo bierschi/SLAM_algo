@@ -14,8 +14,6 @@ uint8_t MTC_CurrentMotorDirection;
 
 void MTC_ShiftMotorDirToOutput(uint8_t direction)
 {
-    uint8_t data = 0u;
-
     if(direction == MTC_MOTOR_DIRECTION_FWD)
     {
         GPIOB->BSRR = GPIO_BSRR_BS_5;

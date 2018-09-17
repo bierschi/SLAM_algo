@@ -16,6 +16,11 @@ char bufferString[200] = {0u};
 OdometryDistanceType CurrentPosition_Y;
 OdometryDistanceType CurrentPosition_X;
 
+// Current orientation in degree (z - axis)
+OdometryAngularType CurrentOrientation_ZR;
+OdometryAngularType CurrentOrientation_XR;
+OdometryAngularType CurrentOrientation_YR;
+
 OdometryVelocityType CurrentVelocity_Y;
 OdometryVelocityType CurrentVelocity_X;
 
@@ -51,6 +56,21 @@ OdometryDistanceType_mm ODO_GetCurrentPositionY_mm(void)
 	return (OdometryDistanceType_mm) (CurrentPosition_Y * 1000.0f);
 }
 
+OdometryAngularType ODO_GetCurrentOrientationXR(void)
+{
+	return CurrentOrientation_XR;
+}
+
+OdometryAngularType ODO_GetCurrentOrientationYR(void)
+{
+	return CurrentOrientation_YR;
+}
+
+OdometryAngularType ODO_GetCurrentOrientationZR(void)
+{
+	return CurrentOrientation_ZR;
+}
+
 void ODO_Init(void)
 {
     CurrentPosition_Y = 0.0f;
@@ -65,11 +85,11 @@ void ODO_Init(void)
 void ODO_PropagateOdometry(void)
 {
     LateralAccelValuePhysType x_accel, y_accel, z_accel;
-    AngularAccelValuePhysType xr_accel, yr_accel, zr_accel;
-    float velocityDecay = 0.02f;
+    AngularVelValuePhysType xr_vel, yr_vel, zr_vel;
+    float velocityDecay = 0.001f;
 
     MPU_GetPhysLateralAccelerations(&x_accel, &y_accel, &z_accel);
-    MPU_GetPhysAngularAccelerations(&xr_accel, &yr_accel, &zr_accel);
+    MPU_GetPhysAngularVelocity(&xr_vel, &yr_vel, &zr_vel);
 
     // enter Sample Rate here (v = v0 + a * tSA)!!!
     CurrentVelocity_X += (x_accel * MAIN_SAMPLE_TIME_S);
@@ -95,6 +115,10 @@ void ODO_PropagateOdometry(void)
     // x = x0 + v * tSA
     CurrentPosition_X += CurrentVelocity_X * MAIN_SAMPLE_TIME_S;
     CurrentPosition_Y += CurrentVelocity_Y * MAIN_SAMPLE_TIME_S;
+
+    CurrentOrientation_ZR += zr_vel * MAIN_SAMPLE_TIME_S;
+    CurrentOrientation_XR += xr_vel * MAIN_SAMPLE_TIME_S;
+    CurrentOrientation_YR += yr_vel * MAIN_SAMPLE_TIME_S;
 
     #ifdef DEBUG_ODOMETRY
      //snprintf(bufferString, 199,
