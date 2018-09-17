@@ -75,8 +75,8 @@ void MPU_Calibrate(void)
     uint16_t temp = 0u;
     int16_t *ptrToTemp = (int16_t *) &temp;
 
-    LateralAccelValueRawType averageXvalues[MPU_AVERAGE_CYCLES], averageYvalues[MPU_AVERAGE_CYCLES], averageZvalues[MPU_AVERAGE_CYCLES];
-    AngularVelValueRawType averageXRvalues[MPU_AVERAGE_CYCLES], averageYRvalues[MPU_AVERAGE_CYCLES], averageZRvalues[MPU_AVERAGE_CYCLES];
+    int32_t averageXvalues = 0, averageYvalues = 0, averageZvalues = 0;
+    int32_t averageXRvalues = 0, averageYRvalues = 0, averageZRvalues = 0;
 
     for(int cycles = 0; cycles < MPU_AVERAGE_CYCLES; cycles++)
     {
@@ -84,41 +84,38 @@ void MPU_Calibrate(void)
         HAL_I2C_Mem_Read(&hi2c1, MPU_DEVICE_ADDRESS, MPU_REQUEST_DATA_COMMAND, I2C_MEMADD_SIZE_8BIT, payloadBufferI2C, 14, 50u);
 
         temp = ((uint16_t)payloadBufferI2C[1] | (uint16_t)(payloadBufferI2C[0]) << 8);
-        averageXvalues[cycles] = (*ptrToTemp);
+        averageXvalues += (int32_t) (*ptrToTemp);
         temp = ((uint16_t)payloadBufferI2C[3] | (uint16_t)(payloadBufferI2C[2]) << 8);
-        averageYvalues[cycles] = (*ptrToTemp);
+        averageYvalues += (int32_t) (*ptrToTemp);
         temp = ((uint16_t)payloadBufferI2C[5] | (uint16_t)(payloadBufferI2C[4]) << 8);
-        averageZvalues[cycles] = (*ptrToTemp);
+        averageZvalues += (int32_t) (*ptrToTemp);
         temp = ((uint16_t)payloadBufferI2C[9] | (uint16_t)(payloadBufferI2C[8]) << 8);
-        averageXRvalues[cycles] = (*ptrToTemp);
+        averageXRvalues += (int32_t) (*ptrToTemp);
         temp = ((uint16_t)payloadBufferI2C[11] | (uint16_t)(payloadBufferI2C[10]) << 8);
-        averageYRvalues[cycles] = (*ptrToTemp);
+        averageYRvalues += (int32_t) (*ptrToTemp);
         temp = ((uint16_t)payloadBufferI2C[13] | (uint16_t)(payloadBufferI2C[12]) << 8);
-        averageZRvalues[cycles] = (*ptrToTemp);
+        averageZRvalues += (int32_t) (*ptrToTemp);
 
-        HAL_Delay(10);
+        HAL_Delay(5);
     }
+
+    averageXRvalues /= MPU_AVERAGE_CYCLES;
+    averageXvalues /= MPU_AVERAGE_CYCLES;
+    averageYRvalues /= MPU_AVERAGE_CYCLES;
+    averageYvalues /= MPU_AVERAGE_CYCLES;
+    averageZRvalues /= MPU_AVERAGE_CYCLES;
+    averageZvalues /= MPU_AVERAGE_CYCLES;
 
     offsetX = 0.0f; offsetY = 0.0f; offsetZ = 0.0f;
     offsetXR = 0.0f; offsetYR = 0.0f; offsetZR = 0.0f;
 
-    for(int i = 0; i < MPU_AVERAGE_CYCLES; i++)
-    {
-        offsetX += ((LateralAccelValuePhysType) averageXvalues[i]) * MPU_LATERAL_ACCEL_CONV_FACTOR;
-        offsetY += ((LateralAccelValuePhysType) averageYvalues[i]) * MPU_LATERAL_ACCEL_CONV_FACTOR;
-        offsetZ += ((LateralAccelValuePhysType) averageZvalues[i]) * MPU_LATERAL_ACCEL_CONV_FACTOR;
-        offsetXR += ((AngularVelValuePhysType) averageXRvalues[i]) * MPU_ANGULAR_VEL_CONV_FACTOR;
-        offsetYR += ((AngularVelValuePhysType) averageYRvalues[i]) * MPU_ANGULAR_VEL_CONV_FACTOR;
-        offsetZR += ((AngularVelValuePhysType) averageZRvalues[i]) * MPU_ANGULAR_VEL_CONV_FACTOR;
-    }
-
     // finally calculate offset:
-    offsetX /= (LateralAccelValuePhysType) MPU_AVERAGE_CYCLES;
-    offsetY /= (LateralAccelValuePhysType) MPU_AVERAGE_CYCLES;
-    offsetZ /= (LateralAccelValuePhysType) MPU_AVERAGE_CYCLES;
-    offsetXR /= (AngularVelValuePhysType) MPU_AVERAGE_CYCLES;
-    offsetYR /= (AngularVelValuePhysType) MPU_AVERAGE_CYCLES;
-    offsetZR /= (AngularVelValuePhysType) MPU_AVERAGE_CYCLES;
+    offsetX = ((LateralAccelValuePhysType) averageXvalues) * MPU_LATERAL_ACCEL_CONV_FACTOR;
+    offsetY = ((LateralAccelValuePhysType) averageYvalues) * MPU_LATERAL_ACCEL_CONV_FACTOR;
+    offsetZ = ((LateralAccelValuePhysType) averageZvalues) * MPU_LATERAL_ACCEL_CONV_FACTOR;
+    offsetXR = ((LateralAccelValuePhysType) averageXRvalues) * MPU_ANGULAR_VEL_CONV_FACTOR;
+    offsetYR = ((LateralAccelValuePhysType) averageYRvalues) * MPU_ANGULAR_VEL_CONV_FACTOR;
+    offsetZR = ((LateralAccelValuePhysType) averageZRvalues) * MPU_ANGULAR_VEL_CONV_FACTOR;
 
 }
 
