@@ -7,7 +7,7 @@
 
 #include "PIDControl.h"
 
-void PIDC_calculateOutput(PIDC_ControllerHandleType *controllerHandle)
+void PIDC_calculateOutput(PIDC_ControllerHandleType *ctrlHnd)
 {
     PIDC_ControllerCalculationType errorStep = PIDC_CONTROLLER_CALCULATION_TYPE_ZERO;
     PIDC_ControllerCalculationType targetVel = PIDC_CONTROLLER_CALCULATION_TYPE_ZERO;
@@ -18,62 +18,62 @@ void PIDC_calculateOutput(PIDC_ControllerHandleType *controllerHandle)
     PIDC_ControllerCalculationType controlValueDistance = PIDC_CONTROLLER_CALCULATION_TYPE_ZERO;
     PIDC_ControllerCalculationType controlValueSpeed = PIDC_CONTROLLER_CALCULATION_TYPE_ZERO;
 
-    if (((*controllerHandle).esumStep) > PIDC_CONTROLLER_CONSTANT_WINDUP_MAX)
+    if (((*ctrlHnd).esumStep) > PIDC_CONTROLLER_CONSTANT_WINDUP_MAX)
     {
-        ((*controllerHandle).esumStep) = PIDC_CONTROLLER_CONSTANT_WINDUP_MAX;
+        ((*ctrlHnd).esumStep) = PIDC_CONTROLLER_CONSTANT_WINDUP_MAX;
     }
-    else if (((*controllerHandle).esumStep) < -PIDC_CONTROLLER_CONSTANT_WINDUP_MAX)
+    else if (((*ctrlHnd).esumStep) < -PIDC_CONTROLLER_CONSTANT_WINDUP_MAX)
     {
-        ((*controllerHandle).esumStep) = -PIDC_CONTROLLER_CONSTANT_WINDUP_MAX;
+        ((*ctrlHnd).esumStep) = -PIDC_CONTROLLER_CONSTANT_WINDUP_MAX;
     }
 
     /*==================================*/
     /* calculate position error */
-    errorStep = (PIDC_ControllerCalculationType) (((*controllerHandle).stepTargetInput)
-            - ((*controllerHandle).stepMeasInput));
+    errorStep = (PIDC_ControllerCalculationType) (((*ctrlHnd).stepTargetInput)
+            - ((*ctrlHnd).stepMeasInput));
 
     /* check if target destination was reached and controller integral part can be cleared */
-    if (((((*controllerHandle).stepTargetInput) - ((*controllerHandle).stepMeasInput))
+    if (((((*ctrlHnd).stepTargetInput) - ((*ctrlHnd).stepMeasInput))
             < PIDC_CONTROLLER_CONSTANT_ERROR_FLOOR)
-            && ((((*controllerHandle).stepTargetInput) - ((*controllerHandle).stepMeasInput))
+            && ((((*ctrlHnd).stepTargetInput) - ((*ctrlHnd).stepMeasInput))
                     > -PIDC_CONTROLLER_CONSTANT_ERROR_FLOOR))
     {
-        ((*controllerHandle).esumStep) = PIDC_CONTROLLER_CALCULATION_TYPE_ZERO;
+        ((*ctrlHnd).esumStep) = PIDC_CONTROLLER_CALCULATION_TYPE_ZERO;
     }
 
-    lastEsumStep = ((*controllerHandle).esumStep);
+    lastEsumStep = ((*ctrlHnd).esumStep);
 
     /* only sum up error values if error value is smaller than threshold value */
     if ((errorStep < PIDC_CONTROLLER_CONSTANT_KI_STEP_THRESHOLD)
             && (errorStep > -PIDC_CONTROLLER_CONSTANT_KI_STEP_THRESHOLD))
     {
-        ((*controllerHandle).esumStep) += errorStep;
+        ((*ctrlHnd).esumStep) += errorStep;
 
         //target_v = (target_velocity_x * e) / KI_ESUM_THRESHOLD;
-        ((*controllerHandle).esumVel) = PIDC_CONTROLLER_CALCULATION_TYPE_ZERO;
+        ((*ctrlHnd).esumVel) = PIDC_CONTROLLER_CALCULATION_TYPE_ZERO;
 
-        controlValueDistance = (((*controllerHandle).constantKpStep) * errorStep)
-                + (((*controllerHandle).constantKiStep) * ((*controllerHandle).esumStep))
-                + (((*controllerHandle).constantKdStep) * (errorStep - ((*controllerHandle).lastStepError)));
+        controlValueDistance = (((*ctrlHnd).constantKpStep) * errorStep)
+                + (((*ctrlHnd).constantKiStep) * ((*ctrlHnd).esumStep))
+                + (((*ctrlHnd).constantKdStep) * (errorStep - ((*ctrlHnd).lastStepError)));
     }
     else
     {
         if (errorStep < PIDC_CONTROLLER_CALCULATION_TYPE_ZERO)
         {
-            targetVel = -1.0f * ((PIDC_ControllerCalculationType) ((*controllerHandle).velTargetInput));
+            targetVel = -1.0f * ((PIDC_ControllerCalculationType) ((*ctrlHnd).velTargetInput));
         }
         else
         {
-            targetVel = (PIDC_ControllerCalculationType) ((*controllerHandle).velTargetInput);
+            targetVel = (PIDC_ControllerCalculationType) ((*ctrlHnd).velTargetInput);
         }
 
         /* calculate velocity error */
-        errorVel = targetVel - (PIDC_ControllerCalculationType) ((*controllerHandle).velMeasInput);
-        ((*controllerHandle).esumVel) += errorVel;
-        ((*controllerHandle).esumStep) = PIDC_CONTROLLER_CALCULATION_TYPE_ZERO;
+        errorVel = targetVel - (PIDC_ControllerCalculationType) ((*ctrlHnd).velMeasInput);
+        ((*ctrlHnd).esumVel) += errorVel;
+        ((*ctrlHnd).esumStep) = PIDC_CONTROLLER_CALCULATION_TYPE_ZERO;
 
-        controlValueSpeed = (((*controllerHandle).constantKpVel) * errorVel)
-                + (((*controllerHandle).constantKiVel) * ((*controllerHandle).esumVel));
+        controlValueSpeed = (((*ctrlHnd).constantKpVel) * errorVel)
+                + (((*ctrlHnd).constantKiVel) * ((*ctrlHnd).esumVel));
     }
 
     /*==================================*/
@@ -84,12 +84,12 @@ void PIDC_calculateOutput(PIDC_ControllerHandleType *controllerHandle)
     /* determine direction of movement */
     if (tempOutput < 0.0f)
     {
-        (*controllerHandle).controllerDirection = PIDC_CONTROLLER_DIRECTION_RWD;
+        (*ctrlHnd).controllerDirection = PIDC_CONTROLLER_DIRECTION_RWD;
         tempOutput = tempOutput * (-1.0f);
     }
     else
     {
-        (*controllerHandle).controllerDirection = PIDC_CONTROLLER_DIRECTION_FWD;
+        (*ctrlHnd).controllerDirection = PIDC_CONTROLLER_DIRECTION_FWD;
     }
     /*==================================*/
 
@@ -98,14 +98,14 @@ void PIDC_calculateOutput(PIDC_ControllerHandleType *controllerHandle)
     {
         tempOutput = PIDC_CONTROLLER_CONSTANT_MAX_OUTPUT;
         // freeze integral part if output value is out of bounds
-        ((*controllerHandle).esumStep) = lastEsumStep;
+        ((*ctrlHnd).esumStep) = lastEsumStep;
     }
     /*=======================*/
 
     /* cast y output to uint8_t value */
     resultOutput = (PIDC_ControllerOutputBaseType) (tempOutput);
 
-    (*controllerHandle).controllerOutput = resultOutput;
+    (*ctrlHnd).controllerOutput = resultOutput;
 }
 
 void PIDC_resetStates(PIDC_ControllerHandleType *controllerHandle)

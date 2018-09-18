@@ -8,7 +8,7 @@
 #ifndef MOTORCONTROL_H_
 #define MOTORCONTROL_H_
 
-#include "stdint.h"
+#include <stdint.h>
 #include "PIDControl.h"
 
 #define MTC_MOTOR_DIRECTION_FWD     PIDC_CONTROLLER_DIRECTION_FWD

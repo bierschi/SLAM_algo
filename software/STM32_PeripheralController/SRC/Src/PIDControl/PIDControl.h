@@ -8,7 +8,7 @@
 #ifndef SRC_PIDCONTROL_H_
 #define SRC_PIDCONTROL_H_
 
-#include "stdint.h"
+#include <stdint.h>
 
 #define PIDC_CONTROLLER_CONSTANT_MAX_OUTPUT 999.0f
 

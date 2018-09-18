@@ -8,7 +8,7 @@
 #ifndef SRC_COMMODULE_COMMODULE_H_
 #define SRC_COMMODULE_COMMODULE_H_
 
-#include "stdint.h"
+#include <stdint.h>
 #include "ComStructure.h"
 
 #define COM_MODULE_COMMAND_READY            1u
