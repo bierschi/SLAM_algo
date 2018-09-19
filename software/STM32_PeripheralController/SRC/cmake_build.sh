@@ -1,2 +1,2 @@
-cmake -DCMAKE_TOOLCHAIN_FILE=ARM_GCCToolchainFile.cmake .
+cmake -G "Eclipse CDT4 - Unix Makefiles" ../SRC
 
