@@ -6,8 +6,9 @@
 
 <!--start rviz at beginning of launch file -->
 <group if="$(arg use_rviz)">
-  <node pkg="rviz" type="rviz" name="rviz" args="-d /home/christian/projects/hsp/hector_slam/hector_slam.rviz" />
+  <node pkg="rviz" type="rviz" name="rviz" args="-d /home/christian/projects/hsp/SLAM_algo/software/slam/hector_slam/hector_slam.rviz" />
 </group>
+
 
 <!-- launch hector_slam -->
   <arg name="tf_map_scanmatch_transform_frame_name" default="scanmatcher_frame"/>
