@@ -60,9 +60,11 @@ void PLM_PropagateWaitTimer(void) {
 void PLM_DetermineSteering(void) {
 	if (COM_Struct.CurrentSteeringMode == COM_STEERING_MODE_AUTO) {
 		PLM_CurrentCoordinateTarget.x =
-				(PIDC_ControllerInputBaseType) (COM_Struct.Target_X * 400.0f / 25.4f);
+				//(PIDC_ControllerInputBaseType) (COM_Struct.Target_X * 400.0f / 25.4f);
+				(PIDC_ControllerInputBaseType) 60.0f;
 		PLM_CurrentCoordinateTarget.y =
-				(PIDC_ControllerInputBaseType) (COM_Struct.Target_Y * 400.0f / 25.4f);
+				//(PIDC_ControllerInputBaseType) (COM_Struct.Target_Y * 400.0f / 25.4f);
+				0.0f;
 	} else if (COM_Struct.CurrentSteeringMode == COM_STEERING_MODE_MANUAL) {
 		float directionTemp = COM_Struct.CurrentSteeringDirection;
 		if (directionTemp > -90.0f && directionTemp < 90.0f) {
@@ -156,8 +158,8 @@ void PLM_ControllerCycle(void) {
 
 		if (PLM_MODULE_STATE_TRANSIT_FWD == PLM_CurrentControlState) {
 			/* only track orientation when transiting forwards */
-			SCM_TrackOrientation(
-					PLM_CurrentCoordinateTarget.y - ODO_GetCurrentPositionY());
+			//SCM_TrackOrientation(PLM_CurrentCoordinateTarget.y - ODO_GetCurrentPositionY());
+			SCM_SetTimerValueForAngle((0.0f + ODO_GetCurrentOrientationZR()) + 0.0f);
 		}
 	} else {
 		/* turn off motors immediately */
@@ -185,7 +187,7 @@ void PLM_Init(void) {
 	PLM_CurrentCoordinateTarget.x = 0; // steps in mm
 	PLM_CurrentCoordinateTarget.y = 0; // steps in mm
 
-	PLM_CurrentVelocityTarget = 5.0f;
+	PLM_CurrentVelocityTarget = 3.0f;
 
 	PLM_WaitTimer = -1.0f;
 
@@ -193,11 +195,13 @@ void PLM_Init(void) {
 }
 
 void PLM_MainCycle(void) {
+	PLM_CurrentControlState = PLM_MODULE_STATE_TRANSIT_FWD;
+
 	PLM_DetermineSteering();
 	/* do main trajectory planning an control planning */
 
-	if (COM_STEERING_MODE_AUTO == COM_Struct.CurrentSteeringMode) {
-		PLM_PlannerCycle();
+	if (1u) {
+		// PLM_PlannerCycle();
 
 		/* update controllers */
 		PLM_ControllerCycle();
