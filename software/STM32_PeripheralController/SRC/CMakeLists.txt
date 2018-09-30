@@ -62,7 +62,7 @@ set(INCLUDE_DIRS
 # define compiler options:
 set(C_FLAGS "-g -O0 -Wall -u _printf_float -mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 --specs=nano.specs --specs=nosys.specs -ffunction-sections -fdata-sections -DSTM32F334x8")
 set(ASM_FLAGS "-mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16")
-set(LD_FLAGS "-u _printf_float -static -T ./Src/STM32F334R8Tx_FLASH.ld -Wl,--gc-sections -Wl,-Map,STM32_F334R8.map")
+set(LD_FLAGS "-u _printf_float -static -T ${CMAKE_CURRENT_LIST_DIR}/Src/STM32F334R8Tx_FLASH.ld -Wl,--gc-sections -Wl,-Map,STM32_F334R8.map")
 
 # set compiler options to CMake:
 set(CMAKE_C_FLAGS ${C_FLAGS})
@@ -76,4 +76,4 @@ add_executable(STM32_HSPCar ${SRC_FILES})
 add_custom_command(
     TARGET STM32_HSPCar
     POST_BUILD
-    COMMAND "${CMAKE_CURRENT_LIST_DIR}/../TOOLS/gcc-arm-none-eabi-7-2018-q2-update-linux/bin/arm-none-eabi-objcopy" "-O" "binary" "${CMAKE_CURRENT_LIST_DIR}/STM32_HSPCar" "${CMAKE_CURRENT_LIST_DIR}/STM32_HSPCarBin")
+    COMMAND "${CMAKE_OBJCOPY}" "-O" "binary" "./STM32_HSPCar" "./STM32_HSPCarBin")

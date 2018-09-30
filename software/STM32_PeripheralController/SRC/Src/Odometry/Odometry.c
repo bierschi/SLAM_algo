@@ -2,7 +2,7 @@
 #include "ComModule.h"
 #include "Timing.h"
 
-//#define DEBUG_ODOMETRY
+#define DEBUG_ODOMETRY
 
 #ifdef DEBUG_ODOMETRY
 #include <stdio.h>
@@ -86,7 +86,7 @@ void ODO_PropagateOdometry(void)
 {
     LateralAccelValuePhysType x_accel, y_accel, z_accel;
     AngularVelValuePhysType xr_vel, yr_vel, zr_vel;
-    float velocityDecay = 0.001f;
+    float velocityDecay = 0.000f;
 
     MPU_GetPhysLateralAccelerations(&x_accel, &y_accel, &z_accel);
     MPU_GetPhysAngularVelocity(&xr_vel, &yr_vel, &zr_vel);
@@ -121,10 +121,12 @@ void ODO_PropagateOdometry(void)
     CurrentOrientation_YR += yr_vel * MAIN_SAMPLE_TIME_S;
 
     #ifdef DEBUG_ODOMETRY
-     //snprintf(bufferString, 199,
-     //"xAccel:%.2fm/s2\nyAccel%.2fm/s2\nzAccel%.2fm/s2\nxrAccel%.2fdg/s\nyrAccel%.2fdg/s\nzrAccel%.2fdg/s\n",
-     //x_accel, y_accel, z_accel, xr_accel, yr_accel, zr_accel);
+//     snprintf(bufferString, 199,
+//     "xAccel:%.2fm/s2\nyAccel%.2fm/s2\nzAccel%.2fm/s2\nxrAccel%.2fdg/s\nyrAccel%.2fdg/s\nzrAccel%.2fdg/s\n",
+//     x_accel, y_accel, z_accel, xr_vel, yr_vel, zr_vel);
     snprintf(bufferString, 199, "Distance X: %.4f , Distance Y: %.4f\n", CurrentPosition_X, CurrentPosition_Y);
+//    COM_PrintToUART((uint8_t *) bufferString, (uint8_t) strlen(bufferString));
+//    snprintf(bufferString, 199, "Xrot: %.2f\nYrot: %.2f\nZrot: %.2f\n", CurrentOrientation_XR, CurrentOrientation_YR, CurrentOrientation_ZR);
     COM_PrintToUART((uint8_t *) bufferString, (uint8_t) strlen(bufferString));
     #endif
 }
