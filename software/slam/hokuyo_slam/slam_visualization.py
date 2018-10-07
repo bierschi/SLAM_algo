@@ -12,6 +12,7 @@ import matplotlib.cm as colormap
 from math import sin, cos, radians
 import numpy as np
 from time import sleep
+import threading
 
 
 class SlamShow(object):
@@ -62,12 +63,20 @@ class SlamShow(object):
         map_center_mm = map_scale_mm_per_pixel * map_size_pixels
         self._add_vehicle(map_center_mm, map_center_mm, 0)
 
+        self.toggle_thread = threading.Thread(target=self.toggle_flag)
+        self.toggle_thread.start()
+        self.i = 0
+        self.image_flag = True
+
     def displayMap(self, mapbytes):
 
         mapimg = np.reshape(np.frombuffer(mapbytes, dtype=np.uint8), (self.map_size_pixels, self.map_size_pixels))
 
         # Pause to allow display to refresh
         sleep(.001)
+
+        #with open("mapbytes.txt", "a") as file:
+        #    file.write("{}, {}\n".format(len(list(bytes(mapbytes))), list(bytes(mapbytes))))
 
         if self.img_artist is None:
 
@@ -76,6 +85,19 @@ class SlamShow(object):
         else:
 
             self.img_artist.set_data(mapimg)
+
+    def save_image(self):
+
+        if self.image_flag is True:
+            plt.savefig("images/slam{}.png".format(self.i))
+            self.i += 1
+            self.image_flag = False
+
+    def toggle_flag(self):
+
+        while True:
+            sleep(2)
+            self.image_flag = not self.image_flag
 
     def setPose(self, x_mm, y_mm, theta_deg):
         '''
