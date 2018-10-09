@@ -151,6 +151,8 @@ void PLM_ControllerCycle(void) {
 
 	// transmit current orientation over SPI channel (DMA)
 	COM_StructTX.CurrentOrientation = ODO_GetCurrentOrientationZR();
+	COM_StructTX.CurrentPositionX = ODO_GetCurrentPositionX();
+	COM_StructTX.CurrentPositionY = ODO_GetCurrentPositionY();
 
 	if ((PLM_MODULE_STATE_TRANSIT_SWD == PLM_CurrentControlState)
 			|| (PLM_MODULE_STATE_TRANSIT_FWD == PLM_CurrentControlState)) {

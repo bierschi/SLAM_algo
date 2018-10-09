@@ -45,6 +45,10 @@ typedef struct {
 
 	// current orientation angle in degree
 	float CurrentOrientation;
+	// current robot position x in meters:
+	float CurrentPositionX;
+	// current robot position y in meters
+	float CurrentPositionY;
 
 	// ultrasonic distance sensor values in front (unit: mm)
 	uint16_t USDistanceFront;

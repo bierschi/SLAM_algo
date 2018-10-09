@@ -2,7 +2,7 @@
 #include "ComModule.h"
 #include "Timing.h"
 
-#define DEBUG_ODOMETRY
+//#define DEBUG_ODOMETRY
 
 #ifdef DEBUG_ODOMETRY
 #include <stdio.h>
