@@ -16,7 +16,9 @@
 
 #define COM_RXTX_BUFFER_SIZE                10
 
-extern ComStructureType COM_Struct; // handle to COM Structure
+// handles to Communication structures (receive and transmit)
+extern ComStructureType COM_StructRX;
+extern ComStructureType COM_StructTX;
 
 extern void COM_Init(void);
 extern void COM_PrintToUART(uint8_t *data, uint16_t size);
