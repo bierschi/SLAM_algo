@@ -58,21 +58,21 @@ void PLM_PropagateWaitTimer(void) {
 }
 
 void PLM_DetermineSteering(void) {
-	if (COM_Struct.CurrentSteeringMode == COM_STEERING_MODE_AUTO) {
+	if (COM_StructRX.CurrentSteeringMode == COM_STEERING_MODE_AUTO) {
 		PLM_CurrentCoordinateTarget.x =
 				//(PIDC_ControllerInputBaseType) (COM_Struct.Target_X * 400.0f / 25.4f);
 				(PIDC_ControllerInputBaseType) 60.0f;
 		PLM_CurrentCoordinateTarget.y =
 				//(PIDC_ControllerInputBaseType) (COM_Struct.Target_Y * 400.0f / 25.4f);
 				0.0f;
-	} else if (COM_Struct.CurrentSteeringMode == COM_STEERING_MODE_MANUAL) {
-		float directionTemp = COM_Struct.CurrentSteeringDirection;
+	} else if (COM_StructRX.CurrentSteeringMode == COM_STEERING_MODE_MANUAL) {
+		float directionTemp = COM_StructRX.CurrentSteeringDirection;
 		if (directionTemp > -90.0f && directionTemp < 90.0f) {
 			SCM_SetTimerValueForAngle(directionTemp);
 		}
 
-		uint16_t speed = COM_Struct.CurrentSteeringSpeed;
-		uint8_t direction = COM_Struct.CurrentSteeringDirection;
+		uint16_t speed = COM_StructRX.CurrentSteeringSpeed;
+		uint8_t direction = COM_StructRX.CurrentSteeringDirection;
 		if (speed <= 1000 && direction < 3u) {
 			MTC_SetMotorSpeed(speed);
 			MTC_SetMotorDirection(direction);
@@ -148,6 +148,11 @@ void PLM_ControllerCycle(void) {
 		MainEngine.stepTargetInput = PLM_CurrentCoordinateTarget.x;
 		MainEngine.velTargetInput = PLM_CurrentVelocityTarget;
 	}
+
+	// transmit current orientation over SPI channel (DMA)
+	COM_StructTX.CurrentOrientation = ODO_GetCurrentOrientationZR();
+	COM_StructTX.CurrentPositionX = ODO_GetCurrentPositionX();
+	COM_StructTX.CurrentPositionY = ODO_GetCurrentPositionY();
 
 	if ((PLM_MODULE_STATE_TRANSIT_SWD == PLM_CurrentControlState)
 			|| (PLM_MODULE_STATE_TRANSIT_FWD == PLM_CurrentControlState)) {

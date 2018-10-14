@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="14.3.0">
+  <zoom_level>7</zoom_level>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>294</x>
+      <y>910</y>
+      <w>112</w>
+      <h>49</h>
+    </coordinates>
+    <panel_attributes>PlannerModule
+bg=#BBBBBB</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>539</x>
+      <y>665</y>
+      <w>112</w>
+      <h>49</h>
+    </coordinates>
+    <panel_attributes>MotorControl
+bg=#BBBBBB</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>700</x>
+      <y>665</y>
+      <w>112</w>
+      <h>49</h>
+    </coordinates>
+    <panel_attributes>ServoControl
+bg=#BBBBBB</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>539</x>
+      <y>791</y>
+      <w>112</w>
+      <h>49</h>
+    </coordinates>
+    <panel_attributes>MPUSensor
+bg=#BBBBBB</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>700</x>
+      <y>791</y>
+      <w>112</w>
+      <h>49</h>
+    </coordinates>
+    <panel_attributes>Odometry
+bg=#BBBBBB</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>854</x>
+      <y>791</y>
+      <w>112</w>
+      <h>49</h>
+    </coordinates>
+    <panel_attributes>SRFSensor
+bg=#BBBBBB</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>539</x>
+      <y>910</y>
+      <w>112</w>
+      <h>49</h>
+    </coordinates>
+    <panel_attributes>ComModule
+bg=#BBBBBB</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>854</x>
+      <y>665</y>
+      <w>112</w>
+      <h>49</h>
+    </coordinates>
+    <panel_attributes>PIDControl
+bg=#BBBBBB</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>259</x>
+      <y>609</y>
+      <w>742</w>
+      <h>399</h>
+    </coordinates>
+    <panel_attributes>Main
+bg=#DDDDDD
+layer=0</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>224</x>
+      <y>574</y>
+      <w>812</w>
+      <h>469</h>
+    </coordinates>
+    <panel_attributes>STM32F334R8
+bg=#EEEEEE
+layer=-1</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLPackage</id>
+    <coordinates>
+      <x>287</x>
+      <y>651</y>
+      <w>196</w>
+      <h>154</h>
+    </coordinates>
+    <panel_attributes>ComStructTX / ComStructRX
+--
+halign=left
+uint8_t CurrentSteeringMode;
+uint16_t CurrentSteeringSpeed;
+uint8_t CurrentSteeringDirection;
+float CurrentSteeringAngle;
+float Target_X;
+float Target_Y;
+float CurrentOrientation;
+float CurrentPositionX;
+float CurrentPositionY;
+uint16_t USDistanceFront;
+uint16_t USDistanceRear;
+bg=blue
+layer=1</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>224</x>
+      <y>231</y>
+      <w>812</w>
+      <h>238</h>
+    </coordinates>
+    <panel_attributes>Raspberry Pi
+bg=#EEEEEE
+layer=-1</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>259</x>
+      <y>273</y>
+      <w>742</w>
+      <h>161</h>
+    </coordinates>
+    <panel_attributes>Peripheral Interface
+bg=#DDDDDD
+layer=0</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>672</x>
+      <y>462</y>
+      <w>70</w>
+      <h>77</h>
+    </coordinates>
+    <panel_attributes>lt=[v]-(
+SPI_SCLK</panel_attributes>
+    <additional_attributes>20.0;10.0;20.0;80.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>679</x>
+      <y>525</y>
+      <w>21</w>
+      <h>63</h>
+    </coordinates>
+    <panel_attributes>lt=()-[v]</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;70.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>567</x>
+      <y>525</y>
+      <w>21</w>
+      <h>63</h>
+    </coordinates>
+    <panel_attributes>lt=()-[v]</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;70.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>560</x>
+      <y>462</y>
+      <w>70</w>
+      <h>77</h>
+    </coordinates>
+    <panel_attributes>lt=[v]-(
+SPI_MOSI</panel_attributes>
+    <additional_attributes>20.0;10.0;20.0;80.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>483</x>
+      <y>525</y>
+      <w>35</w>
+      <h>63</h>
+    </coordinates>
+    <panel_attributes>lt=[v]-(</panel_attributes>
+    <additional_attributes>20.0;70.0;20.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>490</x>
+      <y>462</y>
+      <w>63</w>
+      <h>77</h>
+    </coordinates>
+    <panel_attributes>lt=()-[v]
+SPI_MISO</panel_attributes>
+    <additional_attributes>10.0;90.0;10.0;10.0</additional_attributes>
+  </element>
+</diagram>
