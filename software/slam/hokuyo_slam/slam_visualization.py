@@ -13,6 +13,9 @@ from math import sin, cos, radians
 import numpy as np
 from time import sleep
 import threading
+import array
+import random
+import sys
 
 
 class SlamShow(object):
@@ -91,6 +94,36 @@ class SlamShow(object):
         if self.image_flag is True:
             plt.savefig("images/slam{}.png".format(self.i))
             self.i += 1
+            self.image_flag = False
+
+    def save_pgm(self, mapbytes):
+
+        if self.image_flag is True:
+
+            width = self.map_size_pixels
+            height = self.map_size_pixels
+
+            filename = 'slam{}.pgm'.format(self.i)
+
+            self.i += 1
+            try:
+                fout = open(filename, 'wb')
+            except IOError:
+                print("cannot open file")
+                sys.exit()
+
+            pgmHeader = 'P2' + '\n' + str(width) + ' ' + str(height) + ' ' + str(255) + '\n'
+            pgmHeader = bytearray(pgmHeader, 'utf-8')
+            fout.write(pgmHeader)
+            mapimg = np.reshape(np.frombuffer(mapbytes, dtype=np.uint8), (self.map_size_pixels, self.map_size_pixels))
+            for j in range(height):
+                bnd = list(mapimg[j, :])
+                bnd_str = np.char.mod('%d', bnd)
+                bnd_str = np.append(bnd_str, '\n')
+                bnd_str = [' '.join(bnd_str)][0]
+                bnd_byte = bytearray(bnd_str, 'utf-8')
+                fout.write(bytearray(bnd_byte))
+            fout.close()
             self.image_flag = False
 
     def toggle_flag(self):

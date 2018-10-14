@@ -33,7 +33,8 @@ def main():
         slam.getmap(mapbytes)
         display.displayMap(mapbytes)
         display.setPose(x, y, theta)
-        display.save_image()
+        #display.save_image()
+        display.save_pgm(mapbytes)
         if not display.refresh():
             exit(0)
 
