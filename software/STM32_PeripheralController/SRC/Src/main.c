@@ -47,6 +47,7 @@
 #include "MPUSensor.h"
 #include "Odometry.h"
 #include "ServoControl.h"
+#include "SRFSensor.h"
 
 /* USER CODE BEGIN Includes */
 
@@ -148,6 +149,7 @@ int main(void)
 
       MPU_ReadValues();
       ODO_PropagateOdometry();
+      SRF_MainFunction();
   
       //MSC_SensorAcquirePosition();
       PLM_MainCycle();
@@ -227,7 +229,8 @@ static void MX_I2C1_Init(void)
 {
 
   hi2c1.Instance = I2C1;
-  hi2c1.Init.Timing = 0x4000090E;
+  //hi2c1.Init.Timing = 0x4000090E; // 100 kHz, type 0x20B for fast mode and 400 kHz
+  hi2c1.Init.Timing = 0x20B; // 100 kHz, type 0x20B for fast mode and 400 kHz
   hi2c1.Init.OwnAddress1 = 0;
   hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
   hi2c1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;

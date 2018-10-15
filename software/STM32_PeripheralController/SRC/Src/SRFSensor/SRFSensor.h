@@ -3,13 +3,16 @@
 #define SRFSENSOR_H
 #include <stdint.h>
 
-extern void SRF_ReadValues(void);
+typedef uint16_t SRF_DistanceType;
 
-extern void SRF_GetValuesFromSensor(void)
+extern SRF_DistanceType SRF_GetDistanceFrontLeft(void);
+
+extern SRF_DistanceType SRF_GetDistanceFrontRight(void);
+
+extern SRF_DistanceType SRF_GetDistanceRear(void);
 
 extern void SRF_Init(void);
 
 extern void SRF_MainFunction(void);
-
 
 #endif

@@ -12,6 +12,7 @@
 #include "ServoControl.h"
 #include "ComModule.h"
 #include "Odometry.h"
+#include "SRFSensor.h"
 
 #define PLM_SERVO_ROTATION_WAIT_TIME    2.0f
 
@@ -55,6 +56,17 @@ void PLM_PropagateWaitTimer(void) {
 	if (0.0f <= PLM_WaitTimer) {
 		PLM_WaitTimer -= MAIN_SAMPLE_TIME_S;
 	}
+}
+
+void PLM_PrepareTransmitMessages(void)
+{
+	// transmit current orientation over SPI channel (DMA)
+	COM_StructTX.CurrentOrientation = ODO_GetCurrentOrientationZR();
+	COM_StructTX.CurrentPositionX = ODO_GetCurrentPositionX();
+	COM_StructTX.CurrentPositionY = ODO_GetCurrentPositionY();
+	COM_StructTX.USDistanceFrontLeft = SRF_GetDistanceFrontLeft();
+	COM_StructTX.USDistanceFrontRight = SRF_GetDistanceFrontRight();
+	COM_StructTX.USDistanceRear = SRF_GetDistanceRear();
 }
 
 void PLM_DetermineSteering(void) {
@@ -149,10 +161,7 @@ void PLM_ControllerCycle(void) {
 		MainEngine.velTargetInput = PLM_CurrentVelocityTarget;
 	}
 
-	// transmit current orientation over SPI channel (DMA)
-	COM_StructTX.CurrentOrientation = ODO_GetCurrentOrientationZR();
-	COM_StructTX.CurrentPositionX = ODO_GetCurrentPositionX();
-	COM_StructTX.CurrentPositionY = ODO_GetCurrentPositionY();
+	PLM_PrepareTransmitMessages();
 
 	if ((PLM_MODULE_STATE_TRANSIT_SWD == PLM_CurrentControlState)
 			|| (PLM_MODULE_STATE_TRANSIT_FWD == PLM_CurrentControlState)) {

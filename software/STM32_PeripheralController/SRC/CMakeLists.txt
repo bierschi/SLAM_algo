@@ -18,6 +18,7 @@ set(SRC_FILES
     ${CMAKE_CURRENT_LIST_DIR}/Src/ServoControl/ServoControl.c
     ${CMAKE_CURRENT_LIST_DIR}/Src/Odometry/Odometry.c
     ${CMAKE_CURRENT_LIST_DIR}/Src/MPUSensor/MPUSensor.c
+    ${CMAKE_CURRENT_LIST_DIR}/Src/SRFSensor/SRFSensor.c
     ${CMAKE_CURRENT_LIST_DIR}/Drivers/CMSIS/Device/ST/STM32F3xx/Source/Templates/startup_stm32f334x8.s
     ${CMAKE_CURRENT_LIST_DIR}/Drivers/CMSIS/Device/ST/STM32F3xx/Source/Templates/system_stm32f3xx.c
     ${CMAKE_CURRENT_LIST_DIR}/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal.c
@@ -57,6 +58,7 @@ set(INCLUDE_DIRS
     ${CMAKE_CURRENT_LIST_DIR}/Src/ServoControl
     ${CMAKE_CURRENT_LIST_DIR}/Src/Odometry
     ${CMAKE_CURRENT_LIST_DIR}/Src/MPUSensor
+    ${CMAKE_CURRENT_LIST_DIR}/Src/SRFSensor
 )
 
 # define compiler options:
