@@ -161,6 +161,7 @@ void PLM_ControllerCycle(void) {
 		MainEngine.velTargetInput = PLM_CurrentVelocityTarget;
 	}
 
+	// prepare communication structure for SPI
 	PLM_PrepareTransmitMessages();
 
 	if ((PLM_MODULE_STATE_TRANSIT_SWD == PLM_CurrentControlState)

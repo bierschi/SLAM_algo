@@ -25,7 +25,7 @@
 // adjust packing size for SPI Transfer Data Compression purposes
 #pragma pack(push, 1)
 
-typedef struct {
+typedef struct ComStructure{
 	// select steering mode AUTO or MANUAL
 	uint8_t CurrentSteeringMode;
 

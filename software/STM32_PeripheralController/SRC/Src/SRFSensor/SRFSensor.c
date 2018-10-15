@@ -58,7 +58,14 @@ void SRF_MainFunction(void)
         	HAL_I2C_Mem_Read(&hi2c1, SRF_FRONT_RIGHT_DEV_ADRESS, SRF_REGISTER_1ST_ECHO_HIGH, 2u, data, 2u, 10u);
         	FrontRightDistance = ((((uint16_t) (data[0])) << 8) | ((uint16_t) (data[1]))) ;
         	HAL_I2C_Mem_Read(&hi2c1, SRF_REAR_DEV_ADRESS, SRF_REGISTER_1ST_ECHO_HIGH, 2u, data, 2u, 10u);
-        	RearDistance = ((((uint16_t) (data[0])) << 8) | ((uint16_t) (data[1]))) ;
+        	RearDistance = ((((uint16_t) (data[0])) << 8) | ((uint16_t) (data[1])));
+
+        	cycleCounter = 0u;
+        	measurementRunning = 0u;
+        }
+        else
+        {
+        	cycleCounter++;
         }
 
     }
