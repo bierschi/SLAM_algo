@@ -90,15 +90,16 @@ void ODO_PropagateOdometry(void)
 {
     LateralAccelValuePhysType x_accel, y_accel, z_accel;
     AngularVelValuePhysType xr_vel, yr_vel, zr_vel;
-    float velocityDecay = 0.000f;
+    float velocityDecay = 0.0001f;
 
     MPU_GetPhysLateralAccelerations(&x_accel, &y_accel, &z_accel);
     MPU_GetPhysAngularVelocity(&xr_vel, &yr_vel, &zr_vel);
 
     // enter Sample Rate here (v = v0 + a * tSA)!!!
-    if(MTC_GetMotorSpeed() > ODO_INCREMENT_MOTOR_THRESHOLD)
-    CurrentVelocity_X += (x_accel * MAIN_SAMPLE_TIME_S);
-    CurrentVelocity_Y += (y_accel * MAIN_SAMPLE_TIME_S);
+	if (MTC_GetMotorSpeed() > ODO_INCREMENT_MOTOR_THRESHOLD) {
+		CurrentVelocity_X += (x_accel * MAIN_SAMPLE_TIME_S);
+		CurrentVelocity_Y += (y_accel * MAIN_SAMPLE_TIME_S);
+	}
     if(CurrentVelocity_X > 0.0f)
     {
         CurrentVelocity_X -= velocityDecay;
