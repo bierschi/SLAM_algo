@@ -25,7 +25,7 @@
 // adjust packing size for SPI Transfer Data Compression purposes
 #pragma pack(push, 1)
 
-typedef struct {
+typedef struct ComStructure{
 	// select steering mode AUTO or MANUAL
 	uint8_t CurrentSteeringMode;
 
@@ -50,8 +50,10 @@ typedef struct {
 	// current robot position y in meters
 	float CurrentPositionY;
 
-	// ultrasonic distance sensor values in front (unit: mm)
-	uint16_t USDistanceFront;
+	// ultrasonic distance sensor values in front left (unit: mm)
+	uint16_t USDistanceFrontLeft;
+	// ultrasonic distance sensor values in front right (unit: mm)
+	uint16_t USDistanceFrontRight;
 	// ultrasonic distance sensor values in rear (unit: mm)
 	uint16_t USDistanceRear;
 } ComStructureType;

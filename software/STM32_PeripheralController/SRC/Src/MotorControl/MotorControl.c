@@ -11,8 +11,9 @@
 #include "mxconstants.h"        /* get access to the gpio pin defines */
 
 uint8_t MTC_CurrentMotorDirection;
+uint16_t MTC_CurrentMotorSpeed;
 
-void MTC_ShiftMotorDirToOutput(uint8_t direction)
+void MTC_SetMotorDirectionToOutput(uint8_t direction)
 {
     if(direction == MTC_MOTOR_DIRECTION_FWD)
     {
@@ -29,7 +30,7 @@ void MTC_Init(void)
     MTC_CurrentMotorDirection = MTC_MOTOR_DIRECTION_FWD;
     MTC_SetMotorDirection(MTC_MOTOR_DIRECTION_FWD);
     MTC_ShutdownMotor();
-    GPIOA->BSRR = GPIO_BSRR_BS_8; // -> reset
+    GPIOA->BSRR = GPIO_BSRR_BS_8; // -> reset driver
 }
 
 void MTC_SetMotorDirection(uint8_t direction)
@@ -37,12 +38,12 @@ void MTC_SetMotorDirection(uint8_t direction)
     if(MTC_MOTOR_DIRECTION_FWD == direction)
     {
         // set motor forward:
-        MTC_ShiftMotorDirToOutput(MTC_MOTOR_DIRECTION_FWD);
+        MTC_SetMotorDirectionToOutput(MTC_MOTOR_DIRECTION_FWD);
         MTC_CurrentMotorDirection = MTC_MOTOR_DIRECTION_FWD;
     }
     else
     {
-        MTC_ShiftMotorDirToOutput(MTC_MOTOR_DIRECTION_RWD);
+        MTC_SetMotorDirectionToOutput(MTC_MOTOR_DIRECTION_RWD);
         MTC_CurrentMotorDirection = MTC_MOTOR_DIRECTION_RWD;
     }
 }
@@ -52,16 +53,22 @@ uint8_t MTC_GetMotorDirection(void)
     return MTC_CurrentMotorDirection;
 }
 
+uint16_t MTC_GetMotorSpeed(void)
+{
+    return MTC_CurrentMotorSpeed;
+}
 
 void MTC_SetMotorSpeed(uint16_t speed)
 {
     if(speed <= MTC_CONTROL_REGISTER->ARR)
     {
         MTC_CONTROL_REGISTER->CCR3 = speed;
+        MTC_CurrentMotorSpeed = speed;
     }
 }
 
 void MTC_ShutdownMotor(void)
 {
     MTC_CONTROL_REGISTER->CCR3 = 0u;
+    MTC_CurrentMotorSpeed = 0u;
 }
