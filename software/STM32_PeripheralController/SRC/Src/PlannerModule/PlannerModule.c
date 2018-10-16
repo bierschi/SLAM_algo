@@ -174,7 +174,7 @@ void PLM_ControllerCycle(void) {
 		if (PLM_MODULE_STATE_TRANSIT_FWD == PLM_CurrentControlState) {
 			/* only track orientation when transiting forwards */
 			//SCM_TrackOrientation(PLM_CurrentCoordinateTarget.y - ODO_GetCurrentPositionY());
-			SCM_SetTimerValueForAngle((0.0f + ODO_GetCurrentOrientationZR()) + 0.0f);
+			SCM_SetTimerValueForAngle(ODO_GetCurrentOrientationZR());
 		}
 	} else {
 		/* turn off motors immediately */
@@ -211,12 +211,13 @@ void PLM_Init(void) {
 
 void PLM_MainCycle(void) {
 	PLM_CurrentControlState = PLM_MODULE_STATE_TRANSIT_FWD;
+	COM_StructTX.USDistanceFrontLeft = 240u; // TODO: remove!
 
 	PLM_DetermineSteering();
 	/* do main trajectory planning an control planning */
 
 	if (1u) {
-		// PLM_PlannerCycle();
+		//PLM_PlannerCycle();
 
 		/* update controllers */
 		PLM_ControllerCycle();

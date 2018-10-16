@@ -1,5 +1,6 @@
 #include "Odometry.h"
 #include "ComModule.h"
+#include "MotorControl.h"
 #include "Timing.h"
 
 //#define DEBUG_ODOMETRY
@@ -10,6 +11,9 @@
 
 char bufferString[200] = {0u};
 #endif
+
+// threshold of m
+#define ODO_INCREMENT_MOTOR_THRESHOLD	400u
 
 
 // distance measurement variables:
@@ -92,6 +96,7 @@ void ODO_PropagateOdometry(void)
     MPU_GetPhysAngularVelocity(&xr_vel, &yr_vel, &zr_vel);
 
     // enter Sample Rate here (v = v0 + a * tSA)!!!
+    if(MTC_GetMotorSpeed() > ODO_INCREMENT_MOTOR_THRESHOLD)
     CurrentVelocity_X += (x_accel * MAIN_SAMPLE_TIME_S);
     CurrentVelocity_Y += (y_accel * MAIN_SAMPLE_TIME_S);
     if(CurrentVelocity_X > 0.0f)
