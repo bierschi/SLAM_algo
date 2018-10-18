@@ -13,6 +13,8 @@
 #ifndef COMSTRUCTURE_H
 #define COMSTRUCTURE_H
 
+#include <stdint.h>
+
 // define some available steering modes on STM32 board
 #define COM_STEERING_MODE_AUTO 1u
 #define COM_STEERING_MODE_MANUAL 2u

@@ -174,8 +174,8 @@ void PLM_ControllerCycle(void) {
 		if (PLM_MODULE_STATE_TRANSIT_FWD == PLM_CurrentControlState) {
 			/* only track orientation when transiting forwards */
 			//SCM_TrackOrientation(PLM_CurrentCoordinateTarget.y - ODO_GetCurrentPositionY());
-			//SCM_SetTimerValueForAngle(ODO_GetCurrentOrientationZR());
-			SCM_SetTimerValueForAngle(COM_StructRX.CurrentSteeringAngle);
+			SCM_SetTimerValueForAngle(ODO_GetCurrentOrientationXR());
+			//SCM_SetTimerValueForAngle(COM_StructRX.CurrentSteeringAngle);
 		}
 	} else {
 		/* turn off motors immediately */
