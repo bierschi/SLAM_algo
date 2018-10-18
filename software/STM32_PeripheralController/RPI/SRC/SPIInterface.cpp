@@ -13,17 +13,40 @@ ComStructureType COM_StructTX;
 
 using namespace std;
 
+class PathGroup
+{
+public:
+    PathGroup()
+    {
+
+    }
+
+    void getPathTravels(const char * inputFile) {
+        FILE * file;
+        file = fopen(inputFile, "r");
+        char buffer[100] = {0};
+        int scanfError = 0;
+        float targetX, targetY, theta;
+
+        while (NULL != fgets(buffer, 30, file)) {
+			printf("%s", buffer);
+			scanfError = sscanf(buffer, "%f, %f, %f", &targetX, &targetY, &theta);
+
+			if(scanfError <= 0) break;
+
+		}
+    }
+};
+
 class PathTravel
 {
 	float targetX, targetY, originX, originY;
-    public:
-	PathTravel()
-    {
-    }
-
-    void test(void)
-    {
-        printf("Hallo Welt!");
+public:
+	PathTravel() {
+        targetX = 0.0f;
+        targetY = 0.0f;
+        originX = 0.0f;
+        originY = 0.0f;
     }
 };
 
@@ -31,8 +54,9 @@ int main (int argc, char ** argv)
 {
 	vector<PathTravel> pathVector;
 	PathTravel segment;
+	PathGroup group;
 	pathVector.push_back(segment);
-	segment.test();
+	group.getPathTravels("/home/stefan/HSPCar/STM32_HSPCar/SLAM_algo/software/STM32_PeripheralController/RPI/SRC/test.txt");
 
     spiOpen();
     printf("Open SPI Interface...\n");
