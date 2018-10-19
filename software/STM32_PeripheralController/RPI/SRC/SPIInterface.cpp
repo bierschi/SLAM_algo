@@ -4,59 +4,101 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/types.h>
-#include <vector>
+#include <pthread.h>
 #include "SPILibrary.h"
 #include "ComStructure.h"
+
+#define MAX_NUM_TRAVELS	1000
 
 ComStructureType COM_StructRX;
 ComStructureType COM_StructTX;
 
 using namespace std;
 
+class PathTravel
+{
+	float targetX, targetY, originX, originY, theta;
+public:
+	PathTravel(float oX, float oY, float tX, float tY, float th) {
+        targetX = tX;
+        targetY = tY;
+        originX = oX;
+        originY = oY;
+        theta = th;
+    }
+};
+
 class PathGroup
 {
+private:
+	// init number of path travels
+	PathTravel *travels[MAX_NUM_TRAVELS] = {0x0};
 public:
     PathGroup()
     {
-
     }
 
-    void getPathTravels(const char * inputFile) {
+    /** determine path travels from file input */
+    void determinePathTravels(const char * inputFile) {
+    	int counter = 0;
         FILE * file;
         file = fopen(inputFile, "r");
         char buffer[100] = {0};
         int scanfError = 0;
-        float targetX, targetY, theta;
+        float originX, originY, targetX, targetY, theta;
 
-        while (NULL != fgets(buffer, 30, file)) {
+        while ((NULL != fgets(buffer, 99, file)) && (counter < MAX_NUM_TRAVELS)) {
 			printf("%s", buffer);
-			scanfError = sscanf(buffer, "%f, %f, %f", &targetX, &targetY, &theta);
+			// parse informations from file
+			scanfError = sscanf(buffer, "%f, %f, %f, %f, %f", &originX, &originY, &targetX, &targetY, &theta);
+
+			this->travels[counter] = new PathTravel(originX, originY, targetX, targetY, theta);
 
 			if(scanfError <= 0) break;
 
+			counter++;
 		}
+    }
+
+    /** [DUMMY]  determine path travels from internal sources */
+    void determinePathTravels(void)
+    {
+
     }
 };
 
-class PathTravel
+class PositionUpdater
 {
-	float targetX, targetY, originX, originY;
+private:
+	pthread_t positionUpdateThread;
 public:
-	PathTravel() {
-        targetX = 0.0f;
-        targetY = 0.0f;
-        originX = 0.0f;
-        originY = 0.0f;
-    }
+	static void * updatePosition(void * args)
+	{
+		while (1) {
+			printf("Update Position here!\n");
+			sleep(1u);
+		}
+	}
+
+	PositionUpdater()
+	{
+		pthread_create(&positionUpdateThread, NULL, &updatePosition, NULL);
+	}
+};
+
+class StateModel
+{
+	StateModel()
+	{
+
+	}
 };
 
 int main (int argc, char ** argv)
 {
-	vector<PathTravel> pathVector;
-	PathTravel segment;
 	PathGroup group;
-	pathVector.push_back(segment);
-	group.getPathTravels("/home/stefan/HSPCar/STM32_HSPCar/SLAM_algo/software/STM32_PeripheralController/RPI/SRC/test.txt");
+	group.determinePathTravels(".\\path.txt");
+	PositionUpdater posUpdater;
 
     spiOpen();
     printf("Open SPI Interface...\n");
@@ -64,6 +106,10 @@ int main (int argc, char ** argv)
 	printf("Transmit Structure to STM32...\n");
     spiClose();
     printf("Close SPI Interface...\n");
+
+    while(1);
+
+    return 0;
 }
 
 
