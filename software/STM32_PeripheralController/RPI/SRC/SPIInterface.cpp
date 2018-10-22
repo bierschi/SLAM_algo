@@ -20,8 +20,6 @@ int main (int argc, char ** argv)
 	group.determinePathTravels("./path.txt");
 	PositionUpdater posUpdater;
 
-	group.cleanPathTravels();
-
     spiOpen();
     printf("Open SPI Interface...\n");
     spiSend(COM_StructTX, COM_StructRX);

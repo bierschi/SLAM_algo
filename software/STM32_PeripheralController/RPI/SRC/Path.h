@@ -13,6 +13,7 @@
 #include <stdint.h>
 #include <unistd.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <fcntl.h>
 
 #define MAX_NUM_PATH_TRAVELS	1000
@@ -29,6 +30,10 @@ class PathGroup {
 private:
 	// init number of path travels
 	PathTravel *travels[MAX_NUM_PATH_TRAVELS] = { 0x0 };
+	// creation timestamp of path
+	time_t creationTime = 0;
+	bool pathChanged = true;
+
 public:
 	PathGroup();
 
@@ -38,6 +43,8 @@ public:
 	/** [DUMMY]  determine path travels from internal sources */
 	void determinePathTravels(void);
 	void cleanPathTravels(void);
+	bool getPathChanged(void);
+
 };
 
 #endif /* PATH_H */

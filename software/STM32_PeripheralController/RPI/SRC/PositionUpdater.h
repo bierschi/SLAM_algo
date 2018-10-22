@@ -12,10 +12,18 @@
 #include <unistd.h>
 #include <pthread.h>
 
+typedef struct PositionStructure
+{
+	float x;
+	float y;
+	float theta;
+} PositionStructureType;
+
 class PositionUpdater
 {
 private:
 	pthread_t positionUpdateThread;
+	PositionStructureType position = {0};
 	// pointer to static
 	static void * updatePosition(void * args) {
 		while (1) {
@@ -27,6 +35,8 @@ private:
 public:
 	PositionUpdater();
 	~PositionUpdater();
+	PositionStructureType getPosition(void);
+
 };
 
 #endif /* POSITIONUPDATER_H */

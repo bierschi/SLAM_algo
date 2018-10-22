@@ -16,5 +16,7 @@ PositionUpdater::~PositionUpdater()
 	pthread_cancel(positionUpdateThread);
 }
 
-
-
+PositionStructureType PositionUpdater::getPosition(void)
+{
+	return position;
+}
