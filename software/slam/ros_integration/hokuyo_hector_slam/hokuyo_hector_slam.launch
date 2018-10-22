@@ -6,9 +6,19 @@
 
 <!--start rviz at beginning of launch file -->
 <group if="$(arg use_rviz)">
-  <node pkg="rviz" type="rviz" name="rviz" args="-d /home/christian/projects/hsp/SLAM_algo/software/slam/hector_slam/hector_slam.rviz" />
+  <node pkg="rviz" type="rviz" name="rviz" args="-d /home/christian/projects/hsp/SLAM_algo/software/slam/ros/hokuyo_hector_slam/hokuyo_hector_slam.rviz" />
 </group>
 
+<node name="hokuyo" pkg="hokuyo_node" type="hokuyo_node" respawn="false" output="screen">
+  
+    <!-- Starts up faster, but timestamps will be inaccurate. --> 
+    <param name="calibrate_time" type="bool" value="false"/> 
+    
+    <!-- Set the port to connect to here -->
+    <param name="port" type="string" value="/dev/ttyACM0"/> 
+  
+    <param name="intensity" type="bool" value="false"/>
+</node>
 
 <!-- launch hector_slam -->
   <arg name="tf_map_scanmatch_transform_frame_name" default="scanmatcher_frame"/>
@@ -63,6 +73,6 @@
       
 <node pkg="tf" type="static_transform_publisher" name="world_map_broadcaster" args="0 0 0 0 0 0 /world /map 100"/>
 
-<node pkg="tf" type="static_transform_publisher" name="base_laser_broadcaster" args="0 0 0 0 0 0 base_frame laser 100"/>
+<node pkg="tf" type="static_transform_publisher" name="base_laser_broadcaster" args="0 0 0 0 0 0 /base_frame /laser 100"/>
 
 </launch>
