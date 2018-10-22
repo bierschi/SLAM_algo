@@ -24,6 +24,10 @@ private:
 	bool travelled;
 public:
 	PathTravel(float oX, float oY, float tX, float tY, float th);
+	float getTargetX(void);
+	float getTargetY(void);
+	float getOriginX(void);
+	float getOriginY(void);
 };
 
 class PathGroup {
@@ -44,6 +48,7 @@ public:
 	void determinePathTravels(void);
 	void cleanPathTravels(void);
 	bool getPathChanged(void);
+	PathTravel * getPathTravelFromIndex(int index);
 
 };
 

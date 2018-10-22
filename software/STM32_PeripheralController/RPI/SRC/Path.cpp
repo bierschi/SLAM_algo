@@ -16,6 +16,24 @@ PathTravel::PathTravel(float oX, float oY, float tX, float tY, float th) {
 	travelled = false;
 }
 
+float PathTravel::getTargetX(void)
+{
+	return this->targetX;
+}
+
+float PathTravel::getTargetY(void)
+{
+	return this->targetY;
+}
+float PathTravel::getOriginX(void)
+{
+	return this->originX;
+}
+float PathTravel::getOriginY(void)
+{
+	return this->originY;
+}
+
 PathGroup::PathGroup() {
 }
 
@@ -79,3 +97,8 @@ bool PathGroup::getPathChanged(void)
 	return this->pathChanged;
 }
 
+PathTravel * PathGroup::getPathTravelFromIndex(int index)
+{
+	if(index < MAX_NUM_PATH_TRAVELS) return this->travels[index];
+	else return NULL;
+}

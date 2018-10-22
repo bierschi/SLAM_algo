@@ -18,7 +18,6 @@ int main (int argc, char ** argv)
 {
 	PathGroup group;
 	group.determinePathTravels("./path.txt");
-	PositionUpdater posUpdater;
 
     spiOpen();
     printf("Open SPI Interface...\n");

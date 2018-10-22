@@ -8,6 +8,7 @@
 #ifndef STATEMODEL_H
 #define STATEMODEL_H
 
+#include "PositionUpdater.h"
 #include "Path.h"
 
 typedef enum StateEnum
@@ -26,6 +27,7 @@ private:
 	// current index of traveled path group
 	unsigned int currentPathTravelIndex = 0u;
 	PathGroup *ptrPathGroup = NULL;
+	PositionUpdater *posUpdater = NULL;
 
 	bool newPathAvailable(void);
 public:
