@@ -14,6 +14,9 @@ set(CMAKE_VERBOSE_MAKEFILE TRUE)
 set(SRC_FILES
     ${CMAKE_CURRENT_LIST_DIR}/SPIInterface.cpp
     ${CMAKE_CURRENT_LIST_DIR}/SPILibrary.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/Path.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/PositionUpdater.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/StateModel.cpp
 )
 
 #define the include directories:
