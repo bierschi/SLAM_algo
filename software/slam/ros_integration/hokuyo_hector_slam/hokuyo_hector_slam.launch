@@ -6,9 +6,19 @@
 
 <!--start rviz at beginning of launch file -->
 <group if="$(arg use_rviz)">
-  <node pkg="rviz" type="rviz" name="rviz" args="-d /home/christian/projects/hsp/SLAM_algo/software/slam/hector_slam/hector_slam.rviz" />
+  <node pkg="rviz" type="rviz" name="rviz" args="-d /home/christian/projects/hsp/SLAM_algo/software/slam/ros/hokuyo_hector_slam/hokuyo_hector_slam.rviz" />
 </group>
 
+<node name="hokuyo" pkg="hokuyo_node" type="hokuyo_node" respawn="false" output="screen">
+  
+    <!-- Starts up faster, but timestamps will be inaccurate. --> 
+    <param name="calibrate_time" type="bool" value="false"/> 
+    
+    <!-- Set the port to connect to here -->
+    <param name="port" type="string" value="/dev/ttyACM0"/> 
+  
+    <param name="intensity" type="bool" value="false"/>
+</node>
 
 <!-- launch hector_slam -->
   <arg name="tf_map_scanmatch_transform_frame_name" default="scanmatcher_frame"/>
@@ -17,7 +27,7 @@
   <arg name="pub_map_odom_transform" default="false"/>
   <arg name="scan_subscriber_queue_size" default="5"/>
   <arg name="scan_topic" default="scan"/>
-  <arg name="map_size" default="2048"/>
+  <arg name="map_size" default="256"/>
   
   <node pkg="hector_mapping" type="hector_mapping" name="hector_mapping" output="screen">
     
@@ -32,7 +42,7 @@
     <param name="pub_map_odom_transform" value="$(arg pub_map_odom_transform)"/>
     
     <!-- Map size / start point -->
-    <param name="map_resolution" value="0.050"/>
+    <param name="map_resolution" value="0.025"/>
     <param name="map_size" value="$(arg map_size)"/>
     <param name="map_start_x" value="0.5"/>
     <param name="map_start_y" value="0.5" />
@@ -61,8 +71,8 @@
     <param name="tf_map_scanmatch_transform_frame_name" value="$(arg tf_map_scanmatch_transform_frame_name)" />
   </node>
       
-<node pkg="tf" type="static_transform_publisher" name="world_map_broadcaster" args="1 0 0 0 0 0 /world /map 100"/>
+<node pkg="tf" type="static_transform_publisher" name="world_map_broadcaster" args="0 0 0 0 0 0 /world /map 100"/>
 
-<node pkg="tf" type="static_transform_publisher" name="base_laser_broadcaster" args="0 0 0 0 0 0 base_frame laser 100"/>
+<node pkg="tf" type="static_transform_publisher" name="base_laser_broadcaster" args="0 0 0 0 0 0 /base_frame /laser 100"/>
 
 </launch>
