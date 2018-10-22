@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="14.3.0">
+  <zoom_level>15</zoom_level>
+  <element>
+    <id>UMLState</id>
+    <coordinates>
+      <x>225</x>
+      <y>345</y>
+      <w>135</w>
+      <h>105</h>
+    </coordinates>
+    <panel_attributes>Idle</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLState</id>
+    <coordinates>
+      <x>600</x>
+      <y>345</y>
+      <w>135</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>Fetch Path</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>345</x>
+      <y>345</y>
+      <w>285</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+/NewPath_avail.</panel_attributes>
+    <additional_attributes>10.0;20.0;170.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLState</id>
+    <coordinates>
+      <x>915</x>
+      <y>525</y>
+      <w>165</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>Travel to
+Segment Dest</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>720</x>
+      <y>360</y>
+      <w>240</w>
+      <h>45</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;</panel_attributes>
+    <additional_attributes>10.0;10.0;140.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>960</x>
+      <y>405</y>
+      <w>45</w>
+      <h>150</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;80.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLState</id>
+    <coordinates>
+      <x>930</x>
+      <y>360</y>
+      <w>135</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>Get Next
+Segment</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1005</x>
+      <y>405</y>
+      <w>180</w>
+      <h>150</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+/Trgt_Reached</panel_attributes>
+    <additional_attributes>10.0;80.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>270</x>
+      <y>390</y>
+      <w>690</w>
+      <h>165</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+/No_Segments_left</panel_attributes>
+    <additional_attributes>440.0;10.0;360.0;90.0;10.0;90.0;10.0;40.0</additional_attributes>
+  </element>
+</diagram>
