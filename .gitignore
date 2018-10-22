@@ -93,3 +93,4 @@ fabric.properties
 # STM32 Build Path
 /software/STM32_PeripheralController/BUILD/
 /software/STM32_PeripheralController/TOOLS/
+/software/STM32_PeripheralController/RPI/BUILD
