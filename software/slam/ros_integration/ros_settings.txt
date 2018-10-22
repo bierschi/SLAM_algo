@@ -1,0 +1,26 @@
+1. Download Ubuntu Mate
+- https://ubuntu-mate.org/download/
+- ubuntu-mate-16.04.2-desktop-armhf-raspberry-pi.img.xz
+
+2. Flash image on sd card
+
+3. Enable ssh on boot
+- sudo systemctl enable ssh
+
+4. Install ROS
+- https://intorobotics.com/how-to-install-ros-kinetic-on-raspberry-pi-3-ubuntu-mate/
+
+5. Install driver-common
+- sudo apt-get install ros-kinetic-driver-common
+
+6. Clone hokoyo node
+-git clone https://github.com/ros-drivers/hokuyo_node.git
+
+7. Install hector_mapping
+- sudo apt-get install ros-kinetic-hector-mapping
+- sudo apt-get install ros-kinetic-map-server
+
+8. Run
+-roscore&
+-sudo chmod a+rw /dev/ttyACM0
+-roslaunch hokuyo_hector_slam.launch

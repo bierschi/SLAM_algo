@@ -1,0 +1,13 @@
+digraph G {
+"map" -> "scanmatcher_frame"[label="Broadcaster: /hector_mapping\nAverage rate: 10.183 Hz\nMost recent transform: 1537470466.420 ( 0.079 sec old)\nBuffer length: 4.910 sec\n"];
+"world" -> "map"[label="Broadcaster: /world_map_broadcaster\nAverage rate: 10.153 Hz\nMost recent transform: 1537470466.580 ( -0.081 sec old)\nBuffer length: 4.925 sec\n"];
+"base_frame" -> "laser"[label="Broadcaster: /base_laser_broadcaster\nAverage rate: 10.162 Hz\nMost recent transform: 1537470466.583 ( -0.084 sec old)\nBuffer length: 4.920 sec\n"];
+edge [style=invis];
+ subgraph cluster_legend { style=bold; color=black; label ="view_frames Result";
+"Recorded at time: 1537470466.499"[ shape=plaintext ] ;
+ }->"world";
+edge [style=invis];
+ subgraph cluster_legend { style=bold; color=black; label ="view_frames Result";
+"Recorded at time: 1537470466.499"[ shape=plaintext ] ;
+ }->"base_frame";
+}
