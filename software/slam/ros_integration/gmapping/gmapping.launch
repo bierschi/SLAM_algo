@@ -1,0 +1,90 @@
+<launch>
+<param name="use_sim_time" value="false" />
+
+<!-- set arguments to start launch file -->
+<arg name="use_rviz" default="true" />
+<arg name="use_static_transform" default="true" />
+<arg name="scan_topic" default="/scan" />
+
+<!-- use static transform -->
+<group if="$(arg use_static_transform)">
+   <!--node pkg="tf" type="static_transform_publisher" name="tf_world_map" args="1 0 0 0 0 0 /world /map 100"/ -->
+
+   <node pkg="tf" type="static_transform_publisher" name="tf_baselink_laser" args="1 0 0 0 0 0 /base_link /laser 100"/> 
+   <node pkg="tf" type="static_transform_publisher" name="tf_odom_baselink" args="0 0 0 0 0 0 /odom /base_link 100"/> 
+</group>
+
+<!-- start rviz at beginning of launch file -->
+<group if="$(arg use_rviz)">
+  <node pkg="rviz" type="rviz" name="rviz" args="-d /home/christian/projects/hsp/SLAM_algo/software/slam/gmapping/gmapping.rviz" />
+  <!--node pkg="rviz" type="rviz" name="rviz"/-->
+</group>
+
+
+<node pkg="laser_scan_matcher" type="laser_scan_matcher_node" name="laser_scan_matcher_node" >
+    <param name="fixed_frame" value="/odom" />
+    <param name="publish_tf" value="true" />
+</node>
+
+<node pkg="gmapping" type="slam_gmapping" name="slam_gmapping" output="screen">
+
+    <param name="odom_frame" value="odom"/>
+    <param name="base_frame" value="base_link"/>
+    <param name="map_frame" value="map"/>
+
+    <!-- Process 1 out of every this many scans (set it to a higher number to skip more scans)  -->
+    <param name="throttle_scans" value="1"/>
+
+    <param name="map_update_interval" value="5.0"/> <!-- default: 5.0 -->
+
+    <!-- The maximum usable range of the laser. A beam is cropped to this value.  -->
+    <param name="maxUrange" value="5.0"/>
+
+    <!-- The maximum range of the sensor. If regions with no obstacles within the range of the sensor should appear as free space in the map, set maxUrange < maximum range of the real sensor <= maxRange -->
+    <param name="maxRange" value="10.0"/>
+
+    <param name="sigma" value="0.05"/>
+    <param name="kernelSize" value="1"/>
+    <param name="lstep" value="0.05"/>
+    <param name="astep" value="0.05"/>
+    <param name="iterations" value="5"/>
+    <param name="lsigma" value="0.075"/>
+    <param name="ogain" value="3.0"/>
+    <param name="minimumScore" value="0.0"/>
+    <!-- Number of beams to skip in each scan. -->
+    <param name="lskip" value="0"/>
+
+    <param name="srr" value="0.01"/>
+    <param name="srt" value="0.02"/>
+    <param name="str" value="0.01"/>
+    <param name="stt" value="0.02"/>
+
+    <!-- Process a scan each time the robot translates this far  -->
+    <param name="linearUpdate" value="0.1"/>
+
+    <!-- Process a scan each time the robot rotates this far  -->
+    <param name="angularUpdate" value="0.05"/>
+
+    <param name="temporalUpdate" value="-1.0"/>
+    <param name="resampleThreshold" value="0.5"/>
+
+    <!-- Number of particles in the filter. default 30        -->
+    <param name="particles" value="10"/>
+
+<!-- Initial map size  -->
+    <param name="xmin" value="-10.0"/>
+    <param name="ymin" value="-10.0"/>
+    <param name="xmax" value="10.0"/>
+    <param name="ymax" value="10.0"/>
+
+    <!-- Processing parameters (resolution of the map)  -->
+    <param name="delta" value="0.02"/>
+
+    <param name="llsamplerange" value="0.01"/>
+    <param name="llsamplestep" value="0.01"/>
+    <param name="lasamplerange" value="0.005"/>
+    <param name="lasamplestep" value="0.005"/>
+
+    <remap from="scan" to="$(arg scan_topic)"/>
+</node>
+</launch>
