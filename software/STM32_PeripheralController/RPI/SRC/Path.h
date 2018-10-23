@@ -46,8 +46,9 @@ public:
 
 	/** [DUMMY]  determine path travels from internal sources */
 	void determinePathTravels(void);
-	void cleanPathTravels(void);
+	void clearPathTravels(void);
 	bool getPathChanged(void);
+	bool pathAtIndexAvailable(int index);
 	PathTravel * getPathTravelFromIndex(int index);
 
 };

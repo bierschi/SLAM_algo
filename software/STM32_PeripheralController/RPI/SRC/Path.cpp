@@ -20,7 +20,6 @@ float PathTravel::getTargetX(void)
 {
 	return this->targetX;
 }
-
 float PathTravel::getTargetY(void)
 {
 	return this->targetY;
@@ -85,7 +84,7 @@ void PathGroup::determinePathTravels(void) {
 }
 
 // clear all generated paths
-void PathGroup::cleanPathTravels(void) {
+void PathGroup::clearPathTravels(void) {
 	for (int i = 0; i < MAX_NUM_PATH_TRAVELS; i++) {
 		if (NULL != travels[i])
 			delete travels[i];
@@ -95,6 +94,12 @@ void PathGroup::cleanPathTravels(void) {
 bool PathGroup::getPathChanged(void)
 {
 	return this->pathChanged;
+}
+
+bool PathGroup::pathAtIndexAvailable(int index)
+{
+	if(NULL != travels[index]) return true;
+	else return false;
 }
 
 PathTravel * PathGroup::getPathTravelFromIndex(int index)

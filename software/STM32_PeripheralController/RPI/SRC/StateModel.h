@@ -32,8 +32,9 @@ private:
 	bool newPathAvailable(void);
 public:
 	StateModel();
-
 	void calcNextState(void);
+	void Init(void);
+	void Main(void);
 };
 
 #endif /* STATEMODEL_H */
