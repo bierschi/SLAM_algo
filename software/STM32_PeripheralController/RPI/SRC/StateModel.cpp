@@ -30,6 +30,7 @@ float getDirectionDegree(PositionStructureType &position, PathTravel &travel)
 	// get the angle towards the target
 	temp = atanf( (travel.getTargetY() - position.y) / (travel.getTargetX() - position.x)) - position.theta;
 
+	// convert from radians to degree
 	degree = (180.0f / 3.14159265358979323846f) * temp;
 
 	// check and apply bounds
@@ -71,12 +72,15 @@ void StateModel::Init(void)
 void StateModel::calcNextState(void) {
 	PathTravel *currentTarget = NULL;
 	PositionStructureType position = {0};
-	position = posUpdater->getPosition();
+	position = posUpdater->getPosition(); // get current position from module
 	float degree = 0.0f;
+
+	printf("Current Position: (position.x: %.2f, position.y: %.2f, theta: %.2f)\n", position.x, position.y, position.theta);
 
 	switch (currentState) {
 	case STATE_IDLE:
 		// wait for next path list
+		printf("Current State: IDLE\n");
 		if (newPathAvailable()) {
 			currentPathTravelIndex = 0;
 			currentState = STATE_FETCH_PATHS;
@@ -84,11 +88,16 @@ void StateModel::calcNextState(void) {
 		break;
 	case STATE_FETCH_PATHS:
 		// calculate next direction
+		printf("Current State: FETCH_PATHS\n");
 		ptrPathGroup->determinePathTravels("./path.txt");
-		currentState = STATE_GET_NEXT_SEGMENT;
+
+		if(ptrPathGroup->getNumAvailPathTravels() > 0) currentState = STATE_GET_NEXT_SEGMENT;
+		else currentState = STATE_CLEAR_STATES;
 		break;
 	case STATE_GET_NEXT_SEGMENT:
 		// get next segment on path
+		printf("Current State: GET_NEXT_SEGMENT\n");
+
 		if (ptrPathGroup->pathAtIndexAvailable(currentPathTravelIndex)) {
 			currentTarget = ptrPathGroup->getPathTravelFromIndex(currentPathTravelIndex);
 			degree = getDirectionDegree(position, (*currentTarget));
@@ -98,12 +107,15 @@ void StateModel::calcNextState(void) {
 			spiSend(COM_StructTX, COM_StructRX);
 			currentState = STATE_TRAVEL;
 		} else {
-			currentState = STATE_IDLE;
+			currentState = STATE_CLEAR_STATES;
 		}
 
 
 		break;
 	case STATE_TRAVEL:
+
+		printf("Current State: TRAVEL\n");
+
 		// travel to next position and watch for reached destination
 		// get next path to travel
 		currentTarget = ptrPathGroup->getPathTravelFromIndex(currentPathTravelIndex);
@@ -117,13 +129,20 @@ void StateModel::calcNextState(void) {
 		{
 			// stop traveling if target position is reached
 			currentState = STATE_GET_NEXT_SEGMENT;
-			COM_StructTX.CurrentSteeringSpeed = 0u;
-			currentPathTravelIndex++;
+			COM_StructTX.CurrentSteeringSpeed = 0u; // shutdown motor
+			currentPathTravelIndex++; // get next path segment, if available
 		}
 
 		spiSend(COM_StructTX, COM_StructRX);
 		break;
 	case STATE_CLEAR_STATES:
+
+		printf("Current State: CLEAR_STATES\n");
+
+		ptrPathGroup->clearPathTravels();
+
+		currentState = STATE_IDLE;
+
 		// clear path travel states and prepare for next iteration
 		break;
 	}
@@ -132,7 +151,7 @@ void StateModel::calcNextState(void) {
 void StateModel::Main(void)
 {
 	struct timespec ts_sleep = {0}, ts_remaining = {0};
-	ts_sleep.tv_nsec = 200000000L;
+	ts_sleep.tv_nsec = 100000000L; // 100 ms delay
 	Init();
 
 	while(1)

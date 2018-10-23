@@ -88,6 +88,7 @@ void PathGroup::clearPathTravels(void) {
 	for (int i = 0; i < MAX_NUM_PATH_TRAVELS; i++) {
 		if (NULL != travels[i])
 			delete travels[i];
+		travels[i] = NULL;
 	}
 }
 
@@ -106,4 +107,17 @@ PathTravel * PathGroup::getPathTravelFromIndex(int index)
 {
 	if(index < MAX_NUM_PATH_TRAVELS) return this->travels[index];
 	else return NULL;
+}
+
+int PathGroup::getNumAvailPathTravels(void)
+{
+	for(int i = 0; i < MAX_NUM_PATH_TRAVELS; i++)
+	{
+		if(NULL == travels[i])
+		{
+			return i;
+		}
+	}
+
+	return MAX_NUM_PATH_TRAVELS;
 }

@@ -49,6 +49,7 @@ public:
 	void clearPathTravels(void);
 	bool getPathChanged(void);
 	bool pathAtIndexAvailable(int index);
+	int getNumAvailPathTravels(void);
 	PathTravel * getPathTravelFromIndex(int index);
 
 };
