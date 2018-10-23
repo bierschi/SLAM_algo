@@ -8,12 +8,12 @@
 #include "PositionUpdater.h"
 
 PositionUpdater::PositionUpdater() {
-	pthread_create(&positionUpdateThread, NULL, &updatePosition, NULL);
+	//pthread_create(&positionUpdateThread, NULL, &updatePosition, NULL);
 }
 
 PositionUpdater::~PositionUpdater()
 {
-	pthread_cancel(positionUpdateThread);
+	//pthread_cancel(positionUpdateThread);
 }
 
 PositionStructureType PositionUpdater::getPosition(void)

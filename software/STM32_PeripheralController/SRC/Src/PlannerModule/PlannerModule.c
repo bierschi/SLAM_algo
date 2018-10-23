@@ -78,7 +78,7 @@ void PLM_DetermineSteering(void) {
 				//(PIDC_ControllerInputBaseType) (COM_Struct.Target_Y * 400.0f / 25.4f);
 				0.0f;
 	} else if (COM_StructRX.CurrentSteeringMode == COM_STEERING_MODE_MANUAL) {
-		float directionTemp = COM_StructRX.CurrentSteeringDirection;
+		float directionTemp = COM_StructRX.CurrentSteeringAngle;
 		if (directionTemp > -90.0f && directionTemp < 90.0f) {
 			SCM_SetTimerValueForAngle(directionTemp);
 		}
@@ -164,22 +164,23 @@ void PLM_ControllerCycle(void) {
 	// prepare communication structure for SPI
 	PLM_PrepareTransmitMessages();
 
-	if ((PLM_MODULE_STATE_TRANSIT_SWD == PLM_CurrentControlState)
-			|| (PLM_MODULE_STATE_TRANSIT_FWD == PLM_CurrentControlState)) {
-		PIDC_calculateOutput(&MainEngine);
+	if (COM_StructRX.CurrentSteeringMode == COM_STEERING_MODE_AUTO) {
+		if ((PLM_MODULE_STATE_TRANSIT_SWD == PLM_CurrentControlState)
+				|| (PLM_MODULE_STATE_TRANSIT_FWD == PLM_CurrentControlState)) {
+			PIDC_calculateOutput(&MainEngine);
 
-		MTC_SetMotorSpeed(MainEngine.controllerOutput);
-		MTC_SetMotorDirection(MainEngine.controllerDirection);
+			MTC_SetMotorSpeed(MainEngine.controllerOutput);
+			MTC_SetMotorDirection(MainEngine.controllerDirection);
 
-		if (PLM_MODULE_STATE_TRANSIT_FWD == PLM_CurrentControlState) {
-			/* only track orientation when transiting forwards */
-			//SCM_TrackOrientation(PLM_CurrentCoordinateTarget.y - ODO_GetCurrentPositionY());
-			SCM_SetTimerValueForAngle(ODO_GetCurrentOrientationXR());
-			//SCM_SetTimerValueForAngle(COM_StructRX.CurrentSteeringAngle);
+			if (PLM_MODULE_STATE_TRANSIT_FWD == PLM_CurrentControlState) {
+				/* only track orientation when transiting forwards */
+				//SCM_TrackOrientation(PLM_CurrentCoordinateTarget.y - ODO_GetCurrentPositionY());
+				SCM_SetTimerValueForAngle(ODO_GetCurrentOrientationXR());
+			}
+		} else {
+			/* turn off motors immediately */
+			MTC_SetMotorSpeed(0u);
 		}
-	} else {
-		/* turn off motors immediately */
-		MTC_SetMotorSpeed(0u);
 	}
 }
 

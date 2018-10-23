@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.7)
 
 #generator: "Eclipse CDT4 - MinGW Makefiles"
 
@@ -25,8 +25,8 @@ set(INCLUDE_DIRS
 )
 
 # define compiler options:
-set(C_FLAGS "-O0 -g -pthread")
-set(CXX_FLAGS "-O0 -g -pthread")
+set(C_FLAGS "-O0 -g -pthread -DRPI_BUILD")
+set(CXX_FLAGS "-O0 -g -pthread -DRPI_BUILD")
 
 # set compiler options to CMake:
 set(CMAKE_C_FLAGS ${C_FLAGS})

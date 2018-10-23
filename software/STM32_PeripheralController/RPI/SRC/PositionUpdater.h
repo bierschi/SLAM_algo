@@ -25,12 +25,13 @@ private:
 	pthread_t positionUpdateThread;
 	PositionStructureType position = {0};
 	// pointer to static
-	static void * updatePosition(void * args) {
+	void * updatePosition(void * args) {
 		struct timespec ts_sleep = {0}, ts_remaining = {0};
 		ts_sleep.tv_nsec = 100000000L; // 100 ms delay
 
 		while (1) {
-			printf("Update Position here!\n");
+			printf("Update Position...\n");
+
 			nanosleep(&ts_sleep, &ts_remaining);
 		}
 	}

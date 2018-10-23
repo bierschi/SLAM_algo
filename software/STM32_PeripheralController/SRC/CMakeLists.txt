@@ -62,7 +62,7 @@ set(INCLUDE_DIRS
 )
 
 # define compiler options:
-set(C_FLAGS "-g -O0 -Wall -u _printf_float -mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 --specs=nano.specs --specs=nosys.specs -ffunction-sections -fdata-sections -DSTM32F334x8")
+set(C_FLAGS "-O1 -Wall -u _printf_float -mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 --specs=nano.specs --specs=nosys.specs -ffunction-sections -fdata-sections -DSTM32F334x8")
 set(ASM_FLAGS "-mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16")
 set(LD_FLAGS "-u _printf_float -static -T ${CMAKE_CURRENT_LIST_DIR}/Src/STM32F334R8Tx_FLASH.ld -Wl,--gc-sections -Wl,-Map,STM32_F334R8.map")
 

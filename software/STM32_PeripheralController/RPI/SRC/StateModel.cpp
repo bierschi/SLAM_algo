@@ -13,8 +13,8 @@
 #include "SPILibrary.h"
 
 // currently 10cm deviation
-#define MAX_ALLOWED_DEVIATION_M	0.01f
-#define TRAVEL_SPEED	600u
+#define MAX_ALLOWED_DEVIATION_M	0.1f
+#define TRAVEL_SPEED	100u
 
 ComStructureType COM_StructRX = {0};
 ComStructureType COM_StructTX = {0};
@@ -73,6 +73,9 @@ void StateModel::calcNextState(void) {
 	PathTravel *currentTarget = NULL;
 	PositionStructureType position = {0};
 	position = posUpdater->getPosition(); // get current position from module
+	position.theta = COM_StructRX.CurrentOrientation;
+	position.x = COM_StructRX.CurrentPositionX;
+	position.y = COM_StructRX.CurrentPositionY;
 	float degree = 0.0f;
 
 	printf("Current Position: (position.x: %.2f, position.y: %.2f, theta: %.2f)\n", position.x, position.y, position.theta);
