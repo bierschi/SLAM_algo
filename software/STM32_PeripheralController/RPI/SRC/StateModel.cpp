@@ -12,9 +12,9 @@
 #include "ComStructure.h"
 #include "SPILibrary.h"
 
-// currently 10cm deviation
+// currently 10cm deviation allowed
 #define MAX_ALLOWED_DEVIATION_M	0.1f
-#define TRAVEL_SPEED	100u
+#define MOTOR_SPEED	120u
 
 ComStructureType COM_StructRX = {0};
 ComStructureType COM_StructTX = {0};
@@ -26,9 +26,11 @@ float getDirectionDegree(PositionStructureType &position, PathTravel &travel)
 {
 	float degree = 0.0f; // 0 degree as default
 	float temp = 0.0f;
+	float divider = 1.0f; // mapping from theoretical steering angle to real wheel angle
 
 	// get the angle towards the target
-	temp = atanf( (travel.getTargetY() - position.y) / (travel.getTargetX() - position.x)) - position.theta;
+	//temp = atanf( (travel.getTargetY() - position.y) / (travel.getTargetX() - position.x)) - position.theta;
+	temp = atan2f((travel.getTargetY() - position.y), (travel.getTargetX() - position.x)) - position.theta;
 
 	// convert from radians to degree
 	degree = (180.0f / 3.14159265358979323846f) * temp;
@@ -36,6 +38,8 @@ float getDirectionDegree(PositionStructureType &position, PathTravel &travel)
 	// check and apply bounds
 	degree = fmaxf(degree, -90.0f);
 	degree = fminf(degree, 90.0f);
+
+	degree /= divider;
 
 	return degree;
 }
@@ -67,17 +71,20 @@ void StateModel::Init(void)
 	COM_StructTX.CurrentSteeringDirection = COM_STEERING_DIRECTON_ZERO;
 }
 
-
-
 void StateModel::calcNextState(void) {
 	PathTravel *currentTarget = NULL;
 	PositionStructureType position = {0};
+	float degree = 0.0f;
+
+	posUpdater->updatePosition();
 	position = posUpdater->getPosition(); // get current position from module
+
+	//TODO: remove workaround
 	position.theta = COM_StructRX.CurrentOrientation;
 	position.x = COM_StructRX.CurrentPositionX;
 	position.y = COM_StructRX.CurrentPositionY;
-	float degree = 0.0f;
 
+	// log position to output
 	printf("Current Position: (position.x: %.2f, position.y: %.2f, theta: %.2f)\n", position.x, position.y, position.theta);
 
 	switch (currentState) {
@@ -89,30 +96,34 @@ void StateModel::calcNextState(void) {
 			currentState = STATE_FETCH_PATHS;
 		}
 		break;
+
 	case STATE_FETCH_PATHS:
 		// calculate next direction
 		printf("Current State: FETCH_PATHS\n");
 		ptrPathGroup->determinePathTravels("./path.txt");
 
-		if(ptrPathGroup->getNumAvailPathTravels() > 0) currentState = STATE_GET_NEXT_SEGMENT;
-		else currentState = STATE_CLEAR_STATES;
+		if (ptrPathGroup->getNumAvailPathTravels() > 0)
+			currentState = STATE_GET_NEXT_SEGMENT;
+		else
+			currentState = STATE_CLEAR_STATES;
 		break;
+
 	case STATE_GET_NEXT_SEGMENT:
 		// get next segment on path
 		printf("Current State: GET_NEXT_SEGMENT\n");
 
 		if (ptrPathGroup->pathAtIndexAvailable(currentPathTravelIndex)) {
-			currentTarget = ptrPathGroup->getPathTravelFromIndex(currentPathTravelIndex);
+			currentTarget = ptrPathGroup->getPathTravelFromIndex(
+					currentPathTravelIndex);
 			degree = getDirectionDegree(position, (*currentTarget));
 			COM_StructTX.CurrentSteeringAngle = degree;
-			COM_StructTX.CurrentSteeringSpeed = TRAVEL_SPEED;
+			COM_StructTX.CurrentSteeringSpeed = MOTOR_SPEED;
 
 			spiSend(COM_StructTX, COM_StructRX);
 			currentState = STATE_TRAVEL;
 		} else {
 			currentState = STATE_CLEAR_STATES;
 		}
-
 
 		break;
 	case STATE_TRAVEL:
@@ -121,15 +132,17 @@ void StateModel::calcNextState(void) {
 
 		// travel to next position and watch for reached destination
 		// get next path to travel
-		currentTarget = ptrPathGroup->getPathTravelFromIndex(currentPathTravelIndex);
+		currentTarget = ptrPathGroup->getPathTravelFromIndex(
+				currentPathTravelIndex);
 
 		// always track orientation towards target:
 		degree = getDirectionDegree(position, (*currentTarget));
 		COM_StructTX.CurrentSteeringAngle = degree;
 
-		if((MAX_ALLOWED_DEVIATION_M > abs(position.x - currentTarget->getTargetX()))
-				&& (MAX_ALLOWED_DEVIATION_M > abs(position.y - currentTarget->getTargetY())))
-		{
+		if ((MAX_ALLOWED_DEVIATION_M
+				> abs(position.x - currentTarget->getTargetX()))
+				&& (MAX_ALLOWED_DEVIATION_M
+						> abs(position.y - currentTarget->getTargetY()))) {
 			// stop traveling if target position is reached
 			currentState = STATE_GET_NEXT_SEGMENT;
 			COM_StructTX.CurrentSteeringSpeed = 0u; // shutdown motor
@@ -138,15 +151,18 @@ void StateModel::calcNextState(void) {
 
 		spiSend(COM_StructTX, COM_StructRX);
 		break;
+
 	case STATE_CLEAR_STATES:
 
 		printf("Current State: CLEAR_STATES\n");
-
 		ptrPathGroup->clearPathTravels();
-
 		currentState = STATE_IDLE;
 
 		// clear path travel states and prepare for next iteration
+		break;
+
+	default:
+		currentState = STATE_CLEAR_STATES;
 		break;
 	}
 }
@@ -154,7 +170,7 @@ void StateModel::calcNextState(void) {
 void StateModel::Main(void)
 {
 	struct timespec ts_sleep = {0}, ts_remaining = {0};
-	ts_sleep.tv_nsec = 100000000L; // 100 ms delay
+	ts_sleep.tv_nsec = 200000000L; // 100 ms delay
 	Init();
 
 	while(1)
