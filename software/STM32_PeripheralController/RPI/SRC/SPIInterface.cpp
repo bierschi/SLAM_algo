@@ -3,31 +3,26 @@
 #include <stdint.h>
 #include <sys/types.h>
 #include "SPILibrary.h"
-#include "ComStructure.h"
 #include "Path.h"
 #include "PositionUpdater.h"
 #include "StateModel.h"
-
-// communication structures for STM32 peripheral
-ComStructureType COM_StructRX;
-ComStructureType COM_StructTX;
 
 using namespace std;
 
 int main (int argc, char ** argv)
 {
 	PathGroup group;
+	StateModel model;
 	group.determinePathTravels("./path.txt");
-	PositionUpdater posUpdater;
 
-    spiOpen();
-    printf("Open SPI Interface...\n");
-    spiSend(COM_StructTX, COM_StructRX);
-	printf("Transmit Structure to STM32...\n");
-    spiClose();
-    printf("Close SPI Interface...\n");
+	printf("Open SPI Interface...\n");
+	spiOpen();
 
-    while(1);
+	printf("Create State Model...\n");
+	model.Main();
+
+	printf("Close SPI Interface...\n");
+	spiClose();
 
     return 0;
 }

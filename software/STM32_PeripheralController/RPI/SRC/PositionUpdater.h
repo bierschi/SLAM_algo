@@ -22,20 +22,13 @@ typedef struct PositionStructure
 class PositionUpdater
 {
 private:
-	pthread_t positionUpdateThread;
 	PositionStructureType position = {0};
-	// pointer to static
-	static void * updatePosition(void * args) {
-		while (1) {
-			printf("Update Position here!\n");
-			sleep(1u);
-		}
-	}
 
 public:
 	PositionUpdater();
 	~PositionUpdater();
 	PositionStructureType getPosition(void);
+	void updatePosition(void);
 
 };
 

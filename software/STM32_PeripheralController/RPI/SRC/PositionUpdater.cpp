@@ -5,18 +5,38 @@
  *      Author: grauvogs
  */
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <fcntl.h>
 #include "PositionUpdater.h"
 
 PositionUpdater::PositionUpdater() {
-	pthread_create(&positionUpdateThread, NULL, &updatePosition, NULL);
 }
 
 PositionUpdater::~PositionUpdater()
 {
-	pthread_cancel(positionUpdateThread);
 }
 
 PositionStructureType PositionUpdater::getPosition(void)
 {
 	return position;
+}
+
+void PositionUpdater::updatePosition(void)
+{
+	FILE * file = NULL;
+	file = fopen("./position.txt", "r");
+	char buffer[100] = {0};
+
+	if(file != NULL)
+	{
+		// parse position information from first line of file
+		fgets(buffer, 99, file);
+		int num = sscanf(buffer, "%f, %f, %f", &position.x, &position.y, &position.theta);
+	}
+	else
+	{
+		printf("PositionUpdater: Error opening file input!\n");
+	}
 }

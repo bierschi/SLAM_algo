@@ -24,7 +24,7 @@ void COM_Init(void)
 	COM_StructRX = zero;
 	COM_StructTX = zero;
 
-	COM_StructRX.CurrentSteeringMode = COM_STEERING_MODE_AUTO;
+	COM_StructRX.CurrentSteeringMode = COM_STEERING_MODE_MANUAL;
 	COM_StructRX.CurrentSteeringAngle = COM_STEERING_ANGLE_ZERO;
 	COM_StructRX.CurrentSteeringDirection = COM_STEERING_DIRECTON_ZERO;
 	COM_StructRX.CurrentSteeringSpeed = COM_STEERING_SPEED_ZERO;

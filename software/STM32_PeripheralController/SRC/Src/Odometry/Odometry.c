@@ -3,7 +3,7 @@
 #include "MotorControl.h"
 #include "Timing.h"
 
-//#define DEBUG_ODOMETRY
+#define DEBUG_ODOMETRY
 
 #ifdef DEBUG_ODOMETRY
 #include <stdio.h>
@@ -90,16 +90,16 @@ void ODO_PropagateOdometry(void)
 {
     LateralAccelValuePhysType x_accel, y_accel, z_accel;
     AngularVelValuePhysType xr_vel, yr_vel, zr_vel;
-    float velocityDecay = 0.0001f;
+    float velocityDecay = 0.001f;
 
-    MPU_GetPhysLateralAccelerations(&x_accel, &y_accel, &z_accel);
-    MPU_GetPhysAngularVelocity(&xr_vel, &yr_vel, &zr_vel);
+    MPU_GetPhysLateralAccelerations(&z_accel, &y_accel, &x_accel);
+    MPU_GetPhysAngularVelocity(&zr_vel, &yr_vel, &xr_vel);
 
     // enter Sample Rate here (v = v0 + a * tSA)!!!
-	if (MTC_GetMotorSpeed() > ODO_INCREMENT_MOTOR_THRESHOLD) {
+//	if (MTC_GetMotorSpeed() > ODO_INCREMENT_MOTOR_THRESHOLD) {
 		CurrentVelocity_X += (x_accel * MAIN_SAMPLE_TIME_S);
 		CurrentVelocity_Y += (y_accel * MAIN_SAMPLE_TIME_S);
-	}
+//	}
     if(CurrentVelocity_X > 0.0f)
     {
         CurrentVelocity_X -= velocityDecay;
