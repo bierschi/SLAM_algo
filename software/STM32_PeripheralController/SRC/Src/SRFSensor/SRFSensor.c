@@ -5,9 +5,9 @@
 #define SRF_WAIT_CYCLES_FOR_SAMPLE 		(70u/(MAIN_SAMPLE_TIME_MS)) // 70 ms / application cycle (ms)
 
 #define SRF_BROADCAST_ADDRESS			0x00 // address to reach all SRF modules
-#define SRF_FRONT_LEFT_DEV_ADRESS 		(0xE0 << 1) // device adress for front left sonar
-#define SRF_FRONT_RIGHT_DEV_ADRESS		(0xE1 << 1) // device adress for front right sonar
-#define SRF_REAR_DEV_ADRESS				(0xE2 << 1) // device adress for rear
+#define SRF_FRONT_LEFT_DEV_ADRESS 		(0xE0) // device adress for front left sonar
+#define SRF_FRONT_RIGHT_DEV_ADRESS		(0xE1) // device adress for front right sonar
+#define SRF_REAR_DEV_ADRESS				(0xE2) // device adress for rear
 
 #define SRF_COMMAND_REGISTER			0x00 // command register
 #define SRF_COMMAND_START_RANGING_CM	0x51 // starts ranging in centimeters, will take 65 ms to complete
@@ -53,11 +53,11 @@ void SRF_MainFunction(void)
     {
         if(cycleCounter >= SRF_WAIT_CYCLES_FOR_SAMPLE)
         {
-        	HAL_I2C_Mem_Read(&hi2c1, SRF_FRONT_LEFT_DEV_ADRESS, SRF_REGISTER_1ST_ECHO_HIGH, 2u, data, 2u, 10u);
-        	FrontLeftDistance = ((((uint16_t) (data[0])) << 8) | ((uint16_t) (data[1]))) ;
-        	HAL_I2C_Mem_Read(&hi2c1, SRF_FRONT_RIGHT_DEV_ADRESS, SRF_REGISTER_1ST_ECHO_HIGH, 2u, data, 2u, 10u);
-        	FrontRightDistance = ((((uint16_t) (data[0])) << 8) | ((uint16_t) (data[1]))) ;
-        	HAL_I2C_Mem_Read(&hi2c1, SRF_REAR_DEV_ADRESS, SRF_REGISTER_1ST_ECHO_HIGH, 2u, data, 2u, 10u);
+        	HAL_I2C_Mem_Read(&hi2c1, SRF_FRONT_LEFT_DEV_ADRESS, SRF_REGISTER_1ST_ECHO_HIGH, I2C_MEMADD_SIZE_8BIT, data, 2u, 10u);
+        	FrontLeftDistance = ((((uint16_t) (data[0])) << 8) | ((uint16_t) (data[1])));
+        	HAL_I2C_Mem_Read(&hi2c1, SRF_FRONT_RIGHT_DEV_ADRESS, SRF_REGISTER_1ST_ECHO_HIGH, I2C_MEMADD_SIZE_8BIT, data, 2u, 10u);
+        	FrontRightDistance = ((((uint16_t) (data[0])) << 8) | ((uint16_t) (data[1])));
+        	HAL_I2C_Mem_Read(&hi2c1, SRF_REAR_DEV_ADRESS, SRF_REGISTER_1ST_ECHO_HIGH, I2C_MEMADD_SIZE_8BIT, data, 2u, 10u);
         	RearDistance = ((((uint16_t) (data[0])) << 8) | ((uint16_t) (data[1])));
 
         	cycleCounter = 0u;
@@ -73,7 +73,7 @@ void SRF_MainFunction(void)
     {
     	// start new SRF08 measurement
     	data[0] = SRF_COMMAND_START_RANGING_CM;
-    	HAL_I2C_Master_Transmit(&hi2c1, SRF_BROADCAST_ADDRESS, data, 1u, 10u);
+    	HAL_I2C_Mem_Write(&hi2c1, SRF_BROADCAST_ADDRESS, SRF_COMMAND_REGISTER, I2C_MEMADD_SIZE_8BIT, data, 1u, 10u);
     	measurementRunning = 1u;
     	cycleCounter = 0u;
     }
