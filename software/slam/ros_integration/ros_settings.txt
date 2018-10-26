@@ -1,26 +1,66 @@
 1. Download Ubuntu Mate
 - https://ubuntu-mate.org/download/
 - ubuntu-mate-16.04.2-desktop-armhf-raspberry-pi.img.xz
+- No official raspberry pi 3b+ image available!
+- Ubuntu Mate not booting with raspberry pi 3b+
 
-2. Flash image on sd card
+2. Flash Ubuntu Mate on sd card
 
-3. Enable ssh on boot
+3. Insert sd card into a Raspberry pi 2 or Raspberry pi 3
+
+4. Insert command into terminal (kernel update)
+- sudo CURL_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt rpi-update 
+- (alternative command: sudo BRANCH=stable rpi-update)
+
+5. Insert sd card into Raspberry Pi 3b+
+- now the raspberry should start booting 
+
+6. No wifi available!
+- install new raspbian image on sd card
+- boot raspberry pi with this sd card
+- copy folder /lib/firmware/bcrm on a usb
+- sudo cp -r /lib/firmware/bcrm /path_to_usb
+
+7. copy /lib/firmware/bcrm folder to Ubuntu Mate
+- start raspberry pi 3b+ with ubuntu mate
+- replace current /lib/firmware/bcrm with the folder on usb stick
+- sudo cp -r /path_to_usb /lib/firmware/bcrm
+
+8. Reboot and wifi should be available
+
+9. Enable ssh on boot
 - sudo systemctl enable ssh
 
-4. Install ROS
+10. Install ROS
 - https://intorobotics.com/how-to-install-ros-kinetic-on-raspberry-pi-3-ubuntu-mate/
 
-5. Install driver-common
+11. Install driver-common
 - sudo apt-get install ros-kinetic-driver-common
 
-6. Clone hokoyo node
+12. Clone hokoyo node into catkin workspace under /catkin_ws/src and build package
 -git clone https://github.com/ros-drivers/hokuyo_node.git
+- cd /catkin_ws
+- catkin_make
 
-7. Install hector_mapping
+13. Install hector_mapping
 - sudo apt-get install ros-kinetic-hector-mapping
 - sudo apt-get install ros-kinetic-map-server
 
-8. Run
+14. Run
 -roscore&
 -sudo chmod a+rw /dev/ttyACM0
+-rosrun hokuyo_node hokuyo_node
 -roslaunch hokuyo_hector_slam.launch
+
+15. Wiring Pi update
+-check gpio -v
+-if error comes up
+-sudo apt-get purge wiringpi
+-hash -r
+-git clone git://git.drogon.net/wiringPi
+-cd wiringPi
+-./build
+-check gpio -v again 
+-check gpio readall
+
+
