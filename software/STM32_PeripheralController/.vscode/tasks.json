@@ -1,0 +1,35 @@
+// Task definition file for VSCode
+
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build STM32PeripheralController",
+            "type": "shell",
+            "command": "make",
+            "problemMatcher" : "$gcc",
+            "options": {
+                "cwd": "./BUILD"
+            }
+        },
+        {
+            "label": "CMake STM32PeripheralController",
+            "type": "shell",
+            "command": "cmake -G \"Eclipse CDT4 - Unix Makefiles\" -DCMAKE_ECLIPSE_VERSION=4.9 .",
+            "problemMatcher" : "$gcc",
+            "options": {
+                "cwd": "./BUILD"
+            }
+        },
+        {
+            "label": "Upload STM32PeripheralController",
+            "type": "shell",
+            "command": "sh upload.sh",
+            "options": {
+                "cwd": "./BUILD"
+            }
+        }
+    ]
+}
