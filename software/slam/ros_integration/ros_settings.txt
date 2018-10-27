@@ -63,4 +63,23 @@
 -check gpio -v again 
 -check gpio readall
 
+16. create systemd service for roscore
+- in /etc/systemd/system create a file named roscore.service
+- insert:
+[Unit]
+Description=start roscore master as a systemd service
+
+[Service]
+Type=simple
+ExecStart=/bin/bash -c "source /opt/ros/kinetic/setup.bash; /usr/bin/python /opt/ros/kinetic/bin/roscore"
+
+[Install]
+WantedBy=multi-user.target
+
+- enable on boot: sudo systemctl enable roscore.service
+- start: sudo systemctl start roscore.service
+
+17. Add user to dialout to access the /dev/ttyACM0 with non-privilege 
+- sudo adduser "user_name" dialout
+- reboot
 
