@@ -7,11 +7,9 @@
 
 #include <Path.h>
 
-PathTravel::PathTravel(float oX, float oY, float tX, float tY, float th) {
+PathTravel::PathTravel(float tX, float tY, float th) {
 	targetX = tX;
 	targetY = tY;
-	originX = oX;
-	originY = oY;
 	theta = th;
 	travelled = false;
 }
@@ -24,14 +22,6 @@ float PathTravel::getTargetY(void)
 {
 	return this->targetY;
 }
-float PathTravel::getOriginX(void)
-{
-	return this->originX;
-}
-float PathTravel::getOriginY(void)
-{
-	return this->originY;
-}
 
 PathGroup::PathGroup() {
 }
@@ -43,7 +33,7 @@ void PathGroup::determinePathTravels(const char * inputFile) {
 	time_t newCreationTime = 0;
 	char buffer[100] = { 0 };
 	int scanfError = 0;
-	float originX, originY, targetX, targetY, theta;
+	float targetX, targetY, theta;
 	struct stat statBuffer = {0};
 
 	pathChanged = false;
@@ -53,28 +43,24 @@ void PathGroup::determinePathTravels(const char * inputFile) {
 
 	file = fopen(inputFile, "r");
 	while ((NULL != file) && (NULL != fgets(buffer, 99, file))
-			&& (counter < MAX_NUM_PATH_TRAVELS)) {
+			&& (counter < MAX_NUM_PATH_TRAVELS)
+            && (newCreationTime > creationTime)) {
 		printf("%s", buffer);
 		// parse informations from file
-		scanfError = sscanf(buffer, "%f, %f, %f, %f, %f", &originX, &originY,
-				&targetX, &targetY, &theta);
+		scanfError = sscanf(buffer, "%f, %f, %f", &targetX, &targetY, &theta);
 
-		this->travels[counter] = new PathTravel(originX, originY, targetX,
-				targetY, theta);
+		this->travels[counter] = new PathTravel(targetX, targetY, theta);
 
 		if (scanfError <= 0)
 			break;
 
 		counter++;
+
+        pathChanged = true;
 	}
 
 	if (NULL != file) {
 		fclose(file);
-	}
-
-	if(newCreationTime > creationTime)
-	{
-		pathChanged = true;
 	}
 }
 

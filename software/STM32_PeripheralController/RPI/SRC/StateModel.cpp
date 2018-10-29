@@ -60,7 +60,7 @@ bool StateModel::newPathAvailable(void) {
 void StateModel::getConfig(void)
 {
     FILE * fptr = NULL;
-    char buffer[30] = {0};
+    char buffer[100] = {0};
     uint16_t motorspeed = COM_STEERING_SPEED_ZERO;
     uint8_t direction = COM_STEERING_DIRECTON_ZERO;
 
@@ -69,26 +69,26 @@ void StateModel::getConfig(void)
     // read configs from file:
 
     // read motor speed:
-    if((NULL != fptr) && (NULL != fgets(buffer, 29, fptr)))
+    if((NULL != fptr) && (NULL != fgets(buffer, 99, fptr)))
     {
         sscanf(buffer, "Speed:%hu", &motorspeed);
     }
 
-    if((NULL != fptr) && (NULL != fgets(buffer, 29, fptr)))
+    this->defaultMotorSpeed = motorspeed;
+
+    if((NULL != fptr) && (NULL != fgets(buffer, 99, fptr)))
     {
         sscanf(buffer, "Direction:%hhu", &direction);
     }
 
     // store speed and direction of motor:
     this->defaultMotorDirection = direction;
-    this->defaultMotorSpeed = motorspeed;
 
     if(fptr != NULL) fclose(fptr);
 }
 
 // PUBLIC:
 StateModel::StateModel() {
-    this->getConfig();
 }
 
 void StateModel::Init(void)
@@ -96,7 +96,7 @@ void StateModel::Init(void)
 	ptrPathGroup = new PathGroup();
 	posUpdater = new PositionUpdater();
 	COM_StructTX.CurrentSteeringMode = COM_STEERING_MODE_MANUAL;
-	COM_StructTX.CurrentSteeringDirection = COM_STEERING_DIRECTON_ZERO;
+    getConfig();
 }
 
 void StateModel::calcNextState(void) {

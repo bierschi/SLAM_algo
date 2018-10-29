@@ -20,14 +20,12 @@
 
 class PathTravel {
 private:
-	float targetX, targetY, originX, originY, theta;
+	float targetX, targetY, theta;
 	bool travelled;
 public:
-	PathTravel(float oX, float oY, float tX, float tY, float th);
+	PathTravel(float tX, float tY, float th);
 	float getTargetX(void);
 	float getTargetY(void);
-	float getOriginX(void);
-	float getOriginY(void);
 };
 
 class PathGroup {
