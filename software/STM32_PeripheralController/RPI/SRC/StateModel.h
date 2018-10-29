@@ -9,6 +9,7 @@
 #define STATEMODEL_H
 
 #include "PositionUpdater.h"
+#include "ComStructure.h"
 #include "Path.h"
 
 typedef enum StateEnum
@@ -26,10 +27,13 @@ private:
 	StateEnumType currentState = STATE_IDLE;
 	// current index of traveled path group
 	unsigned int currentPathTravelIndex = 0u;
+    uint16_t defaultMotorSpeed = COM_STEERING_SPEED_ZERO;
+    uint8_t defaultMotorDirection = COM_STEERING_DIRECTON_ZERO;
 	PathGroup *ptrPathGroup = NULL;
 	PositionUpdater *posUpdater = NULL;
 
 	bool newPathAvailable(void);
+	void getConfig(void);
 public:
 	StateModel();
 	void calcNextState(void);

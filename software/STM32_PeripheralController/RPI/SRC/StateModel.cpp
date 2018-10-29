@@ -57,10 +57,38 @@ bool StateModel::newPathAvailable(void) {
 	}
 }
 
+void StateModel::getConfig(void)
+{
+    FILE * fptr = NULL;
+    char buffer[30] = {0};
+    uint16_t motorspeed = COM_STEERING_SPEED_ZERO;
+    uint8_t direction = COM_STEERING_DIRECTON_ZERO;
+
+    fptr = fopen("./config.cfg", "r");
+
+    // read configs from file:
+
+    // read motor speed:
+    if((NULL != fptr) && (NULL != fgets(buffer, 29, fptr)))
+    {
+        sscanf(buffer, "Speed:%hu", &motorspeed);
+    }
+
+    if((NULL != fptr) && (NULL != fgets(buffer, 29, fptr)))
+    {
+        sscanf(buffer, "Direction:%hhu", &direction);
+    }
+
+    // store speed and direction of motor:
+    this->defaultMotorDirection = direction;
+    this->defaultMotorSpeed = motorspeed;
+
+    if(fptr != NULL) fclose(fptr);
+}
 
 // PUBLIC:
 StateModel::StateModel() {
-
+    this->getConfig();
 }
 
 void StateModel::Init(void)
@@ -117,7 +145,8 @@ void StateModel::calcNextState(void) {
 					currentPathTravelIndex);
 			degree = getDirectionDegree(position, (*currentTarget));
 			COM_StructTX.CurrentSteeringAngle = degree;
-			COM_StructTX.CurrentSteeringSpeed = MOTOR_SPEED;
+			COM_StructTX.CurrentSteeringSpeed = this->defaultMotorSpeed;
+            COM_StructTX.CurrentSteeringDirection = this->defaultMotorDirection;
 
 			spiSend(COM_StructTX, COM_StructRX);
 			currentState = STATE_TRAVEL;
@@ -170,7 +199,7 @@ void StateModel::calcNextState(void) {
 void StateModel::Main(void)
 {
 	struct timespec ts_sleep = {0}, ts_remaining = {0};
-	ts_sleep.tv_nsec = 200000000L; // 100 ms delay
+	ts_sleep.tv_nsec = 200000000L; // 200 ms delay
 	Init();
 
 	while(1)

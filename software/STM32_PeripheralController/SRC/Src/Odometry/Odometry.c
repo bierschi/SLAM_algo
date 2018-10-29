@@ -130,9 +130,9 @@ void ODO_PropagateOdometry(void)
 //     snprintf(bufferString, 199,
 //     "xAccel:%.2fm/s2\nyAccel%.2fm/s2\nzAccel%.2fm/s2\nxrAccel%.2fdg/s\nyrAccel%.2fdg/s\nzrAccel%.2fdg/s\n",
 //     x_accel, y_accel, z_accel, xr_vel, yr_vel, zr_vel);
-    snprintf(bufferString, 199, "Distance X: %.4f , Distance Y: %.4f\n", CurrentPosition_X, CurrentPosition_Y);
+//    snprintf(bufferString, 199, "Distance X: %.4f , Distance Y: %.4f\n", CurrentPosition_X, CurrentPosition_Y);
 //    COM_PrintToUART((uint8_t *) bufferString, (uint8_t) strlen(bufferString));
 //    snprintf(bufferString, 199, "Xrot: %.2f\nYrot: %.2f\nZrot: %.2f\n", CurrentOrientation_XR, CurrentOrientation_YR, CurrentOrientation_ZR);
-    COM_PrintToUART((uint8_t *) bufferString, (uint8_t) strlen(bufferString));
+//    COM_PrintToUART((uint8_t *) bufferString, (uint8_t) strlen(bufferString));
     #endif
 }

@@ -221,7 +221,7 @@ void PLM_MainCycle(void) {
 		//PLM_PlannerCycle();
 
 		/* update controllers */
-		PLM_ControllerCycle();
+		//PLM_ControllerCycle();
 	}
 
 	/* propagate local delay timer */
