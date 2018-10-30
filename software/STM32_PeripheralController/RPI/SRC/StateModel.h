@@ -29,11 +29,13 @@ private:
 	unsigned int currentPathTravelIndex = 0u;
     uint16_t defaultMotorSpeed = COM_STEERING_SPEED_ZERO;
     uint8_t defaultMotorDirection = COM_STEERING_DIRECTON_ZERO;
+    float maxAllowedDeviation = 0.1f;
 	PathGroup *ptrPathGroup = NULL;
 	PositionUpdater *posUpdater = NULL;
 
 	bool newPathAvailable(void);
 	void getConfig(void);
+    void writeUltrasonicDistancesToFile(void);
 public:
 	StateModel();
 	void calcNextState(void);

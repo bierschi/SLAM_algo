@@ -12,10 +12,10 @@
 #include "ComStructure.h"
 #include "SPILibrary.h"
 
-// currently 10cm deviation allowed
-#define MAX_ALLOWED_DEVIATION_M	0.1f
-#define MOTOR_SPEED	120u
+// if defined, we should use the position update provided by file
+#define USE_POSITION_FROM_FILE
 
+// global communication structures
 ComStructureType COM_StructRX = {0};
 ComStructureType COM_StructTX = {0};
 
@@ -63,6 +63,7 @@ void StateModel::getConfig(void)
     char buffer[100] = {0};
     uint16_t motorspeed = COM_STEERING_SPEED_ZERO;
     uint8_t direction = COM_STEERING_DIRECTON_ZERO;
+    float deviation = 0.0f;
 
     fptr = fopen("./config.cfg", "r");
 
@@ -84,7 +85,31 @@ void StateModel::getConfig(void)
     // store speed and direction of motor:
     this->defaultMotorDirection = direction;
 
+    if((NULL != fptr) && (NULL != fgets(buffer, 99, fptr)))
+    {
+        sscanf(buffer, "AllowedDeviation:%f", &deviation);
+    }
+
+    this->maxAllowedDeviation = deviation;
+
     if(fptr != NULL) fclose(fptr);
+}
+
+void StateModel::writeUltrasonicDistancesToFile(void)
+{
+    FILE * fptr = NULL;
+    char buffer[500] = {0};
+
+    fptr = fopen("ultrasonic.txt", "w");
+
+    if(NULL != fptr)
+    {
+        sprintf(buffer, "USDistanceFrontLeft: %hu\nUSDistanceFrontRight: %hu\nUSDistanceRear: %hu",
+        COM_StructRX.USDistanceFrontLeft, COM_StructRX.USDistanceFrontRight, COM_StructRX.USDistanceRear);
+        fputs(buffer, fptr);
+
+        fclose(fptr);
+    }
 }
 
 // PUBLIC:
@@ -107,10 +132,11 @@ void StateModel::calcNextState(void) {
 	posUpdater->updatePosition();
 	position = posUpdater->getPosition(); // get current position from module
 
-	//TODO: remove workaround
 	position.theta = COM_StructRX.CurrentOrientation;
-	position.x = COM_StructRX.CurrentPositionX;
-	position.y = COM_StructRX.CurrentPositionY;
+#ifndef USE_POSITION_FROM_FILE
+    position.x = COM_StructRX.CurrentPositionX;
+    position.y = COM_StructRX.CurrentPositionY;
+#endif
 
 	// log position to output
 	printf("Current Position: (position.x: %.2f, position.y: %.2f, theta: %.2f)\n", position.x, position.y, position.theta);
@@ -141,14 +167,14 @@ void StateModel::calcNextState(void) {
 		printf("Current State: GET_NEXT_SEGMENT\n");
 
 		if (ptrPathGroup->pathAtIndexAvailable(currentPathTravelIndex)) {
-			currentTarget = ptrPathGroup->getPathTravelFromIndex(
-					currentPathTravelIndex);
+			currentTarget = ptrPathGroup->getPathTravelFromIndex(currentPathTravelIndex);
 			degree = getDirectionDegree(position, (*currentTarget));
 			COM_StructTX.CurrentSteeringAngle = degree;
 			COM_StructTX.CurrentSteeringSpeed = this->defaultMotorSpeed;
             COM_StructTX.CurrentSteeringDirection = this->defaultMotorDirection;
 
 			spiSend(COM_StructTX, COM_StructRX);
+            writeUltrasonicDistancesToFile();
 			currentState = STATE_TRAVEL;
 		} else {
 			currentState = STATE_CLEAR_STATES;
@@ -161,17 +187,14 @@ void StateModel::calcNextState(void) {
 
 		// travel to next position and watch for reached destination
 		// get next path to travel
-		currentTarget = ptrPathGroup->getPathTravelFromIndex(
-				currentPathTravelIndex);
+		currentTarget = ptrPathGroup->getPathTravelFromIndex(currentPathTravelIndex);
 
 		// always track orientation towards target:
 		degree = getDirectionDegree(position, (*currentTarget));
 		COM_StructTX.CurrentSteeringAngle = degree;
 
-		if ((MAX_ALLOWED_DEVIATION_M
-				> abs(position.x - currentTarget->getTargetX()))
-				&& (MAX_ALLOWED_DEVIATION_M
-						> abs(position.y - currentTarget->getTargetY()))) {
+		if ((this->maxAllowedDeviation > abs(position.x - currentTarget->getTargetX()))
+				&& (this->maxAllowedDeviation > abs(position.y - currentTarget->getTargetY()))) {
 			// stop traveling if target position is reached
 			currentState = STATE_GET_NEXT_SEGMENT;
 			COM_StructTX.CurrentSteeringSpeed = 0u; // shutdown motor
@@ -179,6 +202,7 @@ void StateModel::calcNextState(void) {
 		}
 
 		spiSend(COM_StructTX, COM_StructRX);
+        writeUltrasonicDistancesToFile();
 		break;
 
 	case STATE_CLEAR_STATES:
@@ -194,6 +218,7 @@ void StateModel::calcNextState(void) {
 		currentState = STATE_CLEAR_STATES;
 		break;
 	}
+
 }
 
 void StateModel::Main(void)
