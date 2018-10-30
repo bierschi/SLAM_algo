@@ -27,6 +27,7 @@ private:
 	StateEnumType currentState = STATE_IDLE;
 	// current index of traveled path group
 	unsigned int currentPathTravelIndex = 0u;
+    unsigned int pathIndexIncrement = 1u;
     uint16_t defaultMotorSpeed = COM_STEERING_SPEED_ZERO;
     uint8_t defaultMotorDirection = COM_STEERING_DIRECTON_ZERO;
     float maxAllowedDeviation = 0.1f;

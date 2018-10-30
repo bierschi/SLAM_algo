@@ -64,6 +64,7 @@ void StateModel::getConfig(void)
     uint16_t motorspeed = COM_STEERING_SPEED_ZERO;
     uint8_t direction = COM_STEERING_DIRECTON_ZERO;
     float deviation = 0.0f;
+    unsigned int indexIncrement = 1u;
 
     fptr = fopen("./config.cfg", "r");
 
@@ -92,6 +93,13 @@ void StateModel::getConfig(void)
 
     this->maxAllowedDeviation = deviation;
 
+    if((NULL != fptr) && (NULL != fgets(buffer, 99, fptr)))
+    {
+        sscanf(buffer, "PathIndexIncrement:%u", &indexIncrement);
+    }
+
+    this->pathIndexIncrement = indexIncrement;
+
     if(fptr != NULL) fclose(fptr);
 }
 
@@ -104,7 +112,7 @@ void StateModel::writeUltrasonicDistancesToFile(void)
 
     if(NULL != fptr)
     {
-        sprintf(buffer, "USDistanceFrontLeft: %hu\nUSDistanceFrontRight: %hu\nUSDistanceRear: %hu",
+        snprintf(buffer, sizeof(buffer) - 1 , "USDistanceFrontLeft: %hu\nUSDistanceFrontRight: %hu\nUSDistanceRear: %hu",
         COM_StructRX.USDistanceFrontLeft, COM_StructRX.USDistanceFrontRight, COM_StructRX.USDistanceRear);
         fputs(buffer, fptr);
 
@@ -198,7 +206,7 @@ void StateModel::calcNextState(void) {
 			// stop traveling if target position is reached
 			currentState = STATE_GET_NEXT_SEGMENT;
 			COM_StructTX.CurrentSteeringSpeed = 0u; // shutdown motor
-			currentPathTravelIndex++; // get next path segment, if available
+			currentPathTravelIndex += pathIndexIncrement; // get next path segment, if available
 		}
 
 		spiSend(COM_StructTX, COM_StructRX);
