@@ -2,7 +2,6 @@
 // Created by christian on 27.10.18.
 //
 
-#include <geos_c.h>
 #include "SlamMap.h"
 
 
@@ -11,25 +10,59 @@ SlamMap::SlamMap(const std::string& mapname, int threshold_occupied, int thresho
           save_map_(false),
           threshold_occupied_(threshold_occupied),
           threshold_free_(threshold_free),
-          mapCounter(0)
+          mapCounter(0),
+          pose_x(0.0),
+          pose_y(0.0),
+          pose_z(0.0)
 {
 
-    ros::NodeHandle n;
+    ros::NodeHandle n1, n2, n3;
     ROS_INFO("Waiting for the map!");
-    map_sub_ = n.subscribe("map", 2, &SlamMap::mapCallback, this);
+    map_sub_ = n1.subscribe("map", 2, &SlamMap::mapCallback, this);
+    map_metadata_sub_ = n2.subscribe("map_metadata", 2, &SlamMap::mapMetadataCallback, this);
+    pose_sub_ = n3.subscribe("slam_out_pose", 2, &SlamMap::poseCallback, this);
+
+}
+
+SlamMap::~SlamMap() {
+
+}
+
+void SlamMap::poseCallback(const geometry_msgs::PoseStampedConstPtr &pose) {
+
+    //ROS_INFO("Received SLAM Position Estimate!");
+
+    pose_x = pose->pose.position.x;
+    pose_y = pose->pose.position.y;
+    pose_z = pose->pose.position.z;
+    //std::cout << "x: " << pose_x << " y: " << pose_y << " z: " << pose_z << std::endl;
 
 }
 
 
+void SlamMap::mapMetadataCallback(const nav_msgs::MapMetaDataConstPtr &metadata) {
+
+    ROS_INFO("Received MapMetadata Origin Position!");
+
+    origin_pos_x_ = metadata->origin.position.x;
+    origin_pos_y_ = metadata->origin.position.y;
+    origin_pos_z_ = metadata->origin.position.z;
+
+    origin_or_x_ = metadata->origin.orientation.x;
+    origin_or_y_ = metadata->origin.orientation.y;
+    origin_or_z_ = metadata->origin.orientation.z;
+    origin_or_w_ = metadata->origin.orientation.w;
+
+}
 
 void SlamMap::mapCallback(const nav_msgs::OccupancyGridConstPtr& map) {
 
-    ROS_INFO("Received a %d X %d map @ %.3f m/pix", map->info.width, map->info.height, map->info.resolution);
+    //ROS_INFO("Received a %d X %d map @ %.3f m/pix", map->info.width, map->info.height, map->info.resolution);
 
     if (save_map_)
         createMapFile(map);
 
-    mapInterface(map);
+    //mapInterface(map);
 
 }
 
@@ -139,3 +172,16 @@ bool SlamMap::getSaveMap() const {
 void SlamMap::setSaveMap(bool save_map) {
     save_map_ = save_map;
 }
+
+
+double SlamMap::getOriginPosX() const {
+    return origin_pos_x_;
+}
+double SlamMap::getOriginPosY() const {
+    return origin_pos_y_;
+}
+double SlamMap::getOriginPosZ() const {
+    return origin_pos_z_;
+}
+
+
