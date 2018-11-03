@@ -45,7 +45,7 @@ public:
 	/** [DUMMY]  determine path travels from internal sources */
 	void determinePathTravels(void);
 	void clearPathTravels(void);
-	bool getPathChanged(void);
+	bool getPathChanged(const char * inputFile);
 	bool pathAtIndexAvailable(int index);
 	int getNumAvailPathTravels(void);
 	PathTravel * getPathTravelFromIndex(int index);

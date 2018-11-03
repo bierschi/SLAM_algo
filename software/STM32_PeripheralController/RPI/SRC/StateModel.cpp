@@ -12,6 +12,7 @@
 #include "ComStructure.h"
 #include "SPILibrary.h"
 
+#define PATH_FILE "./path.txt"
 // if defined, we should use the position update provided by file
 #define USE_POSITION_FROM_FILE
 
@@ -51,7 +52,7 @@ float getDirectionDegree(PositionStructureType &position, PathTravel &travel)
 // PRIVATE:
 bool StateModel::newPathAvailable(void) {
 	if (NULL != ptrPathGroup) {
-		return ptrPathGroup->getPathChanged();
+		return ptrPathGroup->getPathChanged(PATH_FILE);
 	} else {
 		return false;
 	}
@@ -162,7 +163,7 @@ void StateModel::calcNextState(void) {
 	case STATE_FETCH_PATHS:
 		// calculate next direction
 		printf("Current State: FETCH_PATHS\n");
-		ptrPathGroup->determinePathTravels("./path.txt");
+		ptrPathGroup->determinePathTravels(PATH_FILE);
 
 		if (ptrPathGroup->getNumAvailPathTravels() > 0)
 			currentState = STATE_GET_NEXT_SEGMENT;

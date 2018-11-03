@@ -30,21 +30,13 @@ PathGroup::PathGroup() {
 void PathGroup::determinePathTravels(const char * inputFile) {
 	int counter = 0;
 	FILE * file;
-	time_t newCreationTime = 0;
 	char buffer[100] = { 0 };
 	int scanfError = 0;
 	float targetX, targetY, theta;
-	struct stat statBuffer = {0};
-
-	pathChanged = false;
-
-	stat(inputFile, &statBuffer);
-	newCreationTime = statBuffer.st_mtime;
 
 	file = fopen(inputFile, "r");
 	while ((NULL != file) && (NULL != fgets(buffer, 99, file))
-			&& (counter < MAX_NUM_PATH_TRAVELS)
-            && (newCreationTime > creationTime)) {
+			&& (counter < MAX_NUM_PATH_TRAVELS)) {
 		printf("%s", buffer);
 		// parse informations from file
 		scanfError = sscanf(buffer, "%f, %f, %f", &targetX, &targetY, &theta);
@@ -55,8 +47,6 @@ void PathGroup::determinePathTravels(const char * inputFile) {
 			break;
 
 		counter++;
-
-        pathChanged = true;
 	}
 
 	if (NULL != file) {
@@ -78,9 +68,24 @@ void PathGroup::clearPathTravels(void) {
 	}
 }
 
-bool PathGroup::getPathChanged(void)
+bool PathGroup::getPathChanged(const char * inputFile)
 {
-	return this->pathChanged;
+	struct stat statBuffer = {0};
+	time_t newCreationTime = 0;
+
+	stat(inputFile, &statBuffer);
+	newCreationTime = statBuffer.st_mtime;
+
+	if (newCreationTime > this-> creationTime)
+	{
+		this->creationTime = newCreationTime;
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+
 }
 
 bool PathGroup::pathAtIndexAvailable(int index)
