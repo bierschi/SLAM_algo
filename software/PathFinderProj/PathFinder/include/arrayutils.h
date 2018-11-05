@@ -1,7 +1,7 @@
 #ifndef ARRAYUTILS_H
 #define ARRAYUTILS_H
-#include <cGraph.h>
-#include <commontypes.h>
+#include "cGraph.h"
+#include "commontypes.h"
 
 
 //void getDataFromFile(int **&orig_map, int& map_size_x, int& map_size_y, std::string const&path);

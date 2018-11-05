@@ -1,4 +1,4 @@
-#include "cGraph.h"
+#include "../include/cGraph.h"
 #include <fstream>
 
 

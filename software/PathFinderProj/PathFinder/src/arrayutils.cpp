@@ -1,4 +1,4 @@
-#include <arrayutils.h>
+#include "../include/arrayutils.h"
 #include <iostream>
 #include <fstream>
 
