@@ -37,6 +37,7 @@ private:
 	bool newPathAvailable(void);
 	void getConfig(void);
     void writeUltrasonicDistancesToFile(void);
+    void writeControlStateToFile(void);
 public:
 	StateModel();
 	void calcNextState(void);

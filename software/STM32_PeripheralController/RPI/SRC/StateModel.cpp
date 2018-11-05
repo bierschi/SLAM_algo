@@ -121,6 +121,22 @@ void StateModel::writeUltrasonicDistancesToFile(void)
     }
 }
 
+void StateModel::writeControlStateToFile(void)
+{
+    FILE * fptr = NULL;
+    char buffer[500] = {0};
+
+    fptr = fopen("controlStates.txt", "w");
+
+    if(NULL != fptr)
+    {
+        snprintf(buffer, sizeof(buffer) - 1 , "ControlState: %i", this->currentState);
+        fputs(buffer, fptr);
+
+        fclose(fptr);
+    }
+}
+
 // PUBLIC:
 StateModel::StateModel() {
 }
@@ -227,6 +243,8 @@ void StateModel::calcNextState(void) {
 		currentState = STATE_CLEAR_STATES;
 		break;
 	}
+
+    this->writeControlStateToFile();
 
 }
 
