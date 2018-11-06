@@ -13,7 +13,7 @@ int main (int argc, char ** argv)
 {
 	PathGroup group;
 	StateModel model;
-	group.determinePathTravels("./path.txt");
+	group.determinePathTravels(PATH_FILE);
 
 	printf("Open SPI Interface...\n");
 	spiOpen();

@@ -12,7 +12,6 @@
 #include "ComStructure.h"
 #include "SPILibrary.h"
 
-#define PATH_FILE "./path.txt"
 // if defined, we should use the position update provided by file
 #define USE_POSITION_FROM_FILE
 
@@ -67,7 +66,7 @@ void StateModel::getConfig(void)
     float deviation = 0.0f;
     unsigned int indexIncrement = 1u;
 
-    fptr = fopen("./config.cfg", "r");
+    fptr = fopen(CONFIG_FILE, "r");
 
     // read configs from file:
 
@@ -109,7 +108,7 @@ void StateModel::writeUltrasonicDistancesToFile(void)
     FILE * fptr = NULL;
     char buffer[500] = {0};
 
-    fptr = fopen("ultrasonic.txt", "w");
+    fptr = fopen(ULTRASONIC_FILE, "w");
 
     if(NULL != fptr)
     {
@@ -126,11 +125,27 @@ void StateModel::writeControlStateToFile(void)
     FILE * fptr = NULL;
     char buffer[500] = {0};
 
-    fptr = fopen("controlStates.txt", "w");
+    fptr = fopen(CONTROL_STATE_FILE, "w");
 
     if(NULL != fptr)
     {
         snprintf(buffer, sizeof(buffer) - 1 , "ControlState: %i", this->currentState);
+        fputs(buffer, fptr);
+
+        fclose(fptr);
+    }
+}
+
+void StateModel::writeMotorStateToFile(void)
+{
+    FILE * fptr = NULL;
+    char buffer[500] = {0};
+
+    fptr = fopen(MOTOR_STATE_FILE, "w");
+
+    if(NULL != fptr)
+    {
+        snprintf(buffer, sizeof(buffer) - 1 , "Motorspeed: %u\nSteeringAngle: %.2f", COM_StructTX.CurrentSteeringSpeed, COM_StructTX.CurrentSteeringAngle);
         fputs(buffer, fptr);
 
         fclose(fptr);
@@ -245,6 +260,7 @@ void StateModel::calcNextState(void) {
 	}
 
     this->writeControlStateToFile();
+    this->writeMotorStateToFile();
 
 }
 
