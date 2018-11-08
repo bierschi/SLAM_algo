@@ -90,6 +90,8 @@ fabric.properties
 #Project
 /images/*
 /software/slam/breezy_slam/.idea/**
+/software/final/.idea/**
+/software/final/build/
 
 # STM32 Build Path
 /software/STM32_PeripheralController/BUILD/
