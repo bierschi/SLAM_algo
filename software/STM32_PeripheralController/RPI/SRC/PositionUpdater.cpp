@@ -10,6 +10,7 @@
 #include <sys/types.h>
 #include <fcntl.h>
 #include "PositionUpdater.h"
+#include "StateModel.h"
 
 PositionUpdater::PositionUpdater() {
 }
@@ -26,7 +27,7 @@ PositionStructureType PositionUpdater::getPosition(void)
 void PositionUpdater::updatePosition(void)
 {
 	FILE * file = NULL;
-	file = fopen("./position.txt", "r");
+	file = fopen(POSITION_FILE, "r");
 	char buffer[100] = {0};
 
 	if(file != NULL)
@@ -34,6 +35,8 @@ void PositionUpdater::updatePosition(void)
 		// parse position information from first line of file
 		fgets(buffer, 99, file);
 		int num = sscanf(buffer, "%f, %f, %f", &position.x, &position.y, &position.theta);
+
+        
 	}
 	else
 	{

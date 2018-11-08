@@ -12,6 +12,13 @@
 #include "ComStructure.h"
 #include "Path.h"
 
+#define PATH_FILE "../PathFinder_data/driveway.txt"
+#define POSITION_FILE "../PathFinder_data/egoPosAtMap.txt"
+#define MOTOR_STATE_FILE "../STM_data/motor.txt"
+#define ULTRASONIC_FILE "../STM_data/ultrasonic.txt"
+#define CONFIG_FILE "../STM_data/config.cfg"
+#define CONTROL_STATE_FILE "../STM_data/controlStates.txt"
+
 typedef enum StateEnum
 {
 	STATE_IDLE,
@@ -38,6 +45,7 @@ private:
 	void getConfig(void);
     void writeUltrasonicDistancesToFile(void);
     void writeControlStateToFile(void);
+    void writeMotorStateToFile(void);
 public:
 	StateModel();
 	void calcNextState(void);
