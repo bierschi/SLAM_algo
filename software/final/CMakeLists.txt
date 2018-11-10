@@ -12,9 +12,18 @@ find_package(catkin REQUIRED COMPONENTS
 include_directories(include)
 include_directories(include ${catkin_INCLUDE_DIRS})
 
-file(GLOB SOURCES "alf_main.cpp" "src/motioncontrol/*.cpp" "src/pathfinder/*.cpp" "src/slam/*.cpp")
-
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/build")
 
-add_executable(alf ${SOURCES})
-target_link_libraries(alf ${catkin_LIBRARIES})
+
+# build executable with all sources
+#file(GLOB ALL_SOURCES "alf_main.cpp" "src/motioncontrol/*.cpp" "src/pathfinder/*.cpp" "src/slam/*.cpp")
+#add_executable(alf ${ALL_SOURCES})
+#target_link_libraries(alf ${catkin_LIBRARIES})
+
+# build each module independently
+file(GLOB PATHFINDER "pathfinder_main.cpp" "src/pathfinder/*.cpp")
+file(GLOB SLAM "alf_main.cpp" "src/slam/*.cpp")
+
+add_executable(pathfinder ${PATHFINDER})
+add_executable(slam ${SLAM})
+target_link_libraries(slam ${catkin_LIBRARIES})
