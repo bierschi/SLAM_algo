@@ -16,7 +16,8 @@ int main(int argc, char** argv) {
 
     while ( ros::ok() ) {
 
-
+        std::cout << "x_pixel: " << sm.getPixelX() << " y_pixel: " << sm.getPixelY() << " theta: " << sm.theta << std::endl;
+        sleep(1);
         ros::spinOnce();
     }
 

@@ -7,7 +7,7 @@
 
 <!--start rviz at beginning of launch file -->
 <group if="$(arg use_rviz)">
-  <node pkg="rviz" type="rviz" name="rviz" args="-d /home/christian/projects/hsp/SLAM_algo/software/slam/ros_integration/hokuyo_hector_slam/hokuyo_hector_slam.rviz" />
+  <node pkg="rviz" type="rviz" name="rviz" args="-d /home/christian/projects/hsp/SLAM_algo/software/final/launch/hokuyo_hector_slam.rviz" />
 </group>
 
 <node name="hokuyo" pkg="hokuyo_node" type="hokuyo_node" respawn="false" output="screen">

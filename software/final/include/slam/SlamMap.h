@@ -7,16 +7,20 @@
 
 #include <string>
 #include <math.h>
+#include <thread>
 
 #include "ros/ros.h"
 #include "nav_msgs/GetMap.h"
 #include "geometry_msgs/PoseStamped.h"
+#include "std_msgs/String.h"
 #include "tf/transform_datatypes.h"
 
 #define PI 3.14159265
 
 /**
+ * /CLASS SlamMap
  *
+ * creates a SlamMap object to receive and manipulate the hector slam map
  */
 class SlamMap {
 
@@ -27,11 +31,13 @@ private:
     ros::Subscriber map_metadata_sub_;
     ros::Subscriber pose_sub_;
 
-    bool save_map_;
+    ros::Publisher reset_map_pub_;
+
+    bool save_map_, mapInitData;
 
     int threshold_occupied_, threshold_free_;
     int mapCounter, mapHeight, mapWidth;
-
+    double mapResolution;
     std::vector<int> mapData;
 
     double origin_pos_x_, origin_pos_y_, origin_pos_z_;
@@ -54,7 +60,12 @@ public:
     void createPgmMapFile(const nav_msgs::OccupancyGridConstPtr& map);
     void createTxtMapFile(std::string fileName, std::vector<int> mapData);
     void createTxtPositionFile();
+
     void mapInterface(const nav_msgs::OccupancyGridConstPtr& map);
+    //void sendSlamMap(ServerSocket& sock);
+    //void sendSlamMapThread(ServerSocket& sock);
+    void resetMap();
+    void reset();
 
     //getter and setter
     bool getSaveMap() const;
@@ -62,6 +73,8 @@ public:
 
     std::vector<int> getMapData();
 
+    int getPixelX();
+    int getPixelY();
     double getOriginPosX() const;
     double getOriginPosY() const;
     double getOriginPosZ() const;

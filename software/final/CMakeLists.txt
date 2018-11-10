@@ -5,8 +5,9 @@ project(alf)
 set(CMAKE_CXX_STANDARD 11)
 
 find_package(catkin REQUIRED COMPONENTS
-        roscpp
-        nav_msgs)
+             roscpp
+             nav_msgs
+             std_msgs)
 
 include_directories(include)
 include_directories(include ${catkin_INCLUDE_DIRS})
