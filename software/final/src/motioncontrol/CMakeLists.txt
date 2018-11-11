@@ -2,10 +2,6 @@ cmake_minimum_required(VERSION 3.5)
 
 #generator: "Eclipse CDT4 - MinGW Makefiles"
 
-if(CMAKE_HOST_WIN32)
-include(MINGW_GCCToolchainFile.cmake)
-endif(CMAKE_HOST_WIN32)
-
 project(SPIInterface CXX)
 
 set(CMAKE_VERBOSE_MAKEFILE TRUE)
@@ -21,7 +17,7 @@ set(SRC_FILES
 
 #define the include directories:
 set(INCLUDE_DIRS
-    ${CMAKE_CURRENT_LIST_DIR}
+    ${CMAKE_CURRENT_LIST_DIR}/../../include/motioncontrol
 )
 
 # define compiler options:
