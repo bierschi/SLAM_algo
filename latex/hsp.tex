@@ -29,14 +29,6 @@ bibliography=totoc,							% list bibliography in the table of contents
 \input{inputs/abstract}						% abstract
 
 
-% print list of abbreviation
-\printglossary[
-		type=\acronymtype,
-		style=long,
-		nonumberlist,
-		title=Abkürzungsverzeichnis
-	]
-
 %\renewcommand*\familydefault{\rmdefault}
 
 % print table of contents
@@ -54,9 +46,17 @@ bibliography=totoc,							% list bibliography in the table of contents
 \include{chapters/3_chapter}
 \include{chapters/4_chapter}
 \include{chapters/5_chapter}
-
+%\include{chapters/6_chapter}
 
 \renewcommand*{\chapterpagestyle}{scrheadings} % redefine the chapter page style 
+
+% print list of abbreviation
+\printglossary[
+		type=\acronymtype,
+		style=long,
+		nonumberlist,
+		title=Abkürzungsverzeichnis
+	]
 
 % list of figures and add to toc
 \listoffigures
