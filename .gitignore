@@ -92,6 +92,7 @@ fabric.properties
 /software/slam/breezy_slam/.idea/**
 /software/final/.idea/**
 /software/final/build/
+/software/slam/ros_integration/map_interface/build/
 
 # STM32 Build Path
 /software/STM32_PeripheralController/BUILD/
