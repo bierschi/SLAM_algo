@@ -65,13 +65,21 @@ void SlamMap::poseCallback(const geometry_msgs::PoseStampedConstPtr &pose) {
     position_z = pose->pose.position.z;
     orientation_w = pose->pose.orientation.w;
 
-    theta = atan2(position_y, position_x) * 180/PI;
 
-    //tf::Quaternion q(pose->pose.orientation.x, pose->pose.orientation.y, pose->pose.orientation.z, pose->pose.orientation.w);
-    //tf::Matrix3x3 m(q);
-    //double roll, pitch, yaw;
-    //m.getRPY(roll, pitch, yaw);
-    //std::cout << "r: " << roll << " p: " << pitch << " y: " << yaw << std::endl;
+    //theta = atan2(position_y, position_x) * 180/PI;
+
+    tf::Quaternion q(pose->pose.orientation.x, pose->pose.orientation.y, pose->pose.orientation.z, pose->pose.orientation.w);
+    tf::Matrix3x3 m(q);
+    double roll, pitch, yaw, yaw_degrees;
+    m.getRPY(roll, pitch, yaw);
+    yaw_degrees = yaw * 180.0 / M_PI;
+    //convert negative to positive angles
+    if (yaw_degrees < 0)
+        yaw_degrees +=360.0;
+
+    theta = yaw_degrees;
+
+    //alternativ: theta = yaw * 180.0 / M_PI;
 
     //std::cout << "x: " << position_x << " y: " << position_y << " theta: " << theta << " yaw: " << yaw<<std::endl;
 
