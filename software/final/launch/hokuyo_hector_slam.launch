@@ -2,7 +2,7 @@
 
 <!-- set arguments -->
 <param name="use_sim_time" value="false" />
-<arg name="use_rviz" default="true" />
+<arg name="use_rviz" default="false" />
 <arg name="use_geotiff" default="false" />
 
 <!--start rviz at beginning of launch file -->

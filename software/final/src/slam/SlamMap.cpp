@@ -385,8 +385,16 @@ double SlamMap::getOriginPosZ() const {
 int SlamMap::getPixelX() {
 
     if (mapInitData) {
-        int pixel_x = (int)((getOriginPosX() / mapResolution) - (position_x / mapResolution));
+        //int pixel_x = (int)((-getOriginPosX() / mapResolution) - (position_x / mapResolution));
+        double pos_tmp = (-getOriginPosX() - position_x);
+        int pixel_x = (int) (pos_tmp / mapResolution);
         return pixel_x;
+        //double max_breite = mapWidth * mapResolution;
+        //double middle = max_breite / 2.0;
+        //double act_pos = middle - position_x;
+        //int pix = (int)(act_pos / mapResolution);
+        //return pixel_x;
+        //return pix;
     }
 }
 
@@ -398,7 +406,9 @@ int SlamMap::getPixelX() {
 int SlamMap::getPixelY() {
 
     if (mapInitData) {
-        int pixel_y =  (int)((getOriginPosY() / mapResolution) - (position_y / mapResolution));
+        //int pixel_y =  (int)((getOriginPosY() / mapResolution) - (position_y / mapResolution));#
+        double pos_tmp = (getOriginPosX() - position_y);
+        int pixel_y = (int) (pos_tmp / mapResolution);
         return pixel_y;
     }
 }
