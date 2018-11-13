@@ -407,7 +407,7 @@ int SlamMap::getPixelY() {
 
     if (mapInitData) {
         //int pixel_y =  (int)((getOriginPosY() / mapResolution) - (position_y / mapResolution));#
-        double pos_tmp = (getOriginPosX() - position_y);
+        double pos_tmp = (-getOriginPosX() - position_y);
         int pixel_y = (int) (pos_tmp / mapResolution);
         return pixel_y;
     }
