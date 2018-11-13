@@ -189,8 +189,8 @@ void SlamMap::mapInterface(const nav_msgs::OccupancyGridConstPtr& map) {
 void SlamMap::createPgmMapFile(const nav_msgs::OccupancyGridConstPtr& map) {
 
     std::string mapCounterStr = std::to_string(mapCounter);
-    std::string mapdatafile = mapname_ + mapCounterStr +  ".pgm";
-
+    //std::string mapdatafile = mapname_ + mapCounterStr +  ".pgm";
+    std::string mapdatafile = mapname_ + ".pgm";
     ROS_INFO("Writing map occupancy data to %s", mapdatafile.c_str());
 
     FILE* out = fopen(mapdatafile.c_str(), "w");
@@ -265,8 +265,8 @@ void SlamMap::createTxtMapFile(std::string fileName, std::vector<int> mapData) {
 void SlamMap::createTxtPositionFile() {
 
     std::string mapCounterStr = std::to_string(mapCounter);
-    std::string positionDataFile = "position" + mapCounterStr +  ".txt";
-
+    //std::string positionDataFile = "position" + mapCounterStr +  ".txt";
+    std::string positionDataFile = "position" + ".txt"
     FILE* out = fopen(positionDataFile.c_str(), "w");
     fprintf(out, "%d\n%d\n%.2f", getPixelX(), getPixelY(), theta);
     fclose(out);

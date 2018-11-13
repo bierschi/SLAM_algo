@@ -11,7 +11,7 @@ int main(int argc, char** argv) {
     std::cout << "starting alf software" << std::endl;
     ros::init(argc, argv, "Alf");
 
-    SlamMap sm("hector");
+    SlamMap sm("map_hector");
 
 
     while ( ros::ok() ) {
