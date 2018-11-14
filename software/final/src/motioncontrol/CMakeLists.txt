@@ -2,6 +2,10 @@ cmake_minimum_required(VERSION 3.5)
 
 #generator: "Eclipse CDT4 - MinGW Makefiles"
 
+if(CMAKE_HOST_WIN32)
+include(MINGW_GCCToolchainFile.cmake)
+endif(CMAKE_HOST_WIN32)
+
 project(SPIInterface CXX)
 
 set(CMAKE_VERBOSE_MAKEFILE TRUE)
@@ -17,12 +21,12 @@ set(SRC_FILES
 
 #define the include directories:
 set(INCLUDE_DIRS
-    ${CMAKE_CURRENT_LIST_DIR}/../../include/motioncontrol
+    ${CMAKE_CURRENT_LIST_DIR}
 )
 
 # define compiler options:
-set(C_FLAGS "-O0 -g -pthread -DRPI_BUILD")
-set(CXX_FLAGS "-O0 -g -pthread -DRPI_BUILD")
+set(C_FLAGS "-O0 -g -pthread")
+set(CXX_FLAGS "-O0 -g -pthread -std=gnu++11")
 
 # set compiler options to CMake:
 set(CMAKE_C_FLAGS ${C_FLAGS})

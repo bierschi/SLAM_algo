@@ -30,10 +30,12 @@ float getDirectionDegree(PositionStructureType &position, PathTravel &travel)
 
 	// get the angle towards the target
 	//temp = atanf( (travel.getTargetY() - position.y) / (travel.getTargetX() - position.x)) - position.theta;
-	temp = atan2f((travel.getTargetY() - position.y), (travel.getTargetX() - position.x)) - position.theta;
+	temp = atan2f((travel.getTargetY() - position.y), (travel.getTargetX() - position.x));
 
 	// convert from radians to degree
 	degree = (180.0f / 3.14159265358979323846f) * temp;
+
+    degree -= position.theta;
 
 	// check and apply bounds
 	degree = fmaxf(degree, -90.0f);

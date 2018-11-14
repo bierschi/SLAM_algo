@@ -25,8 +25,8 @@ set(INCLUDE_DIRS
 )
 
 # define compiler options:
-set(C_FLAGS "-O0 -g -pthread -DRPI_BUILD")
-set(CXX_FLAGS "-O0 -g -pthread -DRPI_BUILD")
+set(C_FLAGS "-O0 -g -pthread")
+set(CXX_FLAGS "-O0 -g -pthread -std=gnu++11")
 
 # set compiler options to CMake:
 set(CMAKE_C_FLAGS ${C_FLAGS})
