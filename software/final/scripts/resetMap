@@ -1,3 +1,0 @@
-#!/bin/bash
-
-rostopic pub /syscommand std_msgs/String "reset"
