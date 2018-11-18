@@ -90,8 +90,11 @@ fabric.properties
 #Project
 /images/*
 /software/slam/breezy_slam/.idea/**
-/software/final/.idea/**
-/software/final/build/
+
+/software/final/alf_car/.idea/**
+/software/final/alf_car/build/
+/software/final/alf_gui/.idea/**
+/software/final/alf_gui/build/
 /software/slam/ros_integration/map_interface/build/
 
 # STM32 Build Path
