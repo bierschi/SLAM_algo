@@ -1,0 +1,5 @@
+#!/bin/bash
+
+mv map_hector.pgm ../SLAM_data/map_hector.pgm
+mv position.txt ../SLAM_data/position.txt
+
