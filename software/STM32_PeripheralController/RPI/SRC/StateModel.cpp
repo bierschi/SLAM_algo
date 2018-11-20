@@ -15,6 +15,8 @@
 // if defined, we should use the position update provided by file
 #define USE_POSITION_FROM_FILE
 
+#define REVERSE_THRESHOLD_DEGREE 90.0f
+
 // global communication structures
 ComStructureType COM_StructRX = {0};
 ComStructureType COM_StructTX = {0};
@@ -42,6 +44,27 @@ float getDirectionDegree(PositionStructureType &position, PathTravel &travel)
 	degree = fminf(degree, 90.0f);
 
 	degree /= divider;
+
+	return degree;
+}
+
+float getHeadingAngle(PositionStructureType &position, PathTravel &travel)
+{
+	float degree = 0.0f; // 0 degree as default
+	float temp = 0.0f;
+
+	// get the angle towards the target
+	//temp = atanf( (travel.getTargetY() - position.y) / (travel.getTargetX() - position.x)) - position.theta;
+	temp = atan2f((travel.getTargetY() - position.y), (travel.getTargetX() - position.x));
+
+	// convert from radians to degree
+	degree = (180.0f / 3.14159265358979323846f) * temp;
+
+    degree -= position.theta;
+
+	// check and apply bounds
+	degree = fmaxf(degree, -180.0f);
+	degree = fminf(degree, 180.0f);
 
 	return degree;
 }
@@ -170,11 +193,12 @@ void StateModel::calcNextState(void) {
 	PathTravel *currentTarget = NULL;
 	PositionStructureType position = {0};
 	float degree = 0.0f;
+	struct timespec ts_sleep = {0}, ts_remaining = {0};
 
 	posUpdater->updatePosition();
 	position = posUpdater->getPosition(); // get current position from module
 
-	position.theta = COM_StructRX.CurrentOrientation;
+	position.theta = fmodf(COM_StructRX.CurrentOrientation, 360.0f);
 #ifndef USE_POSITION_FROM_FILE
     position.x = COM_StructRX.CurrentPositionX;
     position.y = COM_StructRX.CurrentPositionY;
@@ -217,7 +241,15 @@ void StateModel::calcNextState(void) {
 
 			spiSend(COM_StructTX, COM_StructRX);
             writeUltrasonicDistancesToFile();
-			currentState = STATE_TRAVEL;
+            
+            if(REVERSE_THRESHOLD_DEGREE < fabsf(getHeadingAngle(position, (*currentTarget))))
+            {
+                currentState = STATE_REVERSE_BACKWARD;
+            }
+            else
+            {
+                currentState = STATE_TRAVEL;
+            }
 		} else {
 			currentState = STATE_CLEAR_STATES;
 		}
@@ -255,6 +287,47 @@ void StateModel::calcNextState(void) {
 
 		// clear path travel states and prepare for next iteration
 		break;
+
+    case STATE_REVERSE_BACKWARD:
+    	ts_sleep.tv_nsec = 2000000000L; // 2000 ms delay
+		if(fabsf(getHeadingAngle(position, (*currentTarget))) > REVERSE_THRESHOLD_DEGREE)
+		{
+			COM_StructTX.CurrentSteeringDirection = COM_STEERING_DIRECTION_REVERSE;
+			COM_StructTX.CurrentSteeringSpeed = this->defaultMotorSpeed;
+			COM_StructTX.CurrentSteeringAngle = 45.0f;
+			currentState = STATE_REVERSE_FORWARD;
+		}
+		else
+		{
+			COM_StructTX.CurrentSteeringDirection = COM_STEERING_DIRECTION_FORWARD;
+			COM_StructTX.CurrentSteeringSpeed = COM_STEERING_SPEED_ZERO;
+			COM_StructTX.CurrentSteeringAngle = 0.0f;
+			currentState = STATE_TRAVEL;
+		}
+
+		spiSend(COM_StructTX, COM_StructRX);
+		nanosleep(&ts_sleep, &ts_remaining);
+        break;
+    case STATE_REVERSE_FORWARD:
+        ts_sleep.tv_nsec = 2000000000L; // 2000 ms delay
+        if(fabsf(getHeadingAngle(position, (*currentTarget))) > REVERSE_THRESHOLD_DEGREE)
+        {
+        	COM_StructTX.CurrentSteeringDirection = COM_STEERING_DIRECTION_FORWARD;
+			COM_StructTX.CurrentSteeringSpeed = this->defaultMotorSpeed;
+			COM_StructTX.CurrentSteeringAngle = -45.0f;
+			currentState = STATE_REVERSE_BACKWARD;
+        }
+        else
+        {
+        	COM_StructTX.CurrentSteeringDirection = COM_STEERING_DIRECTION_FORWARD;
+        	COM_StructTX.CurrentSteeringSpeed = COM_STEERING_SPEED_ZERO;
+        	COM_StructTX.CurrentSteeringAngle = 0.0f;
+        	currentState = STATE_TRAVEL;
+        }
+
+        spiSend(COM_StructTX, COM_StructRX);
+        nanosleep(&ts_sleep, &ts_remaining);
+        break;
 
 	default:
 		currentState = STATE_CLEAR_STATES;

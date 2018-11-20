@@ -24,16 +24,21 @@ Die Daten werden für jeden erfassten Punkt jeweils im Abstand von 0,35° als En
 \end{center}
 \end{figure}
 
+\newpage
+\section{Interface Board}
+Das ALF verfügt über folgende zusätzliche Komponenten:
+\begin{itemize}
+\item 1 Fahrmotor
+\item 1 Servo für die Lenkung
+\item 3 Ultraschallsensoren (verbunden über I$^{2}$C)
+\item 1 kombinierter Beschleunigungssensor und Gyroskop (IMU MPU6050, verbunden über I$^{2}$C)
+\end{itemize}
 
-
-
+Um diese Komponenten in einer deterministischen Zeit kontrollieren und auslesen zu können, wurde neben dem Raspberry Pi 3B+ Board ein zweites Hardwaremodul verwendet. Es handelt sich hierbei um ein \textit{STM32 F334R8 Nucleo Board} der Firma STMicroelectronics \footnote{www.st.com}. Es handlet sich hierbei um einen ARM Prozessor auf einem Arduino kompatiblen Evaluationsboard. Der ARM Cortex M4 kann für beliebige Mess- und Regelungsaufgaben programmiert werden.
+Da das verwendete Raspberry Pi Betriebssystem kein Echtzeitbetriebssystem ist, können die notwendigen Echtzeitaufgaben damit auf den ARM Controller ausgelagert werden.
 
 \chapter{Software}
-
-
-
 Nachfolgend wird das Design dieses Softwareprojekts dargestellt, sowie die leichte Erweiterung durch nachträgliche Module. Anschließend wird noch auf die bereits umgesetzten Module eingegangen und ihre Funktionsweise erklärt. 
-
 
 \section{Design des Projektes mit CMake}
 
