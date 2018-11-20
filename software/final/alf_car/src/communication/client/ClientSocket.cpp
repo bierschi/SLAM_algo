@@ -1,5 +1,5 @@
 //
-// Created by christian on 03.09.18.
+// Created by christian on 20.11.18
 //
 
 #include "communication/client/ClientSocket.h"
@@ -30,7 +30,7 @@ ClientSocket::ClientSocket(std::string host, int port) {
 }
 
 /**
- * overloaded operator << to send strings to sockets
+ * method to send strings to sockets
  *
  * @param s: const string reference
  * @return const ClientSocket& reference
@@ -47,7 +47,7 @@ const ClientSocket& ClientSocket::sending (const std::string &s) const {
 }
 
 /**
- * overloaded operator << to send predefined commands to sockets
+ * method to send predefined commands to sockets
  *
  * @param cmd: Commands& reference
  * @return const ClientSocket& reference
@@ -62,7 +62,7 @@ const ClientSocket& ClientSocket::sending (Commands& cmd) const {
 }
 
 /**
- * overloaded operator >> to receive strings from sockets
+ * method to receive strings from sockets
  *
  * @param s: string& reference
  * @return const ClientSocket& reference
@@ -79,7 +79,7 @@ const ClientSocket& ClientSocket::receiving (std::string &s) const {
 }
 
 /**
- * overloaded operator >> to receive predefined commands from sockets
+ * method to receive predefined commands from sockets
  *
  * @param cmd: Commands& reference
  * @return const ClientSocket& reference

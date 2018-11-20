@@ -41,7 +41,6 @@ public:
     bool bind(const unsigned int port);
     bool listen() const;
     bool accept(Socket&) const;
-
     bool connect(const std::string host, const int port);
     void disconnect();
 

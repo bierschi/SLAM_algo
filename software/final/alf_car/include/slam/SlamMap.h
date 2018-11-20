@@ -14,6 +14,7 @@
 #include "geometry_msgs/PoseStamped.h"
 #include "std_msgs/String.h"
 #include "tf/transform_datatypes.h"
+#include "communication/server/ServerSocket.h"
 
 #define PI 3.14159265
 
@@ -52,6 +53,8 @@ private:
 
     void reset();
 
+    void sendSlamMapThread(ServerSocket& sock);
+
 public:
     //constructor
     SlamMap(const std::string& mapname="hectorMap", int threshold_occupied=65, int threshold_free=25);
@@ -65,8 +68,8 @@ public:
     void createTxtPositionFile();
 
     void mapInterface(const nav_msgs::OccupancyGridConstPtr& map);
-    //void sendSlamMap(ServerSocket& sock);
-    //void sendSlamMapThread(ServerSocket& sock);
+    void startSendSlamMap(ServerSocket& sock);
+    void savePGM(std::vector<int> v);
     void resetMap();
 
     //getter and setter

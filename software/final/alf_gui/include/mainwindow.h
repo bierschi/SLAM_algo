@@ -54,7 +54,7 @@ private slots:
 
     void run();
     void createTxtMapFile(std::string fileName, std::vector<int>);
-
+    void savePGM(std::vector<int> v);
 };
 
 #endif // MAINWINDOW_H

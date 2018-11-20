@@ -1,5 +1,5 @@
 //
-// Created by christian on 03.09.18.
+// Created by christian on 20.11.18.
 //
 
 #include <cstring>
@@ -138,15 +138,25 @@ bool Socket::send(Commands& cmd) const {
         return true;
 }
 
+/**
+ * send vector to socket
+ *
+ * @param v: std::vector<int>& reference
+ * @return true, if sending was successfully, else false
+ */
 bool Socket::send(std::vector<int>& v) {
 
+    typedef std::int64_t size_type;
+    int status;
     //const std::int64_t sz = v.size();
-    long sz = v.size();
-    std::cout << "vectorsize: " <<v.size() << std::endl;
+    //long sz = v.size();
+    const size_type sz = v.size();
+    std::cout << "sz alf: " << sz << std::endl;
+    std::cout << "vectorsize: " << v.size() << std::endl;
     std::cout << "sizeof(): " << sizeof(sz) << std::endl;
-    int status = ::send(m_sock, &sz, sizeof(sz), MSG_NOSIGNAL);
+    status = ::send(m_sock, &sz, sizeof(sz), MSG_NOSIGNAL);
     status = ::send(m_sock, &(*v.begin()), sz * sizeof(int), MSG_NOSIGNAL);
-    std::clog << "send vector .." << std::endl;
+    std::clog << "send vector-msg .." << std::endl;
 
     if (status == -1 )
         return false;
@@ -200,7 +210,7 @@ int Socket::recv(Commands& cmd) const {
 
 
     int status = ::recv(m_sock, &cmd, MAXRECV, 0);
-    std::clog << "send msg ..." << std::endl;
+    std::clog << "recv cmd ..." << std::endl;
 
     if (status == -1) {
 

@@ -1,9 +1,9 @@
 //
-// Created by christian on 03.09.18.
+// Created by christian on 20.11.18.
 //
 
-#ifndef ROBOCAR_CLIENTSOCKET_H
-#define ROBOCAR_CLIENTSOCKET_H
+#ifndef ALF_CLIENTSOCKET_H
+#define ALF_CLIENTSOCKET_H
 
 #include "Socket.h"
 
@@ -28,4 +28,4 @@ public:
     void closeConnection();
 };
 
-#endif //ROBOCAR_CLIENTSOCKET_H
+#endif //ALF_CLIENTSOCKET_H

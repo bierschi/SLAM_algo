@@ -29,7 +29,7 @@ target_link_libraries(alf ${CMAKE_THREAD_LIBS_INIT})
 #file(GLOB SLAM "alf_main.cpp" "src/slam/*.cpp")
 
 #file(GLOB SERVER "server_main.cpp" "src/communication/server/*.cpp")
-file(GLOB CLIENT "client_main.cpp" "src/communication/client/*.cpp")
+#file(GLOB CLIENT "client_main.cpp" "src/communication/client/*.cpp")
 
 
 
@@ -41,4 +41,4 @@ file(GLOB CLIENT "client_main.cpp" "src/communication/client/*.cpp")
 #add_executable(server ${SERVER})
 #target_link_libraries(server ${CMAKE_THREAD_LIBS_INIT})
 
-add_executable(client ${CLIENT})
+#add_executable(client ${CLIENT})

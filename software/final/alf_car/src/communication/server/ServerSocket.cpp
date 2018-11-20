@@ -1,5 +1,5 @@
 //
-// Created by christian on 03.09.18.
+// Created by christian on 20.11.18
 //
 
 #include "communication/server/ServerSocket.h"
@@ -104,9 +104,10 @@ const ServerSocket& ServerSocket::sending (Commands& cmd) const {
 }
 
 /**
+ * sending a int vector to sockets
  *
- * @param v
- * @return
+ * @param v: std::vector<int>& reference
+ * @return const ServerSocket& reference
  */
 const ServerSocket& ServerSocket::sending (std::vector<int>& v) {
 

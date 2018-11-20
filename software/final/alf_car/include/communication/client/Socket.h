@@ -1,9 +1,9 @@
 //
-// Created by christian on 03.09.18.
+// Created by christian on 20.11.18.
 //
 
-#ifndef ROBOCAR_SOCKET_H
-#define ROBOCAR_SOCKET_H
+#ifndef ALF_SOCKET_H
+#define ALF_SOCKET_H
 
 #include <iostream>
 #include <sys/types.h>
@@ -40,7 +40,6 @@ public:
     bool bind(const unsigned int port);
     bool listen() const;
     bool accept(Socket&) const;
-
     bool connect(const std::string host, const int port);
     void disconnect();
 
@@ -55,4 +54,4 @@ public:
 
 };
 
-#endif //ROBOCAR_SOCKET_H
+#endif //ALF_SOCKET_H

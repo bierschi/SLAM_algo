@@ -1,5 +1,5 @@
 //
-// Created by christian on 03.09.18.
+// Created by christian on 20.11.18.
 //
 
 #include <cstring>
@@ -131,7 +131,7 @@ bool Socket::send(const std::string s) const {
 bool Socket::send(Commands& cmd) const {
 
     int status = ::send(m_sock, &cmd, sizeof(cmd), MSG_NOSIGNAL);
-    std::clog << "send msg ..." << std::endl;
+    std::clog << "send cmd ..." << std::endl;
 
     if (status == -1)
         return false;
@@ -183,7 +183,7 @@ int Socket::recv(Commands& cmd) const {
 
 
     int status = ::recv(m_sock, &cmd, MAXRECV, 0);
-    std::clog << "send msg ..." << std::endl;
+    std::clog << "recv cmd ..." << std::endl;
 
     if (status == -1) {
 

@@ -4,6 +4,7 @@
 
 #include "communication/server/Server.h"
 
+bool Server::connected = false;
 /**
  * Constructor for a Server instance
  *
@@ -34,6 +35,15 @@ Server::~Server() {
 }
 
 /**
+ * static method to query if the server is connected
+ *
+ * @return bool connected
+ */
+bool Server::isConnected() {
+    return connected;
+}
+
+/**
  * starts the run thread
  */
 void Server::startThread() {
@@ -50,6 +60,7 @@ void Server::waitForClient() {
 
     std::cout << "Listening for new client ..." << std::endl;
     serverSocket->accept(*sock);
+    connected = true;
 
 }
 
@@ -74,6 +85,7 @@ void Server::run() {
         } catch (SocketException& e) {
 
             std::cout << "SocketException was caught: " << e.description() << std::endl;
+            connected = false;
             // stop slammap thread
             run();
         }
@@ -99,8 +111,10 @@ void Server::actions(Commands& cmd) {
 
 
             //SlamMap
-        case START_STREAM_MAP:
+        case START_STREAM_MAP: {
             std::cout << "Start Stream Map!" << std::endl;
+            slamMap_.startSendSlamMap(*sock);
+        }
             break;
 
         case STOP_STREAM_MAP:

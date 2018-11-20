@@ -2,8 +2,8 @@
 // Created by christian on 02.11.18.
 //
 
-#ifndef ROBOCAR_SERVER_H
-#define ROBOCAR_SERVER_H
+#ifndef ALF_SERVER_H
+#define ALF_SERVER_H
 
 #include "communication/server/ServerSocket.h"
 #include "communication/server/SocketException.h"
@@ -21,15 +21,21 @@ class Server {
 
 private:
     unsigned int port_;
+    static bool connected;
     ServerSocket* serverSocket;
     ServerSocket* sock;
     Commands cmd;
 
     SlamMap& slamMap_;
 
+    //private methods
+
+
 public:
     Server(unsigned int port, SlamMap& slamMap);
     ~Server();
+
+    static bool isConnected();
 
     void startThread();
     void waitForClient();
@@ -39,4 +45,4 @@ public:
 
 };
 
-#endif //ROBOCAR_SERVER_H
+#endif //ALF_SERVER_H

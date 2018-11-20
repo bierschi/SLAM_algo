@@ -35,7 +35,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
     ui->disconnect_pb->setEnabled(false);
 
     //only for testing purposes
-    ui->host_le->setText("192.168.178.39");
+    //ui->host_le->setText("192.168.178.39");
+    ui->host_le->setText("localhost");
     ui->port_le->setText("2501");
 
 
@@ -52,7 +53,7 @@ void MainWindow::initSlots() {
 
     connect(ui->save_map_pb, SIGNAL(clicked()), this, SLOT(saveMap()));
     connect(ui->reset_map_pb, SIGNAL(clicked()), this, SLOT(resetMap()));
-
+    connect(ui->start_stream_map_pb, SIGNAL(clicked()), this, SLOT(startStreamMap()));
 }
 
 
@@ -155,13 +156,19 @@ void MainWindow::disConServer() {
 
 void MainWindow::startStreamMap() {
     Commands start_stream_map = START_STREAM_MAP;
+    std::vector<int> v;
 
     if (connected) {
 
         client->sending(start_stream_map);
-        streamMapFlag = true;
-        std::thread r(&MainWindow::run, this);
-        r.detach();
+
+        client->receiving(v);
+        savePGM(v);
+        createTxtMapFile("array.txt", v);
+        v.clear();
+        //streamMapFlag = true;
+        //std::thread r(&MainWindow::run, this);
+        //r.detach();
 
     }
 }
@@ -194,22 +201,47 @@ void MainWindow::resetMap() {
         client->sending(reset_map);
 }
 
+void MainWindow::savePGM(std::vector<int> v) {
+
+    FILE* out = fopen("gui.pgm", "w");
+    if (!out) {
+
+        return;
+    }
+
+    fprintf(out, "P2\n%d %d 255\n",
+            400,
+            400);
+    for(int s = 0; s < v.size(); s++) {
+        fprintf(out, "%d ", v[s]);
+
+        if (s && s%1024 == 0) {
+
+            fprintf(out, "\n");
+
+        }
+    }
+    fclose(out);
+}
 
 
 void MainWindow::run() {
 
+    std::vector<int> v;
+    client->receiving(v);
+    savePGM(v);
+    createTxtMapFile("array.txt", v);
+    /*
     while (streamMapFlag) {
 
         if (connected) {
-            std::vector<int> v;
-            client->receiving(v);
-            createTxtMapFile("array.txt", v);
+
 
         }
-        std::cout << "Test" << std::endl;
+        //std::cout << "Test" << std::endl;
         sleep(2);
 
-    }
+    }*/
 }
 
 void MainWindow::createTxtMapFile(std::string fileName, std::vector<int> mapData) {

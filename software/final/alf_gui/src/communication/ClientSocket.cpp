@@ -9,7 +9,7 @@
  * Constructor for a ClientSocket instance
  *
  * USAGE:
- *      ClientSocket("localhost", 2500);
+ *      Clientsocket* client = new ClientSocket("localhost", 2500);
  *
  * @param host: std::string
  * @param port: int port
@@ -95,6 +95,12 @@ const ClientSocket& ClientSocket::receiving (Commands& cmd) const {
     return *this;
 }
 
+/**
+ * method to receive a vector from socket
+ *
+ * @param v: std::vector<int>& reference
+ * @return const ClientSocket& reference
+ */
 const ClientSocket& ClientSocket::receiving(std::vector<int>& v) {
 
     if ( !Socket::recv(v) ) {
@@ -105,6 +111,7 @@ const ClientSocket& ClientSocket::receiving(std::vector<int>& v) {
 
     return *this;
 }
+
 /**
  * disconnect cleanly from the socket
  */

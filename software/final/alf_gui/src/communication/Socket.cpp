@@ -128,16 +128,23 @@ bool Socket::send(const std::string s) const {
         return true;
 }
 
+/**
+ * send command to socket
+ *
+ * @param cmd: Commands reference
+ * @return true, if sending was successfully, else false
+ */
 bool Socket::send(Commands& cmd) const {
 
     int status = ::send(m_sock, &cmd, sizeof(cmd), MSG_NOSIGNAL);
-    std::clog << "send msg ..." << std::endl;
+    std::clog << "send cmd-msg ..." << std::endl;
 
     if (status == -1)
         return false;
     else
         return true;
 }
+
 /**
  * receive string from socket
  *
@@ -183,7 +190,7 @@ int Socket::recv(Commands& cmd) const {
 
 
     int status = ::recv(m_sock, &cmd, MAXRECV, 0);
-    std::clog << "send msg ..." << std::endl;
+    std::clog << "recv cmd ..." << std::endl;
 
     if (status == -1) {
 
@@ -201,15 +208,25 @@ int Socket::recv(Commands& cmd) const {
 
 }
 
+typedef std::int64_t size_type;
+
 int Socket::recv(std::vector<int>& v) {
 
     //std::int64_t sz;
-    int sz;
-    int status = ::recv(m_sock, &sz, sizeof(sz), 0);
-    std::cout << "statz: " << status << std::endl;
-    v.resize(sz);
-    status = ::recv(m_sock, &(*v.begin()), sz * sizeof(int), 0);
+    //int sz;
+    size_type sz;
+    int status;
+    std::cout << "sz bef: " << sz << std::endl;
+    status = ::recv(m_sock, &sz, sizeof(sz), 0);
+    std::cout << "sizeof(): " << sizeof(sz) << std::endl;
+    v.resize(160000);
+    std::cout << "sz: " << sz << std::endl;
+    //v.resize(sz);
+    std::cout << "status: " << status << std::endl;
+    //status = ::recv(m_sock, &(*v.begin()), sz * sizeof(int), 0);
+    status = ::recv(m_sock, &(*(v.begin())), sz * sizeof(int), 0);
     std::cout << "vectorsize: " << v.size() << std::endl;
+
     if (status == -1 ) {
 
         std::cout << "vector failed" << std::endl;

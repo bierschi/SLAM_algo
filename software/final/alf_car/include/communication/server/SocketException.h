@@ -1,9 +1,9 @@
 //
-// Created by christian on 03.09.18.
+// Created by christian on 20.11.18.
 //
 
-#ifndef ROBOCAR_SOCKETEXCEPTION_H
-#define ROBOCAR_SOCKETEXCEPTION_H
+#ifndef ALF_SOCKETEXCEPTION_H
+#define ALF_SOCKETEXCEPTION_H
 
 /**
  * /CLASS SocketException
@@ -25,4 +25,4 @@ public:
 
 };
 
-#endif //ROBOCAR_SOCKETEXCEPTION_H
+#endif //ALF_SOCKETEXCEPTION_H

@@ -1,9 +1,9 @@
 //
-// Created by christian on 03.09.18.
+// Created by christian on 20.11.18.
 //
 
-#ifndef ROBOCAR_SERVERSOCKET_H
-#define ROBOCAR_SERVERSOCKET_H
+#ifndef ALF_SERVERSOCKET_H
+#define ALF_SERVERSOCKET_H
 
 #include <thread>
 #include <vector>
@@ -38,10 +38,7 @@ public:
 
     void accept(ServerSocket&);
 
-    //void processClient();
-    //void serveTask(ServerSocket&);
-    //void multipleClients();
 
 };
 
-#endif //ROBOCAR_SERVERSOCKET_H
+#endif //ALF_SERVERSOCKET_H

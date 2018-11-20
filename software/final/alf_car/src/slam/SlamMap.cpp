@@ -3,6 +3,7 @@
 //
 
 
+#include <communication/server/Server.h>
 #include "slam/SlamMap.h"
 
 /**
@@ -247,6 +248,7 @@ void SlamMap::createPgmMapFile(const nav_msgs::OccupancyGridConstPtr& map) {
 void SlamMap::createTxtMapFile(std::string fileName, std::vector<int> mapData) {
 
     FILE* out = fopen(fileName.c_str(), "w");
+
     for(int s = 0; s < mapData.size(); s++) {
         fprintf(out, "%d ", mapData[s]);
 
@@ -276,29 +278,65 @@ void SlamMap::createTxtPositionFile() {
 /**
  *
  */
-/*
-void SlamMap::sendSlamMap(ServerSocket& sock) {
 
-    std::thread run(&SlamMap::sendSlamMapThread, this, std::ref(sock));
-    run.detach();
+void SlamMap::startSendSlamMap(ServerSocket& sock) {
+
+    std::vector<int> v;
+
+    v = getMapData();
+    savePGM(v);
+    sock.sending(v);
+
+    //std::thread run(&SlamMap::sendSlamMapThread, this, std::ref(sock));
+    //run.detach();
 }
-*/
+
+void SlamMap::savePGM(std::vector<int> v) {
+
+    FILE* out = fopen("test.pgm", "w");
+    if (!out) {
+
+        ROS_ERROR("Could not save map file");
+        return;
+
+    }
+    fprintf(out, "P2\n%d %d 255\n",
+            mapWidth,
+            mapHeight);
+    for(int s = 0; s < v.size(); s++) {
+        fprintf(out, "%d ", v[s]);
+
+        if (s && s%mapWidth == 0) {
+
+            fprintf(out, "\n");
+
+        }
+    }
+    fclose(out);
+}
+
 /**
  *
  * @param sock
  */
-/*
 void SlamMap::sendSlamMapThread(ServerSocket &sock) {
+
     std::vector<int> v;
 
-    while(true) {
+    v = getMapData();
+    savePGM(v);
+    sock.sending(v);
+}
+/**
+    while(Server::isConnected()) {
         std::cout << "Test" << std::endl;
         v = getMapData();
         sock.sending(v);
         sleep(2);
     }
-}
-*/
+/**
+
+
 /**
  * method to reset the Map as a independent thread
  */
@@ -385,16 +423,10 @@ double SlamMap::getOriginPosZ() const {
 int SlamMap::getPixelX() {
 
     if (mapInitData) {
-        //int pixel_x = (int)((-getOriginPosX() / mapResolution) - (position_x / mapResolution));
+
         double pos_tmp = (-getOriginPosX() - position_x);
         int pixel_x = (int) (pos_tmp / mapResolution);
         return pixel_x;
-        //double max_breite = mapWidth * mapResolution;
-        //double middle = max_breite / 2.0;
-        //double act_pos = middle - position_x;
-        //int pix = (int)(act_pos / mapResolution);
-        //return pixel_x;
-        //return pix;
     }
 }
 
@@ -406,7 +438,7 @@ int SlamMap::getPixelX() {
 int SlamMap::getPixelY() {
 
     if (mapInitData) {
-        //int pixel_y =  (int)((getOriginPosY() / mapResolution) - (position_y / mapResolution));#
+
         double pos_tmp = (-getOriginPosX() - position_y);
         int pixel_y = (int) (pos_tmp / mapResolution);
         return pixel_y;
