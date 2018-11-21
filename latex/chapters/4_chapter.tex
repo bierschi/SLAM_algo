@@ -4,7 +4,10 @@ In diesem Kapitel wird die Installation des Betriebssystem Ubuntu Mate, sowie di
 
 \section{Installation von Ubuntu Mate auf Raspberry Pi 3b+}
 Aufgrund einer sehr großen Ubuntu Community und die gute Anbindung an das Framework ROS, wurde sich für das Betriebssystem Ubuntu Mate entschieden. Da keine durchgängige Echtzeitanbindung gefordert ist, werden hier der SLAM sowie die Wegefindung berechnet und ausgeführt. Die Sensoren der Motorsteuerung agieren dagegen auf einem STM Board um schneller auf Änderungen reagieren zu können. 
-Da zum aktuellen Zeitpunkt (25.10.2018) kein angepasstes Betriebssystem für den Raspberry Pi 3b+ zur Verfügung steht, mussten kleinere Konfigurationen stattfinden um das vorhandene Raspberry Pi 3 Image auf einem Rasperry Pi 3b+ zum laufen zu bekommen. Nachfolgend werden alle Konfigurationen genauer erläutert. 
+Da zum aktuellen Zeitpunkt (25.10.2018) kein angepasstes Betriebssystem für den Raspberry Pi 3b+ zur Verfügung steht, mussten kleinere Konfigurationen stattfinden um das vorhandene Raspberry Pi 3 Image auf einem Rasperry Pi 3b+ zum laufen zu bekommen. 
+Problem ohne diese Einstellungen: Der Raspberry Pi 3b+ startet nicht und es wird nur ein Regenbogen Bildschirm angezeigt!
+
+Nachfolgend werden alle Konfigurationen genauer erläutert. 
 
 1. Download eines Images für Raspberry  Pi 2/3 auf folgender Seite:
 
@@ -12,13 +15,52 @@ Da zum aktuellen Zeitpunkt (25.10.2018) kein angepasstes Betriebssystem für den
 
 3. Diese SD-Karte in einen \textbf{Raspberry Pi 2} oder \textbf{Raspberry Pi 3} einstecken und starten. 
 
-4. 
+4. Danach ein Terminal öffnen und folgenden Befehl für ein Kernel Update eingeben:
+
+\begin{lstlisting}
+sudo CURL_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt rpi-update
+
+\end{lstlisting}
+
+oder alternativ: 
 
 
+\begin{lstlisting}
+sudo BRANCH=stable rpi-update
 
+\end{lstlisting}
 
+5. Raspberry Pi 2/3 herunterfahren und diese SD-Karte in den Raspberry Pi 3b+ einstecken. Der Pi sollte dann wie gewünscht booten. 
+
+6. Zu diesem Zeitpunkt ist aber noch keine Wlan-Verbindung verfügbar. Installiere das neueste Raspbian Image von hier auf eine weitere SD-Karte. 
+
+7. Starte einen Raspberry Pi mit dem Raspbian Betriebssystem und kopiere folgenden Ordner auf einen USB-Stick. 
+
+\begin{lstlisting}
+sudo cp -r /lib/firmware/brcm /path_to_usb
+\end{lstlisting}
+
+8. Starte den Raspberry Pi 3b+ mit der SD-Karte auf der Ubuntu Mate installiert ist. 
+
+9. Ersetze den aktuellen /lib/firmware/brcm Ordner durch den am USB-Stick
+
+\begin{lstlisting}
+sudo cp -r /path_to_usb/lib/firmware/brcm /lib/firmware/brcm
+\end{lstlisting}
+
+10. Führe einen Neustart durch und eine Wlan-Verbindung sollte verfügbar sein.
+
+11. Aktiviere ssh durch folgenden Befehl
+
+\begin{lstlisting}
+sudo systemctl enable ssh
+\end{lstlisting}
 
 
 \section{Installation des Frameworks Robot Operating System (ROS)}
+
+
+
+
 
 \section{Roscore Master und Launch file als Systemd Service}
