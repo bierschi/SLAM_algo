@@ -74,9 +74,16 @@ void SlamMap::poseCallback(const geometry_msgs::PoseStampedConstPtr &pose) {
     double roll, pitch, yaw, yaw_degrees;
     m.getRPY(roll, pitch, yaw);
     yaw_degrees = yaw * 180.0 / M_PI;
+    
     //convert negative to positive angles
-    if (yaw_degrees < 0)
-        yaw_degrees +=360.0;
+    //if (yaw_degrees < 0)
+    //    yaw_degrees +=360.0;
+
+    if (yaw_degrees < 0) {
+        yaw_degrees = -yaw_degrees;
+    } else {
+        yaw_degrees = 360.0 - yaw_degrees;
+    }
 
     theta = yaw_degrees;
 
