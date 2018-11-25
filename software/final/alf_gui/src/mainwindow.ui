@@ -145,7 +145,7 @@
      <attribute name="title">
       <string>SLAM</string>
      </attribute>
-     <widget class="QGraphicsView" name="graphicsView">
+     <widget class="QGraphicsView" name="slam_gv">
       <property name="geometry">
        <rect>
         <x>0</x>
@@ -192,6 +192,19 @@
       </property>
       <property name="text">
        <string>start stream</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="stop_stream_map_pb">
+      <property name="geometry">
+       <rect>
+        <x>1010</x>
+        <y>120</y>
+        <width>99</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>stop stream</string>
       </property>
      </widget>
     </widget>

@@ -23,7 +23,7 @@ int main(int argc, char** argv) {
         //std::cout << "x_pixel: " << sm->getPixelX() << " y_pixel: " << sm->getPixelY() << " theta: " << sm->theta << std::endl;
         //sm->setSaveMap(true);
 
-        //sleep(3);
+        //sleep(2);
         ros::spinOnce();
     }
 

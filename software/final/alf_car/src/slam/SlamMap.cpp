@@ -10,7 +10,7 @@
  * Constructor for a SlamMap instance
  *
  * USAGE:
- *      SlamMap sm;
+ *      SlamMap* sm = new SlamMap("hector");
  *
  * @param mapname: string for the map name, default = "hector"
  * @param threshold_occupied: int number for the occupied threshold
@@ -18,14 +18,15 @@
  */
 SlamMap::SlamMap(const std::string& mapname, int threshold_occupied, int threshold_free)
         : mapname_(mapname),
-          save_map_(false),
-          mapInitData(false),
+          saveMap_(false),
+          mapInitData_(false),
+          sendMap_(false),
           threshold_occupied_(threshold_occupied),
           threshold_free_(threshold_free),
-          mapCounter(0),
-          mapHeight(0),
-          mapWidth(0),
-          mapResolution(-1.0),
+          mapCounter_(0),
+          mapHeight_(0),
+          mapWidth_(0),
+          mapResolution_(-1.0),
           position_x(0.0),
           position_y(0.0),
           position_z(0.0),
@@ -44,7 +45,6 @@ SlamMap::SlamMap(const std::string& mapname, int threshold_occupied, int thresho
 
     // Publisher
     reset_map_pub_ = n4.advertise<std_msgs::String>("syscommand", 2);
-
 }
 
 /**
@@ -74,7 +74,7 @@ void SlamMap::poseCallback(const geometry_msgs::PoseStampedConstPtr &pose) {
     double roll, pitch, yaw, yaw_degrees;
     m.getRPY(roll, pitch, yaw);
     yaw_degrees = yaw * 180.0 / M_PI;
-    
+
     //convert negative to positive angles
     //if (yaw_degrees < 0)
     //    yaw_degrees +=360.0;
@@ -111,11 +111,11 @@ void SlamMap::mapMetadataCallback(const nav_msgs::MapMetaDataConstPtr &metadata)
     origin_or_z_ = metadata->origin.orientation.z;
     origin_or_w_ = metadata->origin.orientation.w;
 
-    mapWidth = metadata->width;
-    mapHeight = metadata->height;
-    mapResolution = metadata->resolution;
+    mapWidth_ = metadata->width;
+    mapHeight_ = metadata->height;
+    mapResolution_ = metadata->resolution;
 
-    mapInitData = true;
+    mapInitData_ = true;
 
 }
 
@@ -128,12 +128,13 @@ void SlamMap::mapCallback(const nav_msgs::OccupancyGridConstPtr& map) {
 
     //ROS_INFO("Received a %d X %d map @ %.3f m/pix", map->info.width, map->info.height, map->info.resolution);
 
-    if (save_map_) {
+    if (saveMap_) {
         createPgmMapFile(map);
         createTxtPositionFile();
     }
 
     mapInterface(map);
+
 
 }
 
@@ -149,44 +150,30 @@ void SlamMap::mapInterface(const nav_msgs::OccupancyGridConstPtr& map) {
         printf("%d ", map->data[i]);
     }*/ //data -1, 0-100
 
-    mapData.resize(map->data.size());
+    mapData_.resize(map->data.size());
 
     for (unsigned int y = 0; y < map->info.height; y++) {
         for (unsigned int x = 0; x < map->info.width; x++) {
-            unsigned int i = x + (map->info.height - y - 1) * map->info.width;
+             unsigned int i = x + (map->info.height - y - 1) * map->info.width;
 
             if (map->data[i] >= 0 && map->data[i] <= threshold_free_) {
 
                 //fputc(254, out);
-                mapData[i] = 254;
-
+                mapData_[i] = 254;
 
             } else if (map->data[i] >= threshold_occupied_) {
 
                 //fputc(000, out);
-                mapData[i] = 0;
+                mapData_[i] = 0;
 
             } else {
 
                 //fputc(205, out);
-                mapData[i] = 205;
+                mapData_[i] = 205;
 
             }
         }
     }
-
-    /*
-    FILE* out = fopen("intarray_SlamMap.txt", "w");
-    for(int s = 0; s < mapData.size(); s++) {
-        fprintf(out, "%d ", mapData[s]);
-
-        if (s && s%map->info.width == 0) {
-
-           fprintf(out, "\n");
-
-        }
-    }*/
-
 }
 
 /**
@@ -196,7 +183,7 @@ void SlamMap::mapInterface(const nav_msgs::OccupancyGridConstPtr& map) {
  */
 void SlamMap::createPgmMapFile(const nav_msgs::OccupancyGridConstPtr& map) {
 
-    std::string mapCounterStr = std::to_string(mapCounter);
+    //std::string mapCounterStr = std::to_string(mapCounter_);
     //std::string mapdatafile = mapname_ + mapCounterStr +  ".pgm";
     std::string mapdatafile = mapname_ + ".pgm";
     ROS_INFO("Writing map occupancy data to %s", mapdatafile.c_str());
@@ -241,7 +228,7 @@ void SlamMap::createPgmMapFile(const nav_msgs::OccupancyGridConstPtr& map) {
     fclose(out);
 
     ROS_INFO("DONE\n");
-    mapCounter++;
+    mapCounter_++;
     setSaveMap(false);
 
 }
@@ -259,7 +246,7 @@ void SlamMap::createTxtMapFile(std::string fileName, std::vector<int> mapData) {
     for(int s = 0; s < mapData.size(); s++) {
         fprintf(out, "%d ", mapData[s]);
 
-        if (s && s%mapWidth == 0) {
+        if (s && s%mapWidth_ == 0) {
 
             fprintf(out, "\n");
 
@@ -273,7 +260,7 @@ void SlamMap::createTxtMapFile(std::string fileName, std::vector<int> mapData) {
  */
 void SlamMap::createTxtPositionFile() {
 
-    std::string mapCounterStr = std::to_string(mapCounter);
+    //std::string mapCounterStr = std::to_string(mapCounter_);
     //std::string positionDataFile = "position" + mapCounterStr +  ".txt";
     std::string positionDataFile = "position.txt";
     FILE* out = fopen(positionDataFile.c_str(), "w");
@@ -283,21 +270,21 @@ void SlamMap::createTxtPositionFile() {
 }
 
 /**
- *
+ * starts the SendSlamMapThread
  */
-
 void SlamMap::startSendSlamMap(ServerSocket& sock) {
 
-    std::vector<int> v;
+    sendMap_ = true;
 
-    v = getMapData();
-    savePGM(v);
-    sock.sending(v);
-
-    //std::thread run(&SlamMap::sendSlamMapThread, this, std::ref(sock));
-    //run.detach();
+    std::thread run(&SlamMap::sendSlamMapThread, this, std::ref(sock));
+    run.detach();
 }
 
+/**
+ * saves a PGM file from a std::vector<int>
+ *
+ * @param v: std::vector<int>
+ */
 void SlamMap::savePGM(std::vector<int> v) {
 
     FILE* out = fopen("test.pgm", "w");
@@ -308,41 +295,62 @@ void SlamMap::savePGM(std::vector<int> v) {
 
     }
     fprintf(out, "P2\n%d %d 255\n",
-            mapWidth,
-            mapHeight);
-    for(int s = 0; s < v.size(); s++) {
-        fprintf(out, "%d ", v[s]);
+            mapWidth_,
+            mapHeight_);
+    for(unsigned int y = 0; y < mapHeight_; y++) {
+        for(unsigned int x = 0; x < mapWidth_; x++) {
 
-        if (s && s%mapWidth == 0) {
+            unsigned int i = x + (mapHeight_ -y -1) * mapWidth_;
 
-            fprintf(out, "\n");
+            if (v[i] == 254) {
 
+                //fputc(254, out);
+                fprintf(out, "%d ",254);
+
+            } else if (v[i] == 0) {
+
+                //fputc(000, out);
+                fprintf(out, "%d ",0);
+
+            } else {
+
+                //fputc(205, out);
+                fprintf(out, "%d ",205);
+
+            }
         }
+        fprintf(out, "\n");
     }
+
     fclose(out);
 }
 
 /**
+ * thread to send slam maps to gui
  *
- * @param sock
+ * @param sock: ServerSocket reference
  */
 void SlamMap::sendSlamMapThread(ServerSocket &sock) {
 
     std::vector<int> v;
+    int nr = 1;
 
-    v = getMapData();
-    savePGM(v);
-    sock.sending(v);
-}
-/**
-    while(Server::isConnected()) {
-        std::cout << "Test" << std::endl;
+    while (Server::isConnected() && sendMap_) {
+        std::cout << "Send map nr: " << nr <<std::endl;
         v = getMapData();
         sock.sending(v);
-        sleep(2);
+        sleep(5);
+        nr++;
     }
-/**
 
+}
+
+/**
+ * stops the sendSlamMapThread while loop
+ */
+void SlamMap::stopSendSlamMap() {
+    sendMap_ = false;
+}
 
 /**
  * method to reset the Map as a independent thread
@@ -371,7 +379,7 @@ void SlamMap::reset() {
  * @return std::vector<int> mapData
  */
 std::vector<int> SlamMap::getMapData() {
-    return mapData;
+    return mapData_;
 }
 
 /**
@@ -380,7 +388,7 @@ std::vector<int> SlamMap::getMapData() {
  * @return bool save_map_
  */
 bool SlamMap::getSaveMap() const {
-    return save_map_;
+    return saveMap_;
 }
 
 /**
@@ -388,8 +396,8 @@ bool SlamMap::getSaveMap() const {
  *
  * @param save_map: bool
  */
-void SlamMap::setSaveMap(bool save_map) {
-    save_map_ = save_map;
+void SlamMap::setSaveMap(bool saveMap) {
+    saveMap_ = saveMap;
 }
 
 /**
@@ -398,7 +406,7 @@ void SlamMap::setSaveMap(bool save_map) {
  * @return double: origin_pos_x_
  */
 double SlamMap::getOriginPosX() const {
-    if (mapInitData)
+    if (mapInitData_)
         return origin_pos_x_;
 }
 
@@ -408,7 +416,7 @@ double SlamMap::getOriginPosX() const {
  * @return double: origin_pos_y_
  */
 double SlamMap::getOriginPosY() const {
-    if (mapInitData)
+    if (mapInitData_)
         return origin_pos_y_;
 }
 
@@ -418,7 +426,7 @@ double SlamMap::getOriginPosY() const {
  * @return double: origin_pos_z_
  */
 double SlamMap::getOriginPosZ() const {
-    if (mapInitData)
+    if (mapInitData_)
         return origin_pos_z_;
 }
 
@@ -429,10 +437,10 @@ double SlamMap::getOriginPosZ() const {
  */
 int SlamMap::getPixelX() {
 
-    if (mapInitData) {
+    if (mapInitData_) {
 
         double pos_tmp = (-getOriginPosX() - position_x);
-        int pixel_x = (int) (pos_tmp / mapResolution);
+        int pixel_x = (int) (pos_tmp / mapResolution_);
         return pixel_x;
     }
 }
@@ -444,10 +452,10 @@ int SlamMap::getPixelX() {
  */
 int SlamMap::getPixelY() {
 
-    if (mapInitData) {
+    if (mapInitData_) {
 
         double pos_tmp = (-getOriginPosX() - position_y);
-        int pixel_y = (int) (pos_tmp / mapResolution);
+        int pixel_y = (int) (pos_tmp / mapResolution_);
         return pixel_y;
     }
 }

@@ -9,6 +9,7 @@
 #include "ui_mainwindow.h"
 
 
+
 /**
  * Constructor for a MainWindow instance
  *
@@ -40,6 +41,40 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
     ui->port_le->setText("2501");
 
 
+    scene = new QGraphicsScene(this);
+    scene->setSceneRect(50, 50, 350, 350);
+    ui->slam_gv->setScene(scene);
+    //fill();
+
+
+}
+
+void MainWindow::fill(std::vector<int> v) {
+    QPainter painter(this);
+
+    QVector <QPointF> points;
+    for(unsigned int y = 0; y < 400; y++) {
+        for(unsigned int x = 0; x < 400; x++) {
+
+            unsigned int i = x + (400 -y -1) * 400;
+
+            if (v[i] == 254) {
+
+                points.append(QPointF(5, 5));
+
+            } else if (v[i] == 0) {
+
+                points.append(QPointF(15, 15));
+
+            } else {
+
+                points.append(QPointF(25, 25));
+
+            }
+        }
+    }
+
+
 }
 
 /**
@@ -54,6 +89,7 @@ void MainWindow::initSlots() {
     connect(ui->save_map_pb, SIGNAL(clicked()), this, SLOT(saveMap()));
     connect(ui->reset_map_pb, SIGNAL(clicked()), this, SLOT(resetMap()));
     connect(ui->start_stream_map_pb, SIGNAL(clicked()), this, SLOT(startStreamMap()));
+    connect(ui->stop_stream_map_pb, SIGNAL(clicked()), this, SLOT(stopStreamMap()));
 }
 
 
@@ -70,7 +106,7 @@ MainWindow::~MainWindow()
  */
 void MainWindow::closeWindow() {
 
-    QMessageBox::StandardButton resBtn = QMessageBox::question(this, "RoboCar", tr("Are you sure to quit?"));
+    QMessageBox::StandardButton resBtn = QMessageBox::question(this, "ALF", tr("Are you sure to quit?"));
 
     if (resBtn != QMessageBox::Yes) {
 
@@ -151,24 +187,15 @@ void MainWindow::disConServer() {
     }
 }
 
-
-
-
 void MainWindow::startStreamMap() {
     Commands start_stream_map = START_STREAM_MAP;
-    std::vector<int> v;
 
     if (connected) {
 
         client->sending(start_stream_map);
-
-        client->receiving(v);
-        savePGM(v);
-        createTxtMapFile("array.txt", v);
-        v.clear();
-        //streamMapFlag = true;
-        //std::thread r(&MainWindow::run, this);
-        //r.detach();
+        streamMapFlag = true;
+        std::thread r(&MainWindow::run, this);
+        r.detach();
 
     }
 }
@@ -201,6 +228,23 @@ void MainWindow::resetMap() {
         client->sending(reset_map);
 }
 
+void MainWindow::run() {
+
+    std::vector<int> v;
+
+    while (streamMapFlag) {
+
+        if (connected) {
+            client->receiving(v);
+            savePGM(v);
+            //fill(v);
+        }
+
+        sleep(5);
+
+    }
+}
+
 void MainWindow::savePGM(std::vector<int> v) {
 
     FILE* out = fopen("gui.pgm", "w");
@@ -212,37 +256,34 @@ void MainWindow::savePGM(std::vector<int> v) {
     fprintf(out, "P2\n%d %d 255\n",
             400,
             400);
-    for(int s = 0; s < v.size(); s++) {
-        fprintf(out, "%d ", v[s]);
+    for(unsigned int y = 0; y < 400; y++) {
+        for(unsigned int x = 0; x < 400; x++) {
 
-        if (s && s%1024 == 0) {
+            unsigned int i = x + (400 -y -1) * 400;
 
-            fprintf(out, "\n");
+            if (v[i] == 254) {
 
+                //fputc(254, out);
+                fprintf(out, "%d ",254);
+
+            } else if (v[i] == 0) {
+
+                //fputc(000, out);
+                fprintf(out, "%d ",0);
+
+            } else {
+
+                //fputc(205, out);
+                fprintf(out, "%d ",205);
+
+            }
         }
+        fprintf(out, "\n");
     }
+
     fclose(out);
 }
 
-
-void MainWindow::run() {
-
-    std::vector<int> v;
-    client->receiving(v);
-    savePGM(v);
-    createTxtMapFile("array.txt", v);
-    /*
-    while (streamMapFlag) {
-
-        if (connected) {
-
-
-        }
-        //std::cout << "Test" << std::endl;
-        sleep(2);
-
-    }*/
-}
 
 void MainWindow::createTxtMapFile(std::string fileName, std::vector<int> mapData) {
 

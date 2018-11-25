@@ -7,7 +7,8 @@
 
 #include "communication/ClientSocket.h"
 #include "communication/SocketException.h"
-
+#include <QGraphicsScene>
+#include <QGraphicsView>
 
 /**
  * /CLASS ClientSocket
@@ -32,6 +33,9 @@ private:
     ClientSocket *client;
 
     bool connected, closeFlag, streamMapFlag;
+    QGraphicsScene * scene;
+    QVector <QPointF> points;
+
 
 private slots:
 
@@ -55,6 +59,8 @@ private slots:
     void run();
     void createTxtMapFile(std::string fileName, std::vector<int>);
     void savePGM(std::vector<int> v);
+
+    void fill(std::vector<int>);
 };
 
 #endif // MAINWINDOW_H

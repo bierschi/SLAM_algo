@@ -119,6 +119,7 @@ void Server::actions(Commands& cmd) {
 
         case STOP_STREAM_MAP:
             std::cout << "Stop Stream Map!" << std::endl;
+            slamMap_.stopSendSlamMap();
             break;
 
         case SAVE_MAP: {
