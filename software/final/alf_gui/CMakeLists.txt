@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.7)
+cmake_minimum_required(VERSION 3.0)
 project(alf_gui)
 
 set(CMAKE_CXX_STANDARD 11)
@@ -17,7 +17,7 @@ find_package(Qt5 COMPONENTS Core Widgets REQUIRED)
 find_package(Threads REQUIRED)
 
 include_directories(include)
-
+include_directories(${CMAKE_BINARY_DIR})
 # populate a CMake variable with the sources
 set(alf_gui_src include/mainwindow.h include/communication/ClientSocket.h include/communication/Socket.h include/communication/SocketException.h
                 src/mainwindow.ui src/mainwindow.cpp src/communication/ClientSocket.cpp src/communication/Socket.cpp
