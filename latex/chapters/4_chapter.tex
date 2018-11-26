@@ -18,7 +18,7 @@ Nachfolgend werden alle Konfigurationen genauer erläutert.
 4. Danach ein Terminal öffnen und folgenden Befehl für ein Kernel Update eingeben:
 
 \begin{lstlisting}
-sudo CURL_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt rpi-update
+$ sudo CURL_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt rpi-update
 
 \end{lstlisting}
 
@@ -26,7 +26,7 @@ oder alternativ:
 
 
 \begin{lstlisting}
-sudo BRANCH=stable rpi-update
+$ sudo BRANCH=stable rpi-update
 
 \end{lstlisting}
 
@@ -37,7 +37,7 @@ sudo BRANCH=stable rpi-update
 7. Starte einen Raspberry Pi mit dem Raspbian Betriebssystem und kopiere folgenden Ordner auf einen USB-Stick. 
 
 \begin{lstlisting}
-sudo cp -r /lib/firmware/brcm /path_to_usb
+$ sudo cp -r /lib/firmware/brcm /path_to_usb
 \end{lstlisting}
 
 8. Starte den Raspberry Pi 3b+ mit der SD-Karte auf der Ubuntu Mate installiert ist. 
@@ -45,7 +45,7 @@ sudo cp -r /lib/firmware/brcm /path_to_usb
 9. Ersetze den aktuellen /lib/firmware/brcm Ordner durch den am USB-Stick
 
 \begin{lstlisting}
-sudo cp -r /path_to_usb/lib/firmware/brcm /lib/firmware/brcm
+$ sudo cp -r /path_to_usb/lib/firmware/brcm /lib/firmware/brcm
 \end{lstlisting}
 
 10. Führe einen Neustart durch und eine Wlan-Verbindung sollte verfügbar sein.
@@ -53,7 +53,7 @@ sudo cp -r /path_to_usb/lib/firmware/brcm /lib/firmware/brcm
 11. Aktiviere ssh durch folgenden Befehl
 
 \begin{lstlisting}
-sudo systemctl enable ssh
+$ sudo systemctl enable ssh
 \end{lstlisting}
 
 
@@ -64,66 +64,66 @@ Nachfolgend wird Installation des Frameworks ROS durchgeführt. Dazu auf dem Bet
 1. Einrichten der sources.list
 
 \begin{lstlisting}
-sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
+$ sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
 \end{lstlisting}
 
 2. Einrichten der keys
 
 \begin{lstlisting}
-wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
+$ wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
 \end{lstlisting}
 
 3. Update packages
 
 \begin{lstlisting}
-sudo apt-get update
+$ sudo apt-get update
 \end{lstlisting}
 
 4. Install ros-kinetic-desktop-full
 
 
 \begin{lstlisting}
-sudo apt-get install ros-kinetic-desktop-full
+$ sudo apt-get install ros-kinetic-desktop-full
 \end{lstlisting}
 
 5. Initialisierung und Update der Rosdep
 
 \begin{lstlisting}
-sudo rosdep init
+$ sudo rosdep init
 \end{lstlisting}
 
 \begin{lstlisting}
-rosdep update
+$ rosdep update
 \end{lstlisting}
 
 6. Einrichten der ROS Umgebungsvariablen
 
 \begin{lstlisting}
-echo "source /opt/ros/kinetic/setup.bash" >> ~/.bashrc
+$ echo "source /opt/ros/kinetic/setup.bash" >> ~/.bashrc
 \end{lstlisting}
 
 Neues Terminal öffnen oder nachfolgenden Befehl eingeben:
 
 \begin{lstlisting}
-source ~/.bashrc
+$ source ~/.bashrc
 \end{lstlisting}
 
 7. Erstellen eines catkin workspaces 
 
 \begin{lstlisting}
-mkdir -p ~/catkin_ws/src
+$ mkdir -p ~/catkin_ws/src
 \end{lstlisting}
 
 \begin{lstlisting}
-cd ~/catkin_ws/
+$ cd ~/catkin_ws/
 \end{lstlisting}
 
 \begin{lstlisting}
-catkin_make
+$ catkin_make
 \end{lstlisting}
 
 \begin{lstlisting}
-source ~/catkin_ws/devel/setup.bash
+$ source ~/catkin_ws/devel/setup.bash
 \end{lstlisting}
 
 Durch nachfolgenden Befehl hat man Zugriff auf die im catkin workspace gebildeten Packages überall im Linux System: 
@@ -136,7 +136,21 @@ Durch nachfolgenden Befehl hat man Zugriff auf die im catkin workspace gebildete
 Um nicht Root Rechte besitzen zu müssen um auf den Hokuyo Port zugreifen zu können, wurde der akuelle Benutzer in die Dialout Gruppe mit folgendem Befehl hinzugefügt:
 
 \begin{lstlisting}
-sudo adduser "user_name" dialout
+$ sudo adduser "user_name" dialout
 \end{lstlisting}
 
 \section{Roscore Master und Launch file als Systemd Service}
+
+
+\begin{lstlisting}
+[Unit]
+Description=start roscore master as a systemd service
+
+[Service]
+Type=simple
+ExecStart=/bin/bash -c "source /opt/ros/kinetic/setup.bash; /usr/bin/python /opt/ros/kinetic/bin/roscore"
+
+[Install]
+WantedBy=multi-user.target
+\end{lstlisting}
+
