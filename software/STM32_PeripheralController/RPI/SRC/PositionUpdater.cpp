@@ -37,7 +37,7 @@ void PositionUpdater::updatePosition(void)
 
 		// get x position:
 		fgets(buffer, 99, file);
-		num = sscanf(buffer, "%f", &position.x, &position.y, &position.theta);
+		num = sscanf(buffer, "%f", &position.x);
 
 		// get y position:
 		fgets(buffer, 99, file);

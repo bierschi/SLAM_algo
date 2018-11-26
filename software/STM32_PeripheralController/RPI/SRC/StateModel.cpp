@@ -19,8 +19,8 @@
 #define MAX_STEERING_ANGLE_DEGREE 	45.0f // maximum degrees the steering wheel can handle
 #define REVERSE_THRESHOLD_DEGREE 	90.0f // degrees to detect turn around situation
 
-#define STATE_MACHINE_CYCLE_TIME	200000000L
-#define REVERSE_WAIT_TIME			1
+#define STATE_MACHINE_CYCLE_TIME	200000000L	// delay between state changes in nanoseconds
+#define REVERSE_WAIT_TIME			1			// wait time for reversing in seconds
 
 
 // global communication structures
