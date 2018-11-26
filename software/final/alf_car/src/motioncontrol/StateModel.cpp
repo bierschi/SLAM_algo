@@ -14,8 +14,14 @@
 
 // if defined, we should use the position update provided by file
 #define USE_POSITION_FROM_FILE
+//#define USE_THETA_FROM_FILE
 
-#define REVERSE_THRESHOLD_DEGREE 90.0f
+#define MAX_STEERING_ANGLE_DEGREE 	45.0f // maximum degrees the steering wheel can handle
+#define REVERSE_THRESHOLD_DEGREE 	90.0f // degrees to detect turn around situation
+
+#define STATE_MACHINE_CYCLE_TIME	200000000L
+#define REVERSE_WAIT_TIME			1
+
 
 // global communication structures
 ComStructureType COM_StructRX = {0};
@@ -39,8 +45,8 @@ float getSteeringDirectionDegree(PositionStructureType &position, PathTravel &tr
     degree -= position.theta;
 
 	// check and apply bounds
-	degree = fmaxf(degree, -90.0f);
-	degree = fminf(degree, 90.0f);
+	degree = fmaxf(degree, -MAX_STEERING_ANGLE_DEGREE);
+	degree = fminf(degree, MAX_STEERING_ANGLE_DEGREE);
 
 	degree /= divider;
 
@@ -214,8 +220,13 @@ void StateModel::calcNextState(void) {
 	posUpdater->updatePosition();
 	position = posUpdater->getPosition(); // get current position from module
 
-	position.theta = fmodf(COM_StructRX.CurrentOrientation, 360.0f);
+// define if to use theta from file input
+#ifndef USE_THETA_FROM_FILE
+    position.theta = COM_StructRX.CurrentOrientation;
+#endif
     position.theta = getCorrectedThetaDegree(position.theta);
+
+// define if to use position from file input
 #ifndef USE_POSITION_FROM_FILE
     position.x = COM_StructRX.CurrentPositionX;
     position.y = COM_StructRX.CurrentPositionY;
@@ -303,13 +314,13 @@ void StateModel::calcNextState(void) {
     case STATE_REVERSE_BACKWARD:
 
         printf("Current State: REVERSE_BACKWARD\n");
-        ts_sleep.tv_nsec = 2000000000L; // 2000 ms delay
+        ts_sleep.tv_sec = REVERSE_WAIT_TIME; // delay
 
         currentTarget = ptrPathGroup->getPathTravelFromIndex(currentPathTravelIndex);
 
         COM_StructTX.CurrentSteeringDirection = COM_STEERING_DIRECTION_REVERSE;
         COM_StructTX.CurrentSteeringSpeed = this->defaultMotorSpeed;
-        COM_StructTX.CurrentSteeringAngle = 45.0f;
+        COM_StructTX.CurrentSteeringAngle = MAX_STEERING_ANGLE_DEGREE;
         currentState = STATE_REVERSE_FORWARD;
 
 		if(fabsf(getHeadingAngleDiff(position, (*currentTarget))) < REVERSE_THRESHOLD_DEGREE)
@@ -326,13 +337,13 @@ void StateModel::calcNextState(void) {
     case STATE_REVERSE_FORWARD:
 
         printf("Current State: REVERSE_FORWARD\n");
-        ts_sleep.tv_nsec = 2000000000L; // 2000 ms delay
+        ts_sleep.tv_sec = REVERSE_WAIT_TIME; // delay
 
         currentTarget = ptrPathGroup->getPathTravelFromIndex(currentPathTravelIndex);
 
         COM_StructTX.CurrentSteeringDirection = COM_STEERING_DIRECTION_FORWARD;
         COM_StructTX.CurrentSteeringSpeed = this->defaultMotorSpeed;
-        COM_StructTX.CurrentSteeringAngle = -45.0f;
+        COM_StructTX.CurrentSteeringAngle = -MAX_STEERING_ANGLE_DEGREE;
         currentState = STATE_REVERSE_BACKWARD;
 
         if(fabsf(getHeadingAngleDiff(position, (*currentTarget))) < REVERSE_THRESHOLD_DEGREE)
@@ -360,7 +371,7 @@ void StateModel::calcNextState(void) {
 void StateModel::Main(void)
 {
 	struct timespec ts_sleep = {0}, ts_remaining = {0};
-	ts_sleep.tv_nsec = 200000000L; // 200 ms delay
+	ts_sleep.tv_nsec = STATE_MACHINE_CYCLE_TIME; // 200 ms delay
 	Init();
 
 	while(1)

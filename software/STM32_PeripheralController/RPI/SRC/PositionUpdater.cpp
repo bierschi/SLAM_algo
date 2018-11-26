@@ -32,10 +32,20 @@ void PositionUpdater::updatePosition(void)
 
 	if(file != NULL)
 	{
-		// parse position information from first line of file
-		fgets(buffer, 99, file);
-		int num = sscanf(buffer, "%f, %f, %f", &position.x, &position.y, &position.theta);
+		int num;
+		// parse position information from lines of file
 
+		// get x position:
+		fgets(buffer, 99, file);
+		num = sscanf(buffer, "%f", &position.x, &position.y, &position.theta);
+
+		// get y position:
+		fgets(buffer, 99, file);
+		num = sscanf(buffer, "%f", &position.y);
+
+		// get theta of position:
+		fgets(buffer, 99, file);
+		num = sscanf(buffer, "%f", &position.theta);
         
 	}
 	else
