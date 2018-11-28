@@ -33,10 +33,11 @@ typedef enum StateEnum
 class StateModel
 {
 private:
-	StateEnumType currentState = STATE_IDLE;
+	StateEnumType currentState = STATE_REVERSE_BACKWARD;
 	// current index of traveled path group
 	unsigned int currentPathTravelIndex = 0u;
     unsigned int pathIndexIncrement = 1u;
+    bool isFirstStartup = true;
     uint16_t defaultMotorSpeed = COM_STEERING_SPEED_ZERO;
     uint8_t defaultMotorDirection = COM_STEERING_DIRECTON_ZERO;
     float maxAllowedDeviation = 0.1f;

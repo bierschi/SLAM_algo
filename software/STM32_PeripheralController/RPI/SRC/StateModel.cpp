@@ -16,11 +16,17 @@
 #define USE_POSITION_FROM_FILE
 //#define USE_THETA_FROM_FILE
 
-#define MAX_STEERING_ANGLE_DEGREE 	45.0f // maximum degrees the steering wheel can handle
-#define REVERSE_THRESHOLD_DEGREE 	90.0f // degrees to detect turn around situation
+#define MAX_STEERING_ANGLE_DEGREE 	40.0f // maximum degrees the steering wheel can handle
+#define REVERSE_THRESHOLD_DEGREE 	MAX_STEERING_ANGLE_DEGREE // degrees to detect turn around situation
 
 #define STATE_MACHINE_CYCLE_TIME	200000000L	// delay between state changes in nanoseconds
 #define REVERSE_WAIT_TIME			1			// wait time for reversing in seconds
+
+#define SWITCH_MOTOR_OFF()          do { \
+    COM_StructTX.CurrentSteeringAngle = COM_STEERING_ANGLE_ZERO; \
+    COM_StructTX.CurrentSteeringDirection = this->defaultMotorDirection; \
+    COM_StructTX.CurrentSteeringSpeed = COM_STEERING_SPEED_ZERO; \
+    } while(0);
 
 
 // global communication structures
@@ -208,6 +214,9 @@ void StateModel::Init(void)
 	ptrPathGroup = new PathGroup();
 	posUpdater = new PositionUpdater();
 	COM_StructTX.CurrentSteeringMode = COM_STEERING_MODE_MANUAL;
+    COM_StructTX.CurrentSteeringAngle = COM_STEERING_ANGLE_ZERO;
+    COM_StructTX.CurrentSteeringSpeed = COM_STEERING_SPEED_ZERO;
+    COM_StructTX.CurrentSteeringDirection = COM_STEERING_DIRECTION_FORWARD;
     getConfig();
 }
 
@@ -218,7 +227,9 @@ void StateModel::calcNextState(void) {
 	struct timespec ts_sleep = {0}, ts_remaining = {0};
 
 	posUpdater->updatePosition();
-	position = posUpdater->getPosition(); // get current position from module
+	position = posUpdater->getPosition(); // get current position from module / file
+
+    spiSend(COM_StructTX, COM_StructRX);
 
 // define if to use theta from file input
 #ifndef USE_THETA_FROM_FILE
@@ -243,6 +254,8 @@ void StateModel::calcNextState(void) {
 			currentPathTravelIndex = 0;
 			currentState = STATE_FETCH_PATHS;
 		}
+
+        SWITCH_MOTOR_OFF();
 		break;
 
 	case STATE_FETCH_PATHS:
@@ -294,12 +307,11 @@ void StateModel::calcNextState(void) {
 				&& (this->maxAllowedDeviation > abs(position.y - currentTarget->getTargetY()))) {
 			// stop traveling if target position is reached
 			currentState = STATE_GET_NEXT_SEGMENT;
-			COM_StructTX.CurrentSteeringSpeed = 0u; // shutdown motor
 			currentPathTravelIndex += pathIndexIncrement; // get next path segment, if available
+
+            SWITCH_MOTOR_OFF();
 		}
 
-		spiSend(COM_StructTX, COM_StructRX);
-        writeUltrasonicDistancesToFile();
 		break;
 
 	case STATE_CLEAR_STATES:
@@ -321,17 +333,37 @@ void StateModel::calcNextState(void) {
         COM_StructTX.CurrentSteeringDirection = COM_STEERING_DIRECTION_REVERSE;
         COM_StructTX.CurrentSteeringSpeed = this->defaultMotorSpeed;
         COM_StructTX.CurrentSteeringAngle = MAX_STEERING_ANGLE_DEGREE;
-        currentState = STATE_REVERSE_FORWARD;
+        currentState = STATE_REVERSE_BACKWARD;
 
-		if(fabsf(getHeadingAngleDiff(position, (*currentTarget))) < REVERSE_THRESHOLD_DEGREE)
-		{
-            COM_StructTX.CurrentSteeringDirection = COM_STEERING_DIRECTION_FORWARD;
-			COM_StructTX.CurrentSteeringSpeed = COM_STEERING_SPEED_ZERO;
-			COM_StructTX.CurrentSteeringAngle = 0.0f;
-			currentState = STATE_TRAVEL;
-		}
+        if(this->isFirstStartup)
+        {
+            if(fabsf(position.theta) > 160.0f)
+            {
+                // we just turned around 360 degree
+                // check for available paths in idle mode
+                currentState = STATE_IDLE;
+                this->isFirstStartup = false;
+                SWITCH_MOTOR_OFF();
+                newPathAvailable(); // call new path available, as current path must be discarded
+            }
+            else
+            {
+                currentState = STATE_REVERSE_FORWARD;
+            }
+            
+        }
+        else{
+            if(fabsf(getHeadingAngleDiff(position, (*currentTarget))) < REVERSE_THRESHOLD_DEGREE)
+            {
+                SWITCH_MOTOR_OFF();
+                currentState = STATE_GET_NEXT_SEGMENT;
+            }
+            else
+            {
+                currentState = STATE_TRAVEL;
+            }
+        }
 
-		spiSend(COM_StructTX, COM_StructRX);
 		nanosleep(&ts_sleep, &ts_remaining);
         break;
     case STATE_REVERSE_FORWARD:
@@ -346,15 +378,35 @@ void StateModel::calcNextState(void) {
         COM_StructTX.CurrentSteeringAngle = -MAX_STEERING_ANGLE_DEGREE;
         currentState = STATE_REVERSE_BACKWARD;
 
-        if(fabsf(getHeadingAngleDiff(position, (*currentTarget))) < REVERSE_THRESHOLD_DEGREE)
+        if(this->isFirstStartup)
         {
-            COM_StructTX.CurrentSteeringDirection = COM_STEERING_DIRECTION_FORWARD;
-            COM_StructTX.CurrentSteeringSpeed = COM_STEERING_SPEED_ZERO;
-            COM_StructTX.CurrentSteeringAngle = 0.0f;
-            currentState = STATE_TRAVEL;
+            if(fabsf(position.theta) > 160.0f)
+            {
+                // we just turned around 360 degree
+                // check for available paths in idle mode
+                currentState = STATE_IDLE;
+                this->isFirstStartup = false;
+                SWITCH_MOTOR_OFF();
+                newPathAvailable(); // call new path available, as current path must be discarded
+            }
+            else
+            {
+                currentState = STATE_REVERSE_BACKWARD;
+            }
+            
+        }
+        else{
+            if(fabsf(getHeadingAngleDiff(position, (*currentTarget))) < REVERSE_THRESHOLD_DEGREE)
+            {
+                SWITCH_MOTOR_OFF();
+                currentState = STATE_GET_NEXT_SEGMENT;
+            }
+            else
+            {
+                currentState = STATE_TRAVEL;
+            }
         }
 
-        spiSend(COM_StructTX, COM_StructRX);
         nanosleep(&ts_sleep, &ts_remaining);
         break;
 
@@ -363,8 +415,12 @@ void StateModel::calcNextState(void) {
 		break;
 	}
 
+    // send motor commands to board
+    //spiSend(COM_StructTX, COM_StructRX);
+
     this->writeControlStateToFile();
     this->writeMotorStateToFile();
+    this->writeUltrasonicDistancesToFile();
 
 }
 
