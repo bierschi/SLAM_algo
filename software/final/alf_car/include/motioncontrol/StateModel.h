@@ -46,6 +46,10 @@ private:
 	PathGroup *ptrPathGroup = NULL;
 	PositionUpdater *posUpdater = NULL;
 
+	// special variables for STATE_SCAN_AREA:
+	PositionStructureType lastPosition = {0};
+	float turnAroundTheta = 0.0f;
+
 	bool newPathAvailable(void);
 	void getConfig(void);
     void writeUltrasonicDistancesToFile(void);

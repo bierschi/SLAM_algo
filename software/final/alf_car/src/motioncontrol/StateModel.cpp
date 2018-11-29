@@ -397,6 +397,8 @@ void StateModel::calcNextState(void) {
     	printf("Current State: SCAN_AREA\n");
     	ts_sleep.tv_sec = REVERSE_WAIT_TIME; // delay
 
+    	this->turnAroundTheta += fabsf(position.theta - this->lastPosition.theta);
+
     	if(COM_StructTX.CurrentSteeringDirection == COM_STEERING_DIRECTION_FORWARD)
     	{
     		COM_StructTX.CurrentSteeringDirection = COM_STEERING_DIRECTION_REVERSE;
@@ -410,10 +412,11 @@ void StateModel::calcNextState(void) {
 
     	COM_StructTX.CurrentSteeringSpeed = this->defaultMotorSpeed;
 
-    	if(fabsf(position.theta) > 160.0f)
+    	if(this->turnAroundTheta > 360.0f)
     	{
     		SWITCH_MOTOR_OFF();
     		currentState = STATE_CLEAR_STATES;
+    		this->turnAroundTheta = 0.0f;
     	}
     	else
     	{
