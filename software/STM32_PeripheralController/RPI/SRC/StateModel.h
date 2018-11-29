@@ -13,7 +13,8 @@
 #include "Path.h"
 
 #define PATH_FILE "../PathFinder_data/driveway.txt"
-#define POSITION_FILE "../PathFinder_data/egoPosAtMap.txt"
+//#define POSITION_FILE "../PathFinder_data/egoPosAtMap.txt"
+#define POSITION_FILE "../SLAM_data/position.txt"
 #define MOTOR_STATE_FILE "../STM_data/motor.txt"
 #define ULTRASONIC_FILE "../STM_data/ultrasonic.txt"
 #define CONFIG_FILE "../STM_data/config.cfg"
@@ -27,20 +28,21 @@ typedef enum StateEnum
 	STATE_GET_NEXT_SEGMENT,
 	STATE_CLEAR_STATES,
     STATE_REVERSE_BACKWARD,
-    STATE_REVERSE_FORWARD
+    STATE_REVERSE_FORWARD,
+	STATE_SCAN_AREA
 } StateEnumType;
 
 class StateModel
 {
 private:
-	StateEnumType currentState = STATE_REVERSE_BACKWARD;
+	StateEnumType currentState = STATE_SCAN_AREA;
 	// current index of traveled path group
 	unsigned int currentPathTravelIndex = 0u;
     unsigned int pathIndexIncrement = 1u;
     bool isFirstStartup = true;
     uint16_t defaultMotorSpeed = COM_STEERING_SPEED_ZERO;
     uint8_t defaultMotorDirection = COM_STEERING_DIRECTON_ZERO;
-    float maxAllowedDeviation = 0.1f;
+    float maxAllowedDeviation = 1.5f;
 	PathGroup *ptrPathGroup = NULL;
 	PositionUpdater *posUpdater = NULL;
 

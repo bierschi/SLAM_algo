@@ -8,6 +8,7 @@
 #include <StateModel.h>
 #include <unistd.h>
 #include <math.h>
+#include <signal.h>
 
 #include "ComStructure.h"
 #include "SPILibrary.h"
@@ -28,6 +29,9 @@
     COM_StructTX.CurrentSteeringSpeed = COM_STEERING_SPEED_ZERO; \
     } while(0);
 
+// signalhandler for termination of program
+void sigIntHandler(int signum);
+bool exitProgram = false;
 
 // global communication structures
 ComStructureType COM_StructRX = {0};
@@ -36,29 +40,6 @@ ComStructureType COM_StructTX = {0};
 // #########################################################################################
 // helper functions:
 // #########################################################################################
-float getSteeringDirectionDegree(PositionStructureType &position, PathTravel &travel)
-{
-	float degree = 0.0f; // 0 degree as default
-	float temp = 0.0f;
-	float divider = 1.0f; // mapping from theoretical steering angle to real wheel angle
-
-	// get the angle towards the target
-	temp = atan2f((travel.getTargetY() - position.y), (travel.getTargetX() - position.x));
-
-	// convert from radians to degree
-	degree = (180.0f / 3.14159265358979323846f) * temp;
-
-    degree -= position.theta;
-
-	// check and apply bounds
-	degree = fmaxf(degree, -MAX_STEERING_ANGLE_DEGREE);
-	degree = fminf(degree, MAX_STEERING_ANGLE_DEGREE);
-
-	degree /= divider;
-
-	return degree;
-}
-
 float getCorrectedThetaDegree(float theta)
 {
     float result = 0.0f;
@@ -77,22 +58,38 @@ float getCorrectedThetaDegree(float theta)
     return result;
 }
 
-float getHeadingAngleDiff(PositionStructureType &position, PathTravel &travel)
+float getHeadingAngleDiff(PositionStructureType &position, PathTravel &travel, bool useSteering)
 {
 	float degree = 0.0f; // 0 degree as default
-	float temp = 0.0f;
+	float absTargetAngle = 0.0f;
+	float relTargetAngle = 0.0f;
+	float maxAngle = 180.0f;
 
 	// get the angle towards the target
-	temp = atan2f((travel.getTargetY() - position.y), (travel.getTargetX() - position.x));
+	absTargetAngle = atan2f((travel.getTargetY() - position.y), (travel.getTargetX() - position.x));
 
-	// convert from radians to degree
-	degree = (180.0f / 3.14159265358979323846f) * temp;
+	absTargetAngle = (180.0f / 3.14159265358979323846f) * absTargetAngle;
 
-    degree -= position.theta;
+	if((360.0f - absTargetAngle + position.theta) > 180.0f)
+	{
+		if((0.0f - absTargetAngle + position.theta) > 180.0f)
+		{
+			relTargetAngle = 0.0f - 360.0f - absTargetAngle + position.theta;
+		}
+		else
+		{
+			relTargetAngle = 0.0f - absTargetAngle + position.theta;
+		}
+	}
+	else
+	{
+		relTargetAngle = 360.0f - absTargetAngle + position.theta;
+	}
 
+	if(useSteering) maxAngle = MAX_STEERING_ANGLE_DEGREE;
 	// check and apply bounds
-	degree = fmaxf(degree, -180.0f);
-	degree = fminf(degree, 180.0f);
+	degree = fmaxf(relTargetAngle, -maxAngle);
+	degree = fminf(relTargetAngle, maxAngle);
 
 	return degree;
 }
@@ -217,7 +214,10 @@ void StateModel::Init(void)
     COM_StructTX.CurrentSteeringAngle = COM_STEERING_ANGLE_ZERO;
     COM_StructTX.CurrentSteeringSpeed = COM_STEERING_SPEED_ZERO;
     COM_StructTX.CurrentSteeringDirection = COM_STEERING_DIRECTION_FORWARD;
+    this->newPathAvailable();
     getConfig();
+
+    signal(SIGINT, sigIntHandler);
 }
 
 void StateModel::calcNextState(void) {
@@ -276,7 +276,9 @@ void StateModel::calcNextState(void) {
 		if (ptrPathGroup->pathAtIndexAvailable(currentPathTravelIndex)) {
 			currentTarget = ptrPathGroup->getPathTravelFromIndex(currentPathTravelIndex);
 
-            if(REVERSE_THRESHOLD_DEGREE < fabsf(getHeadingAngleDiff(position, (*currentTarget))))
+			// if the absolute angle difference to the target is greater than threshold,
+			// we have to turn around first -> change to state reverse
+            if(REVERSE_THRESHOLD_DEGREE < fabsf(getHeadingAngleDiff(position, (*currentTarget), false)))
             {
                 currentState = STATE_REVERSE_BACKWARD;
             }
@@ -298,7 +300,7 @@ void StateModel::calcNextState(void) {
 		currentTarget = ptrPathGroup->getPathTravelFromIndex(currentPathTravelIndex);
 
 		// always track orientation towards target:
-		degree = getSteeringDirectionDegree(position, (*currentTarget));
+		degree = getHeadingAngleDiff(position, (*currentTarget), true);
 		COM_StructTX.CurrentSteeringAngle = degree;
         COM_StructTX.CurrentSteeringDirection = this->defaultMotorDirection;
         COM_StructTX.CurrentSteeringSpeed = this->defaultMotorSpeed;
@@ -325,47 +327,38 @@ void StateModel::calcNextState(void) {
 
     case STATE_REVERSE_BACKWARD:
 
-        printf("Current State: REVERSE_BACKWARD\n");
-        ts_sleep.tv_sec = REVERSE_WAIT_TIME; // delay
+    	printf("Current State: REVERSE_FORWARD\n");
+		ts_sleep.tv_sec = REVERSE_WAIT_TIME; // delay
 
-        currentTarget = ptrPathGroup->getPathTravelFromIndex(currentPathTravelIndex);
+		currentTarget = ptrPathGroup->getPathTravelFromIndex(currentPathTravelIndex);
 
-        COM_StructTX.CurrentSteeringDirection = COM_STEERING_DIRECTION_REVERSE;
-        COM_StructTX.CurrentSteeringSpeed = this->defaultMotorSpeed;
-        COM_StructTX.CurrentSteeringAngle = MAX_STEERING_ANGLE_DEGREE;
-        currentState = STATE_REVERSE_BACKWARD;
+		COM_StructTX.CurrentSteeringDirection = COM_STEERING_DIRECTION_REVERSE;
+		COM_StructTX.CurrentSteeringSpeed = this->defaultMotorSpeed;
 
-        if(this->isFirstStartup)
-        {
-            if(fabsf(position.theta) > 160.0f)
-            {
-                // we just turned around 360 degree
-                // check for available paths in idle mode
-                currentState = STATE_IDLE;
-                this->isFirstStartup = false;
-                SWITCH_MOTOR_OFF();
-                newPathAvailable(); // call new path available, as current path must be discarded
-            }
-            else
-            {
-                currentState = STATE_REVERSE_FORWARD;
-            }
-            
-        }
-        else{
-            if(fabsf(getHeadingAngleDiff(position, (*currentTarget))) < REVERSE_THRESHOLD_DEGREE)
-            {
-                SWITCH_MOTOR_OFF();
-                currentState = STATE_GET_NEXT_SEGMENT;
-            }
-            else
-            {
-                currentState = STATE_TRAVEL;
-            }
-        }
+		// decide steering angle, positive or negative (positive means right turn, negative left turn)
+		if(getHeadingAngleDiff(position, (*currentTarget), false) > 0.0f)
+		{
+			COM_StructTX.CurrentSteeringAngle = MAX_STEERING_ANGLE_DEGREE;
+		}
+		else
+		{
+			COM_StructTX.CurrentSteeringAngle = -MAX_STEERING_ANGLE_DEGREE;
+		}
 
-		nanosleep(&ts_sleep, &ts_remaining);
-        break;
+
+		if(fabsf(getHeadingAngleDiff(position, (*currentTarget), false)) < REVERSE_THRESHOLD_DEGREE)
+		{
+			SWITCH_MOTOR_OFF();
+			currentState = STATE_TRAVEL;
+		}
+		else
+		{
+			currentState = STATE_REVERSE_FORWARD;
+			nanosleep(&ts_sleep, &ts_remaining);
+		}
+
+		break;
+
     case STATE_REVERSE_FORWARD:
 
         printf("Current State: REVERSE_FORWARD\n");
@@ -375,40 +368,60 @@ void StateModel::calcNextState(void) {
 
         COM_StructTX.CurrentSteeringDirection = COM_STEERING_DIRECTION_FORWARD;
         COM_StructTX.CurrentSteeringSpeed = this->defaultMotorSpeed;
-        COM_StructTX.CurrentSteeringAngle = -MAX_STEERING_ANGLE_DEGREE;
-        currentState = STATE_REVERSE_BACKWARD;
 
-        if(this->isFirstStartup)
+        // decide steering angle, positive or negative (positive means left turn, negative right turn)
+        if(getHeadingAngleDiff(position, (*currentTarget), false) > 0.0f)
         {
-            if(fabsf(position.theta) > 160.0f)
-            {
-                // we just turned around 360 degree
-                // check for available paths in idle mode
-                currentState = STATE_IDLE;
-                this->isFirstStartup = false;
-                SWITCH_MOTOR_OFF();
-                newPathAvailable(); // call new path available, as current path must be discarded
-            }
-            else
-            {
-                currentState = STATE_REVERSE_BACKWARD;
-            }
-            
+        	COM_StructTX.CurrentSteeringAngle = -MAX_STEERING_ANGLE_DEGREE;
         }
-        else{
-            if(fabsf(getHeadingAngleDiff(position, (*currentTarget))) < REVERSE_THRESHOLD_DEGREE)
-            {
-                SWITCH_MOTOR_OFF();
-                currentState = STATE_GET_NEXT_SEGMENT;
-            }
-            else
-            {
-                currentState = STATE_TRAVEL;
-            }
+        else
+        {
+        	COM_StructTX.CurrentSteeringAngle = MAX_STEERING_ANGLE_DEGREE;
         }
 
-        nanosleep(&ts_sleep, &ts_remaining);
+		if(fabsf(getHeadingAngleDiff(position, (*currentTarget), false)) < REVERSE_THRESHOLD_DEGREE)
+		{
+			SWITCH_MOTOR_OFF();
+			currentState = STATE_TRAVEL;
+		}
+		else
+		{
+			currentState = STATE_REVERSE_BACKWARD;
+			nanosleep(&ts_sleep, &ts_remaining);
+		}
+
         break;
+
+    case STATE_SCAN_AREA:
+
+    	printf("Current State: SCAN_AREA\n");
+    	ts_sleep.tv_sec = REVERSE_WAIT_TIME; // delay
+
+    	if(COM_StructTX.CurrentSteeringDirection == COM_STEERING_DIRECTION_FORWARD)
+    	{
+    		COM_StructTX.CurrentSteeringDirection = COM_STEERING_DIRECTION_REVERSE;
+    		COM_StructTX.CurrentSteeringAngle = MAX_STEERING_ANGLE_DEGREE;
+    	}
+    	else
+    	{
+    		COM_StructTX.CurrentSteeringDirection = COM_STEERING_DIRECTION_FORWARD;
+    		COM_StructTX.CurrentSteeringAngle = -MAX_STEERING_ANGLE_DEGREE;
+    	}
+
+    	COM_StructTX.CurrentSteeringSpeed = this->defaultMotorSpeed;
+
+    	if(fabsf(position.theta) > 160.0f)
+    	{
+    		SWITCH_MOTOR_OFF();
+    		currentState = STATE_CLEAR_STATES;
+    	}
+    	else
+    	{
+    		currentState = STATE_SCAN_AREA;
+    		nanosleep(&ts_sleep, &ts_remaining);
+    	}
+
+    	break;
 
 	default:
 		currentState = STATE_CLEAR_STATES;
@@ -430,11 +443,25 @@ void StateModel::Main(void)
 	ts_sleep.tv_nsec = STATE_MACHINE_CYCLE_TIME; // 200 ms delay
 	Init();
 
-	while(1)
+	while(exitProgram == false)
 	{
 		printf("Calculating Next State...\n");
 		calcNextState();
 		nanosleep(&ts_sleep, &ts_remaining);
 	}
+
+	SWITCH_MOTOR_OFF();
+	spiSend(COM_StructTX, COM_StructRX);
+	printf("MotorShutdown!\n");
+}
+
+
+// #########################################################################################
+// signal handlers
+// #########################################################################################
+
+void sigIntHandler(int signum)
+{
+	exitProgram = true;
 }
 
