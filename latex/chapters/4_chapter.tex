@@ -5,13 +5,13 @@ In diesem Kapitel wird die Installation des Betriebssystem Ubuntu Mate, sowie di
 \section{Installation von Ubuntu Mate auf Raspberry Pi 3b+}
 Aufgrund einer sehr großen Ubuntu Community und die gute Anbindung an das Framework ROS, wurde sich für das Betriebssystem Ubuntu Mate entschieden. Da keine durchgängige Echtzeitanbindung gefordert ist, werden hier der SLAM sowie die Wegefindung berechnet und ausgeführt. Die Sensoren der Motorsteuerung agieren dagegen auf einem STM Board um schneller auf Änderungen reagieren zu können. 
 Da zum aktuellen Zeitpunkt (25.10.2018) kein angepasstes Betriebssystem für den Raspberry Pi 3b+ zur Verfügung steht, mussten kleinere Konfigurationen stattfinden um das vorhandene Raspberry Pi 3 Image auf einem Rasperry Pi 3b+ zum laufen zu bekommen. 
-Problem ohne diese Einstellungen: Der Raspberry Pi 3b+ startet nicht und es wird nur ein Regenbogen Bildschirm angezeigt!
+Problem ohne diese Konfigurationen: Der Raspberry Pi 3b+ startet nicht und es wird nur ein Regenbogen Bildschirm angezeigt!
 
-Nachfolgend werden alle Konfigurationen genauer erläutert. 
+Nachfolgend werden alle Konfigurationen erläutert, um ein neues Image zu flashen. 
 
-1. Download eines Images für Raspberry  Pi 2/3 auf folgender Seite:
+1. Download eines Images für Raspberry  Pi 2/3 auf folgender Seite \href{https://ubuntu-mate.org/download/}{Ubuntu Mate}:
 
-2. Flashen des Images auf einer SD-Karte mit Win32DiskImages oder (linux):
+2. Flashen des Images auf eine SD-Karte mit Win32DiskImages (Windows) oder dd (linux):
 
 3. Diese SD-Karte in einen \textbf{Raspberry Pi 2} oder \textbf{Raspberry Pi 3} einstecken und starten. 
 
@@ -54,6 +54,10 @@ $ sudo systemctl enable ssh
 \end{lstlisting}
 
 
+Aktueller Hostname und Passwort um per SSH auf den Raspberry Pi zugreifen zu können:\\
+\textbf{Hostname: hsp}\\
+\textbf{Passwort: hsp}
+
 \section{Installation des Frameworks Robot Operating System (ROS)}
 
 Nachfolgend wird Installation des Frameworks ROS durchgeführt. Dazu auf dem Betriebssystem Ubuntu Mate ein Terminal öffnen und folgende Befehle eingeben:
@@ -76,7 +80,7 @@ $ wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
 $ sudo apt-get update
 \end{lstlisting}
 
-4. Install ros-kinetic-desktop-full\\
+4. Installation des ros-kinetic-desktop-full\\
 
 \begin{lstlisting}
 $ sudo apt-get install ros-kinetic-desktop-full
@@ -124,9 +128,9 @@ $ source ~/catkin_ws/devel/setup.bash
 
 Durch nachfolgenden Befehl hat man von überall im Linux System Zugriff auf die im catkin workspace gebildeten Packages:\\ 
 
-%\begin{lstlisting}
-% echo “source ~/catkin_ws/devel/setup.bash” >> ~/.bashrc
-%\end{lstlisting}
+\begin{lstlisting}
+$ echo `source ~/catkin_ws/devel/setup.bash` << ~/.bashrc
+\end{lstlisting}
 
 \section{Schreibzugriff auf den Hokuyo Port für den aktuellen Benutzer}
 Um nicht Root Rechte besitzen zu müssen um auf den Hokuyo Port zugreifen zu können, wurde der akuelle Benutzer in die Dialout Gruppe mit folgendem Befehl hinzugefügt:\\
@@ -137,7 +141,7 @@ $ sudo adduser "user_name" dialout
 
 \section{Roscore Master und Launch file als Systemd Service}
 Da sich die SLAM Map sofort nach dem Start aufbauen soll, wurde sich für systemd services entschieden. Diese werden beim hochfahren des Raspberry Pi 3b+ ausgeführt, außerdem kann der jeweilige Service auch nachträglich per Kommando gestartet und gestoppt werden. 
-Da der roscore Master benötigt wird, um innerhalb des ROS Frameworks zu kommunizieren, wurde dieser als einzelner Service entworfen. Hierfür muss unter /etc/systemd/system eine Datei roscore.service mit folgendem Inhalt erstellt werden. 
+Da der roscore Master benötigt wird, um innerhalb des ROS Frameworks zu kommunizieren, wurde dieser als einzelner Service entworfen. Hierfür muss unter /etc/systemd/system eine Datei roscore.service mit folgendem Inhalt erstellt werden.\\
 
 
 \begin{lstlisting}
@@ -152,7 +156,7 @@ ExecStart=/bin/bash -c "source /opt/ros/kinetic/setup.bash; /usr/bin/python /opt
 WantedBy=multi-user.target
 \end{lstlisting}
 
-Um das ROS launch File hokuyo\_hector\_slam.launch als Service auszuführen wurde eine Datei hector.service in /etc/systemd/service mit folgendem Inhalt erstellt. 
+Um das ROS launch File hokuyo\_hector\_slam.launch als Service auszuführen wurde eine Datei hector.service in /etc/systemd/service mit folgendem Inhalt erstellt.\\
 
 \begin{lstlisting}
 [Unit]
