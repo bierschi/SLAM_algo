@@ -17,11 +17,11 @@ void MTC_SetMotorDirectionToOutput(uint8_t direction)
 {
     if(direction == MTC_MOTOR_DIRECTION_FWD)
     {
-        GPIOB->BSRR = GPIO_BSRR_BS_5;
+        GPIOB->BSRR = GPIO_BSRR_BR_5;
     }
     else if(MTC_MOTOR_DIRECTION_RWD)
     {
-        GPIOB->BSRR = GPIO_BSRR_BR_5;
+        GPIOB->BSRR = GPIO_BSRR_BS_5;
     }
 }
 

@@ -3,7 +3,7 @@
 #include "MotorControl.h"
 #include "Timing.h"
 
-#define DEBUG_ODOMETRY
+//#define DEBUG_ODOMETRY
 
 #ifdef DEBUG_ODOMETRY
 #include <stdio.h>
@@ -132,7 +132,7 @@ void ODO_PropagateOdometry(void)
 //     x_accel, y_accel, z_accel, xr_vel, yr_vel, zr_vel);
 //    snprintf(bufferString, 199, "Distance X: %.4f , Distance Y: %.4f\n", CurrentPosition_X, CurrentPosition_Y);
 //    COM_PrintToUART((uint8_t *) bufferString, (uint8_t) strlen(bufferString));
-//    snprintf(bufferString, 199, "Xrot: %.2f\nYrot: %.2f\nZrot: %.2f\n", CurrentOrientation_XR, CurrentOrientation_YR, CurrentOrientation_ZR);
-//    COM_PrintToUART((uint8_t *) bufferString, (uint8_t) strlen(bufferString));
+    snprintf(bufferString, 199, "Xrot: %.2f\nYrot: %.2f\nZrot: %.2f\n", CurrentOrientation_XR, CurrentOrientation_YR, CurrentOrientation_ZR);
+    COM_PrintToUART((uint8_t *) bufferString, (uint8_t) strlen(bufferString));
     #endif
 }
