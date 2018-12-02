@@ -35,6 +35,7 @@ private:
     bool connected, closeFlag, streamMapFlag;
     QGraphicsScene * scene;
     QVector <QPointF> points;
+    int mapCounter_=0;
 
 
 private slots:
@@ -58,7 +59,7 @@ private slots:
 
     void run();
     void createTxtMapFile(std::string fileName, std::vector<int>);
-    void savePGM(std::vector<int> v);
+    void savePGM(std::vector<int>& v);
 
     void fill(std::vector<int>);
 };

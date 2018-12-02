@@ -18,6 +18,7 @@ find_package(Threads REQUIRED)
 
 include_directories(include)
 include_directories(${CMAKE_BINARY_DIR})
+
 # populate a CMake variable with the sources
 set(alf_gui_src include/mainwindow.h include/communication/ClientSocket.h include/communication/Socket.h include/communication/SocketException.h
                 src/mainwindow.ui src/mainwindow.cpp src/communication/ClientSocket.cpp src/communication/Socket.cpp

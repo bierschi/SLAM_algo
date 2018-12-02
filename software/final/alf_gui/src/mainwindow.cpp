@@ -238,6 +238,8 @@ void MainWindow::run() {
             client->receiving(v);
             savePGM(v);
             //fill(v);
+            v.clear();
+
         }
 
         sleep(5);
@@ -245,8 +247,10 @@ void MainWindow::run() {
     }
 }
 
-void MainWindow::savePGM(std::vector<int> v) {
-
+void MainWindow::savePGM(std::vector<int>& v) {
+    //std::string mapCounterStr = std::to_string(mapCounter_);
+    //std::string filename = "map" + mapCounterStr +  ".pgm";
+    //FILE* out = fopen(filename.c_str(), "w");
     FILE* out = fopen("gui.pgm", "w");
     if (!out) {
 
@@ -269,7 +273,7 @@ void MainWindow::savePGM(std::vector<int> v) {
             } else if (v[i] == 0) {
 
                 //fputc(000, out);
-                fprintf(out, "%d ",0);
+                fprintf(out, "%d ",000);
 
             } else {
 
@@ -282,6 +286,7 @@ void MainWindow::savePGM(std::vector<int> v) {
     }
 
     fclose(out);
+    mapCounter_++;
 }
 
 
