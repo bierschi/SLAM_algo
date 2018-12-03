@@ -20,10 +20,10 @@ int main(int argc, char** argv) {
 
     while ( ros::ok() ) {
 
-        //std::cout << "x_pixel: " << sm->getPixelX() << " y_pixel: " << sm->getPixelY() << " theta: " << sm->theta << std::endl;
-        //sm->setSaveMap(true);
+        std::cout << "x_pixel: " << sm->getPixelX() << " y_pixel: " << sm->getPixelY() << " theta: " << sm->theta << std::endl;
+        sm->setSaveMap(true);
 
-        //sleep(2);
+        sleep(2);
         ros::spinOnce();
     }
 
