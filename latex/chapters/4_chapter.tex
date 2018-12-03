@@ -140,7 +140,7 @@ $ sudo adduser "user_name" dialout
 \end{lstlisting}
 
 \section{Roscore Master und Launch file als Systemd Service}
-Da sich die SLAM Map sofort nach dem Start aufbauen soll, wurde sich für systemd services entschieden. Diese werden beim hochfahren des Raspberry Pi 3b+ ausgeführt, außerdem kann der jeweilige Service auch nachträglich per Kommando gestartet und gestoppt werden. 
+Da sich die SLAM Map sofort nach dem Start aufbauen soll, wurde sich für systemd Services entschieden. Diese werden beim hochfahren des Raspberry Pi 3b+ ausgeführt, außerdem kann der jeweilige Service auch nachträglich per Kommando gestartet und gestoppt werden. 
 Da der roscore Master benötigt wird, um innerhalb des ROS Frameworks zu kommunizieren, wurde dieser als einzelner Service entworfen. Hierfür muss unter /etc/systemd/system eine Datei roscore.service mit folgendem Inhalt erstellt werden.\\
 
 
@@ -156,7 +156,7 @@ ExecStart=/bin/bash -c "source /opt/ros/kinetic/setup.bash; /usr/bin/python /opt
 WantedBy=multi-user.target
 \end{lstlisting}
 
-Um das ROS launch File hokuyo\_hector\_slam.launch als Service auszuführen wurde eine Datei hector.service in /etc/systemd/service mit folgendem Inhalt erstellt.\\
+Um das ROS launch File hokuyo\_hector\_slam.launch als Service auszuführen, wurde eine Datei hector.service in /etc/systemd/service mit folgendem Inhalt erstellt.\\
 
 \begin{lstlisting}
 [Unit]
@@ -172,3 +172,46 @@ Restart=on-failure
 WantedBy=multi-user.target
 \end{lstlisting}
 
+Um diese Services beim hochfahren des Raspberry Pis zu starten, müssen diese erst mit nachfolgendem Befehl aktiviert werden.\\
+
+\begin{lstlisting}
+$ sudo systemctl enable roscore.service
+$ sudo systemctl enable hector.service
+\end{lstlisting}
+
+Um den aktuellen Status dieser Services zu begutachten, muss folgender Befehl eingegeben werden. Status kann auch durch \textit{restart} oder \textit{stop} ersetzt werden.\\ 
+
+\begin{lstlisting}
+$ sudo systemctl status roscore.service
+$ sudo systemctl status hector.service
+\end{lstlisting}
+
+\section{WiringPi Update}
+
+Durch die Installation des Betriebssystems Ubuntu Mate kann es möglich sein, dass die Bibliothek \textbf{WiringPi} geupdated werden muss. Die Funktionsweise kann mit nachfolgendem Befehl überprüft werden, sollten Fehlermeldungen auftreten so muss die aktuelle Version durch die neueste Version ersetzt werden.\\
+
+\begin{lstlisting}
+$ gpio -v
+\end{lstlisting}
+
+Entfernen der aktuellen Version mit:\\
+
+\begin{lstlisting}
+$ sudo apt-get purge wiringpi
+\end{lstlisting}
+
+Zuerst muss die aktuellste Version geklont und anschließend kompiliert werden.\\
+
+\begin{lstlisting}
+$ sudo apt install git
+$ git clone git://git.drogon.net/wiringPi
+$ cd wiringPi
+$ ./build
+\end{lstlisting}
+
+Zuletzt noch die Funktionsweise überprüfen:\\
+
+\begin{lstlisting}
+$ gpio -v 
+$ gpio readall
+\end{lstlisting}
