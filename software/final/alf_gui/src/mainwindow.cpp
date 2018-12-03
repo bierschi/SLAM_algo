@@ -28,8 +28,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
     // setup GUI
     ui->setupUi(this);
     this->setWindowTitle("ALF");
-    this->setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, this->size(), qApp->desktop()->availableGeometry()));
-
+    //this->setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, this->size(), qApp->desktop()->availableGeometry()));
+    QDesktopWidget dw;
+    int x = dw.width() * 0.6;
+    int y = dw.height() * 0.8;
+    this->setFixedSize(x, y);
     // init slots
     initSlots();
 
