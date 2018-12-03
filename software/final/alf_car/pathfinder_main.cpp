@@ -66,7 +66,7 @@ int main()
 
     std::cout << "position: " << x << ";" << y << endl;
 
-
+    setBlockToGrayvalue(map, x, y, WHITE_VALUE, 4);
 
     //save map in graph
     std::cout << endl << "#####################################" << endl;

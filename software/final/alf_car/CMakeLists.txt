@@ -27,10 +27,10 @@ include_directories(${CMAKE_CURRENT_LIST_DIR}/include/motioncontrol)
 
 
 # build executable with all sources # without motioncontrol
-#file(GLOB ALL_SOURCES "alf_main.cpp" "src/pathfinder/*.cpp" "src/slam/*.cpp" "src/communication/server/*.cpp")
-#add_executable(alf ${ALL_SOURCES})
-#target_link_libraries(alf ${catkin_LIBRARIES})
-#target_link_libraries(alf ${CMAKE_THREAD_LIBS_INIT})
+file(GLOB ALL_SOURCES "alf_main.cpp" "src/pathfinder/*.cpp" "src/slam/*.cpp" "src/communication/server/*.cpp")
+add_executable(alf ${ALL_SOURCES})
+target_link_libraries(alf ${catkin_LIBRARIES})
+target_link_libraries(alf ${CMAKE_THREAD_LIBS_INIT})
 
 
 # build each module independently
