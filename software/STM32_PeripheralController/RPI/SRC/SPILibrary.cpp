@@ -7,7 +7,7 @@
 #include <sys/types.h>
 #include "ComStructure.h"
 
-#ifdef RPI_BUILD
+#ifndef OFFLINE_SIMU
 #include <sys/ioctl.h>
 #include <linux/spi/spidev.h>
 #endif
@@ -22,7 +22,7 @@ bool initialized = false;
 
 void spiOpen(void)
 {
-#ifdef RPI_BUILD
+#ifndef OFFLINE_SIMU
     /*describe the transmitting options here:*/
     uint8_t mode = SPI_MODE_0;/*...specific for MCP23S17*/
     uint8_t bits_pW = 8;
@@ -44,7 +44,7 @@ void spiOpen(void)
 
 void spiSend(ComStructureType &tx, ComStructureType &rx)
 {
-#ifdef RPI_BUILD
+#ifndef OFFLINE_SIMU
     if(fdToSpiDev > 0) {
         struct spi_ioc_transfer spi_tf = {
                 .tx_buf = (unsigned long ) &tx, /*send buffer*/
@@ -56,7 +56,8 @@ void spiSend(ComStructureType &tx, ComStructureType &rx)
         };
 
         if((ioctl(fdToSpiDev, SPI_IOC_MESSAGE(1),&spi_tf)) < 0)
-        {printf("\nCould not send SPI-Message!\n");
+        {
+            printf("\nCould not send SPI-Message!\n");
         }
     }
 #endif
@@ -64,7 +65,7 @@ void spiSend(ComStructureType &tx, ComStructureType &rx)
 
 void spiClose(void)
 {
-#ifdef RPI_BUILD
+#ifndef OFFLINE_SIMU
     if (fdToSpiDev != 0 && true == initialized)
     {
         close(fdToSpiDev);

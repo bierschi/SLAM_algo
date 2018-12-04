@@ -35,11 +35,12 @@ typedef enum StateEnum
 class StateModel
 {
 private:
-	StateEnumType currentState = STATE_SCAN_AREA;
+	StateEnumType currentState = STATE_IDLE;
 	// current index of traveled path group
 	unsigned int currentPathTravelIndex = 0u;
     unsigned int pathIndexIncrement = 1u;
     bool isFirstStartup = true;
+    bool scanAtStart = false;
     uint16_t defaultMotorSpeed = COM_STEERING_SPEED_ZERO;
     uint8_t defaultMotorDirection = COM_STEERING_DIRECTON_ZERO;
     float maxAllowedDeviation = 1.5f;
@@ -60,6 +61,7 @@ public:
 	void calcNextState(void);
 	void Init(void);
 	void Main(void);
+	void setScanAtStartup(bool scanAtStart);
 };
 
 #endif /* STATEMODEL_H */

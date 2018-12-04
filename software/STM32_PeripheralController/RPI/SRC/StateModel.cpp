@@ -217,6 +217,9 @@ void StateModel::Init(void)
     this->newPathAvailable();
     getConfig();
 
+    // check if 360 degree area scan at program startup should be made
+    if(this->scanAtStart) this->currentState = STATE_SCAN_AREA;
+
     signal(SIGINT, sigIntHandler);
 }
 
@@ -250,6 +253,8 @@ void StateModel::calcNextState(void) {
 	case STATE_IDLE:
 		// wait for next path list
 		printf("Current State: IDLE\n");
+		printf("Press any key to continue...\n");
+		getchar();
 		if (newPathAvailable()) {
 			currentPathTravelIndex = 0;
 			currentState = STATE_FETCH_PATHS;
@@ -456,6 +461,11 @@ void StateModel::Main(void)
 	SWITCH_MOTOR_OFF();
 	spiSend(COM_StructTX, COM_StructRX);
 	printf("MotorShutdown!\n");
+}
+
+void StateModel::setScanAtStartup(bool scanAtStart)
+{
+	this->scanAtStart = scanAtStart;
 }
 
 

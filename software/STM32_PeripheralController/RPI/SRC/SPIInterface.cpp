@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <string.h>
 #include <sys/types.h>
 #include "SPILibrary.h"
 #include "Path.h"
@@ -11,9 +12,15 @@ using namespace std;
 
 int main (int argc, char ** argv)
 {
-	PathGroup group;
 	StateModel model;
-	group.determinePathTravels(PATH_FILE);
+
+	if(argc > 1)
+	{
+		if(0 == strcmp(argv[1], "-i"))
+		{
+			model.setScanAtStartup(true);
+		}
+	}
 
 	printf("Open SPI Interface...\n");
 	spiOpen();
