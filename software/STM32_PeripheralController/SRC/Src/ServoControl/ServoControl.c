@@ -18,6 +18,7 @@ void SCM_SetTimerValueForAngle(float angle)
 
     if ((angle <= SCM_SERVO_MAX_ANGLE_POS) && (angle >= SCM_SERVO_MIN_ANGLE_POS))
     {
+        angle *= -1.0f; // correction factor, inverse mechanics
     	// calculations derived from CPU Frequency, Timer register max, and Servo steering conventions
         timerValue = (uint32_t) ((angle * 4.778f) + 750.0f);
     }
