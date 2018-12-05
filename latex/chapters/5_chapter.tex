@@ -26,6 +26,7 @@ Die Daten werden für jeden erfassten Punkt jeweils im Abstand von 0,35° als En
 
 \newpage
 \section{Interface Board}
+\label{sec:InterfaceBoard}
 Das ALF verfügt über folgende zusätzliche Komponenten:
 \begin{itemize}
 \item 1 Fahrmotor
@@ -34,8 +35,22 @@ Das ALF verfügt über folgende zusätzliche Komponenten:
 \item 1 kombinierter Beschleunigungssensor und Gyroskop (IMU MPU6050, verbunden über I$^{2}$C)
 \end{itemize}
 
-Um diese Komponenten in einer deterministischen Zeit kontrollieren und auslesen zu können, wurde neben dem Raspberry Pi 3B+ Board ein zweites Hardwaremodul verwendet. Es handelt sich hierbei um ein \textit{STM32 F334R8 Nucleo Board} der Firma STMicroelectronics \footnote{www.st.com}. Es handlet sich hierbei um einen ARM Prozessor auf einem Arduino kompatiblen Evaluationsboard. Der ARM Cortex M4 kann für beliebige Mess- und Regelungsaufgaben programmiert werden.
-Da das verwendete Raspberry Pi Betriebssystem kein Echtzeitbetriebssystem ist, können die notwendigen Echtzeitaufgaben damit auf den ARM Controller ausgelagert werden.
+Um diese Komponenten in einer deterministischen Zeit kontrollieren und auslesen zu können, wurde neben dem Raspberry Pi 3B+ Board ein zweites Hardwaremodul verwendet. Es handelt sich hierbei um ein \textit{STM32 F334R8 Nucleo Board} der Firma STMicroelectronics \footnote{www.st.com}. Auf dem Board befindet sich ein ARM Cortex M4 Microcontroller, der für beliebige Mess- und Regelungsaufgaben programmiert werden kann. Er übernimmt in die folgenden Aufgaben:
+\begin{itemize}
+\item Auslesen der 3 Ultraschall Sensoren (SRF08 Module) im 75ms Takt (I$^{2}$C)
+\item Auslesen des Beschleunigungssensors und Gyroskops MPU6050 im 50ms Takt (I$^{2}$C)
+\item Kommunikation mit der Hauptrechnerplatine Raspberry Pi über SPI (DMA)
+\item Steuerung des Servomotors für die Lenkung (PWM)
+\item Steuerung der Richtung und Geschwindigkeit des Fahrmotors (GPIO, PWM)
+\end{itemize}
+Da das verwendete Raspberry Pi Betriebssystem kein Echtzeitbetriebssystem ist, können die notwendigen Echtzeitaufgaben damit auf den ARM Controller ausgelagert werden. Das Bild \ref{fig:IfBoardHWUebersicht} zeigt die grobe Übersicht über die momentane Hardwarearchitektur des Interface Boards in Kombination mit dem Raspberry Pi. Über die Erweiterungsschnittstelle des STM Boards wurde zudem die Stromversorgung realisiert. Die Akkuspannung (Nennwert 7.2V) wird von einem Step-Down Reglermodul auf die Spannung von 5V konvertiert. Die 5V Logikspannung wird dann an das STM32 Board selbst, an die angeschlossenen Sensoren, und den Raspberry Pi verteilt.
+
+\begin{figure}[hbtp]
+\centering
+\includegraphics[scale=0.5]{images/chapter5/HW-Architecture.pdf}
+\caption{Aktuelle Hardware Architektur des ALF \label{fig:IfBoardHWUebersicht}}
+\end{figure}
+
 
 \chapter{Software}
 Nachfolgend wird das Design dieses Softwareprojekts dargestellt, sowie die leichte Erweiterung durch nachträgliche Module. Anschließend wird noch auf die bereits umgesetzten Module eingegangen und ihre Funktionsweise erklärt. 
@@ -198,10 +213,5 @@ Pfad von Egoposition zu Freifläche
 
 
 \section{Bewegungssteuerung}
+Die Bewegungssteuerung wandelt den berechneten Pfad der Wegefindung in Befehle für das Interface Board (\ref{sec:InterfaceBoard}) um. Der Pfad besteht aus Wegpunkten, die einzeln nacheinander angefahren werden. Die grundlegende Anfahrt eines Wegpunktes wird dabei über einzelne Befehle an das Interface Board übermittelt (Semantik: [Lenkwinkel];[Fahrtrichtung];[Geschwindigkeit]). Die Kommunikation erfolgt technisch über eine C - Datenstruktur, die sowohl im Bewegungssteuerungsmodul, als auch auf dem Interface Board identisch definiert ist. Die Datenstruktur kann per SPI vom Raspberry Pi aus regelmäßig auf das Interface Board übermittelt werden, um sowohl die Messdaten des Interface Boards zu lesen, als auch Befehle auf das Interface Board zu schreiben. Für dieses Projekt wurde eine Zykluszeit von 200ms gewählt, in der der Raspberry Pi die Datenstruktur mit dem Interface Board synchronisiert. Tabelle \ref{tab:COMStructureType} zeigt den genauen Aufbau der Datenstruktur.
 
-
-
-Here i quote from a particular book: This quote is from one special book that i have to specify in the end. There are even two books, just so you see that \cite{Williams201205,Siegert200612}
-
-
-Legislative texts, for example, need not to be quoted. Here is enough a reference in the footnote \footnote{This is the super footnote, here is something of BGB §§12 Abs. 3 Satz 4}
