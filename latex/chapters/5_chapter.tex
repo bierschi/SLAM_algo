@@ -213,5 +213,40 @@ Pfad von Egoposition zu Freifläche
 
 
 \section{Bewegungssteuerung}
-Die Bewegungssteuerung wandelt den berechneten Pfad der Wegefindung in Befehle für das Interface Board (\ref{sec:InterfaceBoard}) um. Der Pfad besteht aus Wegpunkten, die einzeln nacheinander angefahren werden. Die grundlegende Anfahrt eines Wegpunktes wird dabei über einzelne Befehle an das Interface Board übermittelt (Semantik: [Lenkwinkel];[Fahrtrichtung];[Geschwindigkeit]). Die Kommunikation erfolgt technisch über eine C - Datenstruktur, die sowohl im Bewegungssteuerungsmodul, als auch auf dem Interface Board identisch definiert ist. Die Datenstruktur kann per SPI vom Raspberry Pi aus regelmäßig auf das Interface Board übermittelt werden, um sowohl die Messdaten des Interface Boards zu lesen, als auch Befehle auf das Interface Board zu schreiben. Für dieses Projekt wurde eine Zykluszeit von 200ms gewählt, in der der Raspberry Pi die Datenstruktur mit dem Interface Board synchronisiert. Tabelle \ref{tab:COMStructureType} zeigt den genauen Aufbau der Datenstruktur.
+Die Bewegungssteuerung wandelt den berechneten Pfad der Wegefindung in Befehle für das Interface Board (\ref{sec:InterfaceBoard}) um. Der Pfad besteht aus Wegpunkten, die einzeln nacheinander angefahren werden. Die grundlegende Anfahrt eines Wegpunktes wird dabei über einzelne Befehle an das Interface Board übermittelt (Semantik: \texttt{[Lenkwinkel];[Fahrtrichtung];[Geschwindigkeit]}). Die Kommunikation erfolgt technisch über eine C - Datenstruktur, die sowohl im Bewegungssteuerungsmodul, als auch auf dem Interface Board identisch definiert ist. Die Datenstruktur kann per SPI vom Raspberry Pi aus regelmäßig auf das Interface Board übermittelt werden, um sowohl die Messdaten des Interface Boards zu lesen, als auch Befehle auf das Interface Board zu schreiben. Für dieses Projekt wurde eine Zykluszeit von 200ms gewählt, in der der Raspberry Pi die Datenstruktur mit dem Interface Board synchronisiert. Tabelle \ref{tab:COMStructureType} zeigt den genauen Aufbau der Datenstruktur.
 
+\begin{table}
+\texttt{
+\begin{tabular}{|c|c|p{6cm}|}
+\hline 
+\rule[-1ex]{0pt}{2.5ex} Datentyp & Name & Beschreibung \\ 
+\hline 
+\rule[-1ex]{0pt}{2.5ex} uint8 & CurrentSteeringMode & aktueller Betriebsmodus des Interface Boards \\ 
+\hline 
+\rule[-1ex]{0pt}{2.5ex} uint16 & CurrentSteeringSpeed & Fahrmotordrehzal (PWM von 0 bis 1000) \\ 
+\hline 
+\rule[-1ex]{0pt}{2.5ex} uint8 & CurrentSteeringDirection & Drehrichtung des Fahrmotors (0: rückwärts, 1: vorwärts) \\ 
+\hline 
+\rule[-1ex]{0pt}{2.5ex} float32 & CurrentSteeringAngle & Winkel des Lenkservos in Grad (-90.0 bis 90.0) \\ 
+\hline 
+\rule[-1ex]{0pt}{2.5ex} float32 & Target\_X & X Zielkoordinate für den automatischen Betriebsmodus \\ 
+\hline 
+\rule[-1ex]{0pt}{2.5ex} float32 & Target\_Y & Y Zielkoordinate für den automatischen Betriebsmodus \\ 
+\hline 
+\rule[-1ex]{0pt}{2.5ex} float32 & CurrentOrientation & aktuelle Ausrichtung des Interface Boards in Grad \\ 
+\hline 
+\rule[-1ex]{0pt}{2.5ex} float32 & CurrentPositionX & aktuelle X Position des Interface Boards in m \\ 
+\hline 
+\rule[-1ex]{0pt}{2.5ex} float32 & CurrentPositionX & aktuelle Y Position des Interface Boards in m \\ 
+\hline 
+\rule[-1ex]{0pt}{2.5ex} uint16 & USDistanceFrontLeft & aktueller Abstand des Ultraschall Sensors vorne links \\ 
+\hline 
+\rule[-1ex]{0pt}{2.5ex} uint16 & USDistanceFrontRight & aktueller Abstand des Ultraschall Sensors vorne rechts \\ 
+\hline 
+\rule[-1ex]{0pt}{2.5ex} uint16 & USDistanceRear & aktueller Abstand des Ultraschall Sensors hinten \\ 
+\hline 
+\end{tabular}
+}
+\caption{Datenstruktur COMStructureType, zur Kommunikation zwischen Raspberry Pi und Interface Board}
+\label{tab:COMStructureType}
+\end{table}
