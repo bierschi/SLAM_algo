@@ -2,9 +2,8 @@
 #include <iostream>
 
 #include "ros/ros.h"
-#include "slam/SlamMap.h"
-#include "communication/server/Server.h"
-
+#include "SlamMap.h"
+#include "Server.h"
 
 
 int main(int argc, char** argv) {

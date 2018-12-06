@@ -2,8 +2,8 @@
 // Created by christian on 20.11.18
 //
 
-#include "communication/server/ServerSocket.h"
-#include "communication/server/SocketException.h"
+#include "ServerSocket.h"
+#include "SocketException.h"
 
 /**
  * Default Constructor for a ServerSocket instance

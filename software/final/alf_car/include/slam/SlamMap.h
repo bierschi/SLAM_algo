@@ -14,7 +14,8 @@
 #include "geometry_msgs/PoseStamped.h"
 #include "std_msgs/String.h"
 #include "tf/transform_datatypes.h"
-#include "communication/server/ServerSocket.h"
+
+#include "ServerSocket.h"
 
 #define PI 3.14159265
 

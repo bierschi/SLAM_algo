@@ -2,7 +2,7 @@
 // Created by christian on 02.11.18.
 //
 
-#include "communication/server/Server.h"
+#include "Server.h"
 
 bool Server::connected = false;
 /**

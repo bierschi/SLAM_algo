@@ -3,8 +3,8 @@
 //
 
 
-#include <communication/server/Server.h>
-#include "slam/SlamMap.h"
+#include "Server.h"
+#include "SlamMap.h"
 
 /**
  * Constructor for a SlamMap instance

@@ -4,8 +4,8 @@
 
 #include <iostream>
 #include <fstream>
-#include <pathfinder/cGraph.h>
-#include <pathfinder/arrayutils.h>
+#include "cGraph.h"
+#include "arrayutils.h"
 
 using namespace std;
 

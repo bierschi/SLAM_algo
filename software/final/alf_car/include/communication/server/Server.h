@@ -5,9 +5,9 @@
 #ifndef ALF_SERVER_H
 #define ALF_SERVER_H
 
-#include "communication/server/ServerSocket.h"
-#include "communication/server/SocketException.h"
-#include "slam/SlamMap.h"
+#include "ServerSocket.h"
+#include "SocketException.h"
+#include "SlamMap.h"
 
 #include "std_msgs/String.h"
 

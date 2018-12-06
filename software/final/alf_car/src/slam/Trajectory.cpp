@@ -2,7 +2,7 @@
 // Created by christian on 30.10.18.
 //
 
-#include "slam/Trajectory.h"
+#include "Trajectory.h"
 
 Trajectory::Trajectory(): saveTrajectory_(false) {
 

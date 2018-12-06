@@ -2,8 +2,8 @@
 // Created by christian on 20.11.18
 //
 
-#include "communication/client/ClientSocket.h"
-#include "communication/client/SocketException.h"
+#include "ClientSocket.h"
+#include "SocketException.h"
 
 /**
  * Constructor for a ClientSocket instance

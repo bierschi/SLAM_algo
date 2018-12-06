@@ -3,7 +3,7 @@
 //
 
 #include <iostream>
-#include "communication/client/ClientSocket.h"
+#include "ClientSocket.h"
 
 int main(int argc, char** argv) {
 
