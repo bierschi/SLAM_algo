@@ -83,6 +83,9 @@ public:
     double getOriginPosX() const;
     double getOriginPosY() const;
     double getOriginPosZ() const;
+    int getMapHeight() const;
+    int getMapWidth() const;
+    bool getMapInitFlag();
 
 };
 

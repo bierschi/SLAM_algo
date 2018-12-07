@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 3.0)
 
+# set project name to alf
 project(alf)
 
+# set c++ standard to 11
 set(CMAKE_CXX_STANDARD 11)
 
 # find all required packages
@@ -43,7 +45,7 @@ include_directories(${CMAKE_CURRENT_LIST_DIR}/include/slam)
 file(GLOB SLAM_SRCS ${CMAKE_CURRENT_LIST_DIR}/src/slam/*.cpp)
 
 # build the executable "alf" with all sources
-add_executable(alf "alf_main.cpp" ${SLAM_SRCS} ${SERVER_SRCS} ${PATHFINDER_SRCS})
+add_executable(alf "alf_main.cpp" ${SLAM_SRCS} ${SERVER_SRCS} ${PATHFINDER_SRCS} include/pathfinder/PathfinderInterface.h src/pathfinder/PathfinderInterface.cpp)
 target_link_libraries(alf ${catkin_LIBRARIES})
 target_link_libraries(alf ${CMAKE_THREAD_LIBS_INIT})
 

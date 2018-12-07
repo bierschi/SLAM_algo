@@ -459,3 +459,21 @@ int SlamMap::getPixelY() {
         return pixel_y;
     }
 }
+
+int SlamMap::getMapHeight() const {
+
+    //while(!mapInitData_){}
+    return mapHeight_;
+
+}
+
+int SlamMap::getMapWidth() const {
+
+    //while(!mapInitData_){}
+    return mapWidth_;
+
+}
+
+bool SlamMap::getMapInitFlag() {
+    return mapInitData_;
+}
