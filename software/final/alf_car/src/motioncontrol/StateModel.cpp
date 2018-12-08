@@ -18,7 +18,7 @@
 //#define USE_THETA_FROM_FILE
 
 #define MAX_STEERING_ANGLE_DEGREE 	40.0f // maximum degrees the steering wheel can handle
-#define REVERSE_THRESHOLD_DEGREE 	MAX_STEERING_ANGLE_DEGREE // degrees to detect turn around situation
+#define REVERSE_THRESHOLD_DEGREE 	90.0f // degrees to detect turn around situation
 
 #define STATE_MACHINE_CYCLE_TIME	200000000L	// delay between state changes in nanoseconds
 #define REVERSE_WAIT_TIME			1			// wait time for reversing in seconds
@@ -214,7 +214,6 @@ void StateModel::Init(void)
     COM_StructTX.CurrentSteeringAngle = COM_STEERING_ANGLE_ZERO;
     COM_StructTX.CurrentSteeringSpeed = COM_STEERING_SPEED_ZERO;
     COM_StructTX.CurrentSteeringDirection = COM_STEERING_DIRECTION_FORWARD;
-    this->newPathAvailable();
     getConfig();
 
     // check if 360 degree area scan at program startup should be made
