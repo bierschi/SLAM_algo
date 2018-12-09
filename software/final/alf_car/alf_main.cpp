@@ -33,7 +33,7 @@ int main(int argc, char** argv) {
         }
 
 
-        sleep(2);
+        sleep(3);
         ros::spinOnce();
     }
 

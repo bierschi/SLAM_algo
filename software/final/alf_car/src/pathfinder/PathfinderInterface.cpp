@@ -45,19 +45,18 @@ void PathfinderInterface::processPath() {
     }
 
     //clearMapToBlackWhite(map);
-    fillGrayGradient(map);
-    saveMapToFile(map);
+    //fillGrayGradient(map);
+    //saveMapToFile(map, "map_remarked.pgm");
+    calcPath();
 }
 
 
 void PathfinderInterface::calcPath() {
 
-    std::cout << endl << "#####################################" << endl;
-    std::cout << "### read position from file..." << endl;
     int x = 0, y = 0;
 
-    x_native_ = sm_.position_x;
-    y_native_ = sm_.position_y;
+    x_native_ = sm_.getPixelX();
+    y_native_ = sm_.getPixelY();
     theta_    = sm_.theta;
 
 
@@ -67,6 +66,7 @@ void PathfinderInterface::calcPath() {
     int times = 0;
     int start = 0;
 
+
     times = x_native_ / blockSize;
     start = blockSize / 2 + 1;
     x = times * blockSize + start;
@@ -74,6 +74,7 @@ void PathfinderInterface::calcPath() {
     times = y_native_ / blockSize;
     start = blockSize / 2 + 1;
     y = times * blockSize + start;
+
 
     ego_pos = std::to_string(x) + ";" + std::to_string(y);
 
@@ -123,9 +124,27 @@ void PathfinderInterface::calcPath() {
             break;
     }
 
-    
+
+    saveMapToFile(map, "map_withPath.pgm");
+    //savePathToFile(driveway, "driveway.txt");
+    std::string egoPosAtMap = std::to_string(x_native_) + "\n" + std::to_string(y_native_) + "\n" + std::to_string(theta_);
+    saveEgoPosToFile(egoPosAtMap, "egoPosAtMap.txt");
+
+
 }
 
+Direction PathfinderInterface::getDirection(float theta)
+{
+    if(theta >= 315.0f || theta < 45.0f)
+        return NORTH;
+    if(theta >= 45.0f  && theta < 135.0f)
+        return EAST;
+    if(theta >= 135.0f && theta < 225.0f)
+        return SOUTH;
+    if(theta >= 225.0f && theta < 315.0f)
+        return WEST;
+    return NONE;
+}
 
 void PathfinderInterface::clearMapToBlackWhite(map_t &map)
 {
@@ -140,8 +159,6 @@ void PathfinderInterface::clearMapToBlackWhite(map_t &map)
             if(map.array[i][j] != WHITE_VALUE && map.array[i][j] != GRAY_VALUE && map.array[i][j] <= 60)
                 map.array[i][j] = BLACK_VALUE;       // set all values to BLACK
         }
-
-    saveMapToFile(map);
 
 }
 
@@ -179,11 +196,10 @@ void PathfinderInterface::setBlockToGrayvalue(map_t &map, int i, int j, int gray
 }
 
 
-void PathfinderInterface::saveMapToFile(map_t &map)
+void PathfinderInterface::saveMapToFile(map_t &map, std::string fileName)
 {
 
-    std::string mapdatafile =  "test.pgm";
-    FILE* out = fopen(mapdatafile.c_str(), "w");
+    FILE* out = fopen(fileName.c_str(), "w");
     fprintf(out, "P2\n%d %d 255\n",
             map.size_x,
             map.size_y);
@@ -199,4 +215,26 @@ void PathfinderInterface::saveMapToFile(map_t &map)
     }
 
     fclose(out);
+}
+
+void PathfinderInterface::savePathToFile(std::string &driveway, std::string const&path)
+{
+    ofstream f_driveway;
+
+    f_driveway.open(path, std::ios_base::trunc);
+
+    f_driveway << driveway;
+
+    f_driveway.close();
+}
+
+void PathfinderInterface::saveEgoPosToFile(std::string &position, std::string const&path)
+{
+    ofstream f_egoPosOut;
+
+    f_egoPosOut.open(path, std::ios_base::trunc);
+
+    f_egoPosOut << position;
+
+    f_egoPosOut.close();
 }
