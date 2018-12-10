@@ -8,9 +8,13 @@ PathfinderInterface::PathfinderInterface(SlamMap &sm) : sm_(sm),
                                                         blockSize(5),
                                                         x_native_(0),
                                                         y_native_(0),
-                                                        theta_(0.0)
+                                                        theta_(0.0),
+                                                        OUTPUT_FOLDER("../PathFinder_data/")
 {
 
+    if (boost::filesystem::create_directory(OUTPUT_FOLDER)) {
+        std::cout << "Created directory!" << std::endl;
+    }
 
 }
 
@@ -23,6 +27,15 @@ PathfinderInterface::~PathfinderInterface() {
 
 
 void PathfinderInterface::processPath() {
+
+
+    initSlamMap();
+
+    calcPath();
+}
+
+
+void PathfinderInterface::initSlamMap() {
 
     // fetch data from slam map
     map.size_x = sm_.getMapHeight();
@@ -38,18 +51,13 @@ void PathfinderInterface::processPath() {
 
     for (int row = 0; row < map.size_y; row++) {
         for (int column = 0; column < map.size_x; column++) {
-             int i = column + (map.size_x - row - 1) * map.size_y;
+            int i = column + (map.size_x - row - 1) * map.size_y;
             map.array[row][column] = mapData[i];
         }
 
     }
 
-    //clearMapToBlackWhite(map);
-    //fillGrayGradient(map);
-    //saveMapToFile(map, "map_remarked.pgm");
-    calcPath();
 }
-
 
 void PathfinderInterface::calcPath() {
 
@@ -125,10 +133,10 @@ void PathfinderInterface::calcPath() {
     }
 
 
-    saveMapToFile(map, "map_withPath.pgm");
-    //savePathToFile(driveway, "driveway.txt");
+    saveMapToFile(map, OUTPUT_FOLDER + "map_withPath.pgm");
+    savePathToFile(driveway, OUTPUT_FOLDER + "driveway.txt");
     std::string egoPosAtMap = std::to_string(x_native_) + "\n" + std::to_string(y_native_) + "\n" + std::to_string(theta_);
-    saveEgoPosToFile(egoPosAtMap, "egoPosAtMap.txt");
+    saveEgoPosToFile(egoPosAtMap, OUTPUT_FOLDER + "egoPosAtMap.txt");
 
 
 }

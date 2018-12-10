@@ -20,16 +20,20 @@ int main(int argc, char** argv) {
 
     PathfinderInterface* pi = new PathfinderInterface(*sm);
 
+    bool flag = true;
 
     while ( ros::ok() ) {
 
         if (sm->getMapInitFlag()) {
-            std::cout <<"Map was succesfully initialised!" << std::endl;
-            pi->processPath();
+
+            if (flag) {
+                std::cout <<"Map was succesfully initialised!" << std::endl;
+                pi->processPath();
+                sm->setSaveMap(true);
+                flag = false;
+            }
 
             //std::cout << "x_pixel: " << sm->getPixelX() << " y_pixel: " << sm->getPixelY() << " theta: " << sm->theta << std::endl;
-            sm->setSaveMap(true);
-
         }
 
 

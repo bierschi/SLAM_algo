@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <boost/filesystem.hpp>
 
 #include "SlamMap.h"
 #include "cGraph.h"
@@ -16,6 +17,8 @@
 class PathfinderInterface {
 
 private:
+    const std::string OUTPUT_FOLDER;
+
     int blockSize;
     int x_native_, y_native_;
     float theta_;
@@ -30,6 +33,7 @@ public:
     ~PathfinderInterface();
 
     void processPath();
+    void initSlamMap();
     void calcPath();
     void clearMapToBlackWhite(map_t& map);
     void fillGrayGradient(map_t& map);
