@@ -24,6 +24,9 @@ Die Daten werden für jeden erfassten Punkt jeweils im Abstand von 0,35° als En
 \end{center}
 \end{figure}
 
+\section{Raspberry Pi 3b+}
+
+
 \newpage
 \section{Interface Board}
 \label{sec:InterfaceBoard}
@@ -52,10 +55,30 @@ Da das verwendete Raspberry Pi Betriebssystem kein Echtzeitbetriebssystem ist, k
 \end{figure}
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
 \chapter{Software}
 Nachfolgend wird das Design dieses Softwareprojekts dargestellt, sowie die leichte Erweiterung durch nachträgliche Module. Anschließend wird noch auf die bereits umgesetzten Module eingegangen und ihre Funktionsweise erklärt. 
 
 \section{Design des Projektes mit CMake}
+
+
+\subsection{Ordnerstruktur}
+
+\subsection{Umgesetzte Module}
+
+
 
 \section{Verbindung zum Lidar}
 
@@ -102,6 +125,18 @@ Das Modul wird momentan nicht verwendet, da der SLAM Algorithmus mit Hilfe von R
 
 
 \section{SLAM}
+
+Um eine SLAM Map aufzubauen wurde erstmal eine Verbindung zum Lasersanner Hokuyo aufgebaut. Da bereits ein funktionierender ROS-Treiber vorhanden ist, konnte dieser übernommen werden. Dieser stellt ein neues Topic \textit{scan} zur Verfügung, welches dann als Eingangspunkt für den SLAM verwendet wird. 
+
+Um eine Map zu erhalten, wurde sich für den Hector-SLAM entschieden. Dieser benötigt zum einen ein Topic auf dem die Laserscans zur Verfügung stehen (scan), zum anderen muss der Transformationsbaum zwischen frame\_id map, base\_link, und laser korrekt sein.  
+
+\subsection{Transformationsbaum}
+
+\subsection{Interface Modul für den SLAM}
+
+
+
+
 
 \section{Wegefindung}
 
