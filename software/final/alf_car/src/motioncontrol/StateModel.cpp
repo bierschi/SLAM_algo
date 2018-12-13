@@ -15,7 +15,7 @@
 
 // if defined, we should use the position update provided by file
 #define USE_POSITION_FROM_FILE
-//#define USE_THETA_FROM_FILE
+#define USE_THETA_FROM_FILE
 
 #define MAX_STEERING_ANGLE_DEGREE 	40.0f // maximum degrees the steering wheel can handle
 #define REVERSE_THRESHOLD_DEGREE 	90.0f // degrees to detect turn around situation
@@ -40,7 +40,7 @@ ComStructureType COM_StructTX = {0};
 // #########################################################################################
 // helper functions:
 // #########################################################################################
-float getCorrectedThetaDegree(float theta)
+float getCorrectedThetaDegreeAccel(float theta)
 {
     float result = 0.0f;
 
@@ -58,6 +58,22 @@ float getCorrectedThetaDegree(float theta)
     return result;
 }
 
+float getCorrectedThetaDegreeLidar(float theta)
+{
+    float result = 0.0f;
+
+    if(theta < 180.0f)
+    {
+        result = theta * -1.0f;
+    }
+    else
+    {
+        result = 360.0f - theta;
+    }
+
+    return result;
+}
+
 float getHeadingAngleDiff(PositionStructureType &position, PathTravel &travel, bool useSteering)
 {
 	float degree = 0.0f; // 0 degree as default
@@ -69,6 +85,8 @@ float getHeadingAngleDiff(PositionStructureType &position, PathTravel &travel, b
 	absTargetAngle = atan2f((travel.getTargetY() - position.y), (travel.getTargetX() - position.x));
 
 	absTargetAngle = (180.0f / 3.14159265358979323846f) * absTargetAngle;
+	
+	printf("Zielwinkel: %.2f", absTargetAngle);
 
 	if((360.0f - absTargetAngle + position.theta) > 180.0f)
 	{
@@ -236,8 +254,10 @@ void StateModel::calcNextState(void) {
 // define if to use theta from file input
 #ifndef USE_THETA_FROM_FILE
     position.theta = COM_StructRX.CurrentOrientation;
+    position.theta = getCorrectedThetaDegreeAccel(position.theta);
+#else
+    position.theta = getCorrectedThetaDegreeLidar(position.theta);
 #endif
-    position.theta = getCorrectedThetaDegree(position.theta);
 
 // define if to use position from file input
 #ifndef USE_POSITION_FROM_FILE
