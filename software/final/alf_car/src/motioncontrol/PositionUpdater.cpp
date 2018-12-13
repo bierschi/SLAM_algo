@@ -12,6 +12,11 @@
 #include "PositionUpdater.h"
 #include "StateModel.h"
 
+#include <iostream>
+#include <fstream>
+
+using namespace std;
+
 PositionUpdater::PositionUpdater() {
 }
 
@@ -26,7 +31,7 @@ PositionStructureType PositionUpdater::getPosition(void)
 
 void PositionUpdater::updatePosition(void)
 {
-	FILE * file = NULL;
+	/*FILE * file = NULL;
 	file = fopen(POSITION_FILE, "r");
 	char buffer[100] = {0};
 
@@ -52,4 +57,25 @@ void PositionUpdater::updatePosition(void)
 	{
 		printf("PositionUpdater: Error opening file input!\n");
 	}
+	
+	fclose(file);*/
+	
+	ifstream f_position(POSITION_FILE);
+	
+	if(false == f_position.is_open()) cout << "Error reading file!" << endl;
+
+    std::string line;
+
+    // get map size from file
+    std::getline(f_position, line);  // x
+    position.x = std::atoi(line.c_str());
+
+    std::getline(f_position, line);  // y
+    position.y = 200 - std::atoi(line.c_str());
+
+    std::getline(f_position, line);  // theta
+    position.theta = std::atof(line.c_str());
+
+    f_position.close();
+	
 }

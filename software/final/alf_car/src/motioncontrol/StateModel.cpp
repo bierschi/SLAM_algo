@@ -10,6 +10,7 @@
 #include <math.h>
 #include <signal.h>
 
+
 #include "ComStructure.h"
 #include "SPILibrary.h"
 
@@ -86,7 +87,7 @@ float getHeadingAngleDiff(PositionStructureType &position, PathTravel &travel, b
 
 	absTargetAngle = (180.0f / 3.14159265358979323846f) * absTargetAngle;
 	
-	printf("Zielwinkel: %.2f", absTargetAngle);
+	printf("Zielwinkel: %.2f\n", absTargetAngle);
 
 	if((360.0f - absTargetAngle + position.theta) > 180.0f)
 	{
@@ -322,6 +323,8 @@ void StateModel::calcNextState(void) {
 		// travel to next position and watch for reached destination
 		// get next path to travel
 		currentTarget = ptrPathGroup->getPathTravelFromIndex(currentPathTravelIndex);
+		
+		printf("Current Target: %f, %f\n", currentTarget->getTargetX(), currentTarget->getTargetY());
 
 		// always track orientation towards target:
 		degree = getHeadingAngleDiff(position, (*currentTarget), true);
