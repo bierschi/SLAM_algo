@@ -10,7 +10,6 @@
 #include <math.h>
 #include <signal.h>
 
-
 #include "ComStructure.h"
 #include "SPILibrary.h"
 
@@ -87,7 +86,7 @@ float getHeadingAngleDiff(PositionStructureType &position, PathTravel &travel, b
 
 	absTargetAngle = (180.0f / 3.14159265358979323846f) * absTargetAngle;
 	
-	printf("Zielwinkel: %.2f\n", absTargetAngle);
+	printf("Zielwinkel: %.2f", absTargetAngle);
 
 	if((360.0f - absTargetAngle + position.theta) > 180.0f)
 	{
@@ -306,6 +305,15 @@ void StateModel::calcNextState(void) {
             if(REVERSE_THRESHOLD_DEGREE < fabsf(getHeadingAngleDiff(position, (*currentTarget), false)))
             {
                 currentState = STATE_REVERSE_BACKWARD;
+
+				if(0.0f < getHeadingAngleDiff(position, (*currentTarget), false))
+				{
+					COM_StructTX.CurrentSteeringAngle = -MAX_STEERING_ANGLE_DEGREE;
+				}
+				else
+				{
+					COM_StructTX.CurrentSteeringAngle = MAX_STEERING_ANGLE_DEGREE;
+				}
             }
             else
             {
@@ -323,8 +331,6 @@ void StateModel::calcNextState(void) {
 		// travel to next position and watch for reached destination
 		// get next path to travel
 		currentTarget = ptrPathGroup->getPathTravelFromIndex(currentPathTravelIndex);
-		
-		printf("Current Target: %f, %f\n", currentTarget->getTargetX(), currentTarget->getTargetY());
 
 		// always track orientation towards target:
 		degree = getHeadingAngleDiff(position, (*currentTarget), true);
@@ -354,7 +360,7 @@ void StateModel::calcNextState(void) {
 
     case STATE_REVERSE_BACKWARD:
 
-    	printf("Current State: REVERSE_FORWARD\n");
+    	printf("Current State: REVERSE_BACkWARD\n");
 		ts_sleep.tv_sec = REVERSE_WAIT_TIME; // delay
 
 		currentTarget = ptrPathGroup->getPathTravelFromIndex(currentPathTravelIndex);
@@ -363,15 +369,7 @@ void StateModel::calcNextState(void) {
 		COM_StructTX.CurrentSteeringSpeed = this->defaultMotorSpeed;
 
 		// decide steering angle, positive or negative (positive means right turn, negative left turn)
-		if(getHeadingAngleDiff(position, (*currentTarget), false) > 0.0f)
-		{
-			COM_StructTX.CurrentSteeringAngle = MAX_STEERING_ANGLE_DEGREE;
-		}
-		else
-		{
-			COM_StructTX.CurrentSteeringAngle = -MAX_STEERING_ANGLE_DEGREE;
-		}
-
+		COM_StructTX.CurrentSteeringAngle *= -1.0f;
 
 		if(fabsf(getHeadingAngleDiff(position, (*currentTarget), false)) < REVERSE_THRESHOLD_DEGREE)
 		{
@@ -397,14 +395,7 @@ void StateModel::calcNextState(void) {
         COM_StructTX.CurrentSteeringSpeed = this->defaultMotorSpeed;
 
         // decide steering angle, positive or negative (positive means left turn, negative right turn)
-        if(getHeadingAngleDiff(position, (*currentTarget), false) > 0.0f)
-        {
-        	COM_StructTX.CurrentSteeringAngle = -MAX_STEERING_ANGLE_DEGREE;
-        }
-        else
-        {
-        	COM_StructTX.CurrentSteeringAngle = MAX_STEERING_ANGLE_DEGREE;
-        }
+        COM_StructTX.CurrentSteeringAngle *= -1.0f;
 
 		if(fabsf(getHeadingAngleDiff(position, (*currentTarget), false)) < REVERSE_THRESHOLD_DEGREE)
 		{
@@ -457,6 +448,9 @@ void StateModel::calcNextState(void) {
 		currentState = STATE_CLEAR_STATES;
 		break;
 	}
+
+	// store last position (theta)
+	this->lastPosition = position;
 
     // send motor commands to board
     //spiSend(COM_StructTX, COM_StructRX);
