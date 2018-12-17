@@ -78,7 +78,9 @@ Nachfolgend wird das Design dieses Softwareprojekts dargestellt, sowie die leich
 
 \subsection{Umgesetzte Module}
 
+\section{Laser Scan Matcher als Odometrie Quelle}
 
+Da zum aktuellen Zeitpunkt keine funktionierende Odometrie Quelle zur Verfügung steht, wird die Schätzung der Fahrzeugbewegung über einen Laser Scan Matcher realisiert. 
 
 \section{Verbindung zum Lidar}
 
@@ -128,13 +130,27 @@ Das Modul wird momentan nicht verwendet, da der SLAM Algorithmus mit Hilfe von R
 
 Um eine SLAM Map aufzubauen wurde erstmal eine Verbindung zum Lasersanner Hokuyo aufgebaut. Da bereits ein funktionierender ROS-Treiber vorhanden ist, konnte dieser übernommen werden. Dieser stellt ein neues Topic \textit{scan} zur Verfügung, welches dann als Eingangspunkt für den SLAM verwendet wird. 
 
-Um eine Map zu erhalten, wurde sich für den Hector-SLAM entschieden. Dieser benötigt zum einen ein Topic auf dem die Laserscans zur Verfügung stehen (scan), zum anderen muss der Transformationsbaum zwischen frame\_id map, base\_link, und laser korrekt sein.  
+Um eine Map zu erhalten, wurde sich für den Hector-SLAM entschieden. Dieser benötigt zum einen ein Topic auf dem die Laserscans zur Verfügung stehen (scan), zum anderen muss der Transformationsbaum zwischen frame\_id map, odom, base\_link, und laser korrekt sein.  
 
 \subsection{Transformationsbaum}
 
+Nachfolgend der visualisierte zusammenhängende Transformationsbaum. Dieser ist zwingend notwendig, damit das Topic map erstellt wird. 
+
+Bild TF
+
+Die Bedeutung der einzelnen Frame\_ids:
+
+\begin{itemize}
+\item map
+\item odom
+\item base\_link
+\item laser
+\end{itemize}
+
+
 \subsection{Interface Modul für den SLAM}
 
-
+Um auch ohne das Framework ROS die erstellte Map zu erhalten, wurde ein Interface Modul erstellt, welches die Map als Vektor mit Werten zwischen 0 und 255 beinhaltet. 
 
 
 
@@ -228,7 +244,7 @@ Als Dijkstra-Implementierung wurde die Veröffentlichung von Mahmut Bulut als Gr
 // https://gist.github.com/vertexclique/7410577
 
 
-7) ersteller Pfad
+7) erstellter Pfad
 
 Als Ergebnis des Dijkstra-Algorithmus wird ein Pfad von der Egoposition über die Freiflächen bis hin zu einer zufälligen, unbekannten Fläche erzeugt. Die Navigation des Fahrzeuges übernimmt das Bewegungssteuerungsmodul. Sobald das Ziel erreicht wurde, kann ein neuer Pfad zu den noch verbleibenden, unbekannten Flächen erzeugt werden.
 
