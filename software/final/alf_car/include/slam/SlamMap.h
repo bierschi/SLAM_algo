@@ -8,6 +8,7 @@
 #include <string>
 #include <math.h>
 #include <thread>
+#include <unistd.h>
 
 #include "ros/ros.h"
 #include "nav_msgs/GetMap.h"
