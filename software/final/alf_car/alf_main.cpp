@@ -24,10 +24,10 @@ int main(int argc, char** argv) {
 
     while ( ros::ok() ) {
 
-        if (sm->getMapInitFlag()) {
+        if (sm->getMapInitFlag() & sm->getPoseInitFlag()) {
 
             if (flag) {
-                std::cout <<"Map was succesfully initialised!" << std::endl;
+                std::cout <<"Map and Pose was succesfully initialised!" << std::endl;
                 pi->processPath();
                 sm->setSaveMap(true);
                 flag = false;

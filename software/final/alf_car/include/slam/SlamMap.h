@@ -86,6 +86,7 @@ public:
     int getMapHeight() const;
     int getMapWidth() const;
     bool getMapInitFlag();
+    bool getPoseInitFlag();
 
 };
 

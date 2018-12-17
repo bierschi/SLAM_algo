@@ -87,6 +87,7 @@ void SlamMap::poseCallback(const geometry_msgs::PoseStampedConstPtr &pose) {
     }
 
     theta = yaw_degrees;
+
     initPose_ = true;
 
     //alternativ: theta = yaw * 180.0 / M_PI;
@@ -479,4 +480,8 @@ int SlamMap::getMapWidth() const {
 
 bool SlamMap::getMapInitFlag() {
     return mapInitData_;
+}
+
+bool SlamMap::getPoseInitFlag() {
+    return initPose_;
 }
