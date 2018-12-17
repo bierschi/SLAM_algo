@@ -1,5 +1,6 @@
 
 #include <iostream>
+#include <unistd.h>
 
 #include "ros/ros.h"
 #include "SlamMap.h"
@@ -33,11 +34,11 @@ int main(int argc, char** argv) {
                 flag = false;
             }
 
-            //std::cout << "x_pixel: " << sm->getPixelX() << " y_pixel: " << sm->getPixelY() << " theta: " << sm->theta << std::endl;
+            std::cout << "x_pixel: " << sm->getPixelX() << " y_pixel: " << sm->getPixelY() << " theta: " << sm->theta << std::endl;
         }
 
-
-        sleep(3);
+        sm->createTxtPositionFile();
+        usleep(200000);
         ros::spinOnce();
     }
 
