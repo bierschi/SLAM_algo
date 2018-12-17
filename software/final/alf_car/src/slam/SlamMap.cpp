@@ -31,7 +31,8 @@ SlamMap::SlamMap(const std::string& mapname, int threshold_occupied, int thresho
           position_y(0.0),
           position_z(0.0),
           orientation_w(0.0),
-          theta(0.0)
+          theta(0.0),
+          initPose_(false)
 {
 
     ros::NodeHandle n1, n2, n3, n4;
@@ -86,6 +87,7 @@ void SlamMap::poseCallback(const geometry_msgs::PoseStampedConstPtr &pose) {
     }
 
     theta = yaw_degrees;
+    initPose_ = true;
 
     //alternativ: theta = yaw * 180.0 / M_PI;
 
@@ -441,7 +443,7 @@ int SlamMap::getPixelX() {
 
         double pos_tmp = (getOriginPosX() - position_x);
         int pixel_x = (int) (pos_tmp / mapResolution_);
-        pixel_x = -pixel_x
+        pixel_x = -pixel_x;
         return pixel_x;
     }
 }

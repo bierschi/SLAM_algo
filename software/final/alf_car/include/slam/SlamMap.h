@@ -33,7 +33,7 @@ private:
 
     ros::Publisher reset_map_pub_;
 
-    bool saveMap_, mapInitData_, sendMap_;
+    bool saveMap_, mapInitData_, sendMap_, initPose_;
 
     int threshold_occupied_, threshold_free_;
     int mapCounter_, mapHeight_, mapWidth_;
