@@ -71,6 +71,7 @@ public:
     void stopSendSlamMap();
     void savePGM(std::vector<int> v);
     void resetMap();
+    void positionTxtThread();
 
     //getter and setter
     bool getSaveMap() const;

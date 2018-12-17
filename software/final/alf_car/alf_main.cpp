@@ -37,8 +37,8 @@ int main(int argc, char** argv) {
             std::cout << "x_pixel: " << sm->getPixelX() << " y_pixel: " << sm->getPixelY() << " theta: " << sm->theta << std::endl;
         }
 
-        sm->createTxtPositionFile();
-        usleep(200000);
+        //sm->createTxtPositionFile();
+        //usleep(200000);
         ros::spinOnce();
     }
 

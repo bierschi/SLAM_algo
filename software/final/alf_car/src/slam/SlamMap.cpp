@@ -46,6 +46,10 @@ SlamMap::SlamMap(const std::string& mapname, int threshold_occupied, int thresho
 
     // Publisher
     reset_map_pub_ = n4.advertise<std_msgs::String>("syscommand", 2);
+
+    // position thread
+    std::thread run(&SlamMap::positionTxtThread, this);
+    run.detach();
 }
 
 /**
@@ -269,6 +273,15 @@ void SlamMap::createTxtPositionFile() {
     FILE* out = fopen(positionDataFile.c_str(), "w");
     fprintf(out, "%d\n%d\n%.2f", getPixelX(), getPixelY(), theta);
     fclose(out);
+
+}
+
+void SlamMap::positionTxtThread() {
+
+    while(true) {
+        createTxtPositionFile();
+        usleep(200000);
+    }
 
 }
 
