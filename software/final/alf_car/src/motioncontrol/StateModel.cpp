@@ -18,7 +18,7 @@
 #define USE_THETA_FROM_FILE
 
 #define MAX_STEERING_ANGLE_DEGREE 	40.0f // maximum degrees the steering wheel can handle
-#define REVERSE_THRESHOLD_DEGREE 	90.0f // degrees to detect turn around situation
+#define REVERSE_THRESHOLD_DEGREE 	40.0f // degrees to detect turn around situation
 
 #define STATE_MACHINE_CYCLE_TIME	200000000L	// delay between state changes in nanoseconds
 #define REVERSE_WAIT_TIME			1			// wait time for reversing in seconds
@@ -235,7 +235,11 @@ void StateModel::Init(void)
     getConfig();
 
     // check if 360 degree area scan at program startup should be made
-    if(this->scanAtStart) this->currentState = STATE_SCAN_AREA;
+    if(this->scanAtStart)
+    {
+        this->currentState = STATE_SCAN_AREA;
+        this->lastPosition.theta = 20.0f;
+    }
 
     signal(SIGINT, sigIntHandler);
 }
@@ -275,7 +279,7 @@ void StateModel::calcNextState(void) {
 		printf("Press any key to continue...\n");
 		getchar();
 		if (newPathAvailable()) {
-			currentPathTravelIndex = 0;
+			currentPathTravelIndex = 1;
 			currentState = STATE_FETCH_PATHS;
 		}
 
@@ -306,13 +310,14 @@ void StateModel::calcNextState(void) {
             {
                 currentState = STATE_REVERSE_BACKWARD;
 
+                // turn to the target, select direction of movement:
 				if(0.0f < getHeadingAngleDiff(position, (*currentTarget), false))
 				{
-					COM_StructTX.CurrentSteeringAngle = -MAX_STEERING_ANGLE_DEGREE;
+					COM_StructTX.CurrentSteeringAngle = MAX_STEERING_ANGLE_DEGREE;
 				}
 				else
 				{
-					COM_StructTX.CurrentSteeringAngle = MAX_STEERING_ANGLE_DEGREE;
+					COM_StructTX.CurrentSteeringAngle = -MAX_STEERING_ANGLE_DEGREE;
 				}
             }
             else
@@ -415,7 +420,7 @@ void StateModel::calcNextState(void) {
     	printf("Current State: SCAN_AREA\n");
     	ts_sleep.tv_sec = REVERSE_WAIT_TIME; // delay
 
-    	this->turnAroundTheta += fabsf(position.theta - this->lastPosition.theta);
+    	this->turnAroundTheta += fabsf(fabsf(position.theta) - fabsf(this->lastPosition.theta));
 
     	if(COM_StructTX.CurrentSteeringDirection == COM_STEERING_DIRECTION_FORWARD)
     	{
