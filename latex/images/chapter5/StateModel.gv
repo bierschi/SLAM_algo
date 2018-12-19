@@ -1,0 +1,20 @@
+digraph finite_state_machine {
+    rankdir=TB;
+    rank="sink";
+    size="8,5";
+    node [shape = circle, fontname= "Consolas"];
+    "Start" -> "STATE_SCAN" [ label = "/scanArea", fontname="Consolas" ];
+    "Start" -> "STATE_INIT" [ label = "/¬scanArea", fontname="Consolas" ];
+    "STATE_SCAN" -> "STATE_INIT" [ label = "/scanReady", fontname="Consolas" ];
+    "STATE_SCAN" -> "STATE_SCAN" [ label = "", fontname="Consolas" ];
+    "STATE_INIT" -> "STATE_FETCH_PATHS" [ label = "/newPathAvailable", fontname="Consolas" ];
+    "STATE_FETCH_PATHS" -> "STATE_GET_NEXT_WAYPOINT" [ label = "", fontname="Consolas" ];
+    "STATE_GET_NEXT_WAYPOINT" -> "STATE_TRAVEL" [ label = "", fontname="Consolas" ];
+    "STATE_GET_NEXT_WAYPOINT" -> "STATE_REVERSE_BACKWARD" [ label = "/(destAngle > steeringAngle)", fontname="Consolas" ];
+    "STATE_GET_NEXT_WAYPOINT" -> "STATE_INIT" [ label = "/noWaypointsLeft", fontname="Consolas" ];
+    "STATE_TRAVEL" -> "STATE_GET_NEXT_WAYPOINT" [ label = "/waypointReached", fontname="Consolas" ];
+    "STATE_REVERSE_BACKWARD" -> "STATE_REVERSE_FORWARD" [ label = "", fontname="Consolas" ];
+    "STATE_REVERSE_FORWARD" -> "STATE_REVERSE_BACKWARD" [ label = "", fontname="Consolas" ];
+    "STATE_REVERSE_FORWARD" -> "STATE_TRAVEL" [ label = "/(destAngle <= steeringAngle)", fontname="Consolas" ];
+    "STATE_REVERSE_BACKWARD" -> "STATE_TRAVEL" [ label = "/(destAngle <= steeringAngle)", fontname="Consolas" ];
+}

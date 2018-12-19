@@ -30,6 +30,7 @@ Die Daten werden für jeden erfassten Punkt jeweils im Abstand von 0,35° als En
 \newpage
 \section{Interface Board}
 \label{sec:InterfaceBoard}
+\subsection{Konzept und Aufbau}
 Das ALF verfügt über folgende zusätzliche Komponenten:
 \begin{itemize}
 \item 1 Fahrmotor
@@ -54,7 +55,9 @@ Da das verwendete Raspberry Pi Betriebssystem kein Echtzeitbetriebssystem ist, k
 \caption{Aktuelle Hardware Architektur des ALF \label{fig:IfBoardHWUebersicht}}
 \end{figure}
 
+\subsection{Datenübertragung}
 
+Zwischen dem Interface Board und dem Raspberry Pi findet ein regelmäßiger Datenaustausch statt. Dieser soll den Programmablauf der Software möglichst nicht unterbrechen, um Echtzeitverhalten sicherzustellen. Deshalb wurde bei der Datenübertragung auf die DMA Hardware des STM32 Controllers zurückgegriffen. Bei jedem Datentransfer, der vom Raspberry Pi (SPI Master) zum Interface Board (SPI Slave) erfolgt, ist die Unterbrechungsdauer des ARM Prozessors auf dem Interface Board so minimal wie möglich. Die Daten werden in einen definierten Speicherbereich geschrieben, und können bei Bedarf von dort abgeholt werden.
 
 
 
@@ -264,6 +267,7 @@ Pfad von Egoposition zu Freifläche
 
 
 \section{Bewegungssteuerung}
+\subsection{Datenstruktur}
 Die Bewegungssteuerung wandelt den berechneten Pfad der Wegefindung in Befehle für das Interface Board (\ref{sec:InterfaceBoard}) um. Der Pfad besteht aus Wegpunkten, die einzeln nacheinander angefahren werden. Die grundlegende Anfahrt eines Wegpunktes wird dabei über einzelne Befehle an das Interface Board übermittelt (Semantik: \texttt{[Lenkwinkel];[Fahrtrichtung];[Geschwindigkeit]}). Die Kommunikation erfolgt technisch über eine C - Datenstruktur, die sowohl im Bewegungssteuerungsmodul, als auch auf dem Interface Board identisch definiert ist. Die Datenstruktur kann per SPI vom Raspberry Pi aus regelmäßig auf das Interface Board übermittelt werden, um sowohl die Messdaten des Interface Boards zu lesen, als auch Befehle auf das Interface Board zu schreiben. Für dieses Projekt wurde eine Zykluszeit von 200ms gewählt, in der der Raspberry Pi die Datenstruktur mit dem Interface Board synchronisiert. Tabelle \ref{tab:COMStructureType} zeigt den genauen Aufbau der Datenstruktur.
 
 \begin{table}
@@ -290,14 +294,50 @@ Die Bewegungssteuerung wandelt den berechneten Pfad der Wegefindung in Befehle f
 \hline 
 \rule[-1ex]{0pt}{2.5ex} float32 & CurrentPositionX & aktuelle Y Position des Interface Boards in m \\ 
 \hline 
-\rule[-1ex]{0pt}{2.5ex} uint16 & USDistanceFrontLeft & aktueller Abstand des Ultraschall Sensors vorne links \\ 
+\rule[-1ex]{0pt}{2.5ex} uint16 & USDistanceFrontLeft & aktueller Abstand des Ultraschall Sensors vorne links in cm \\ 
 \hline 
-\rule[-1ex]{0pt}{2.5ex} uint16 & USDistanceFrontRight & aktueller Abstand des Ultraschall Sensors vorne rechts \\ 
+\rule[-1ex]{0pt}{2.5ex} uint16 & USDistanceFrontRight & aktueller Abstand des Ultraschall Sensors vorne rechts in cm \\ 
 \hline 
-\rule[-1ex]{0pt}{2.5ex} uint16 & USDistanceRear & aktueller Abstand des Ultraschall Sensors hinten \\ 
+\rule[-1ex]{0pt}{2.5ex} uint16                                                                                                                                                                                                                         & USDistanceRear & aktueller Abstand des Ultraschall Sensors hinten in cm \\ 
 \hline 
 \end{tabular}
 }
 \caption{Datenstruktur COMStructureType, zur Kommunikation zwischen Raspberry Pi und Interface Board}
 \label{tab:COMStructureType}
 \end{table}
+
+\subsection{Algorithmus}
+Grundlage für den Algorithmus zur Anfahrt eines Wegpunktes ist ein einfacher Zustandsautomat. Dieser arbeitet die zur Verfügung gestellten Wegpunkte nacheinander ab. Die folgenden Eingabedaten werden dazu verarbeitet:
+\begin{itemize}
+\item aktuelle Position ($x_{pos}$, $y_{pos}$, und Winkel $ \theta $)
+\item der Pfad, eine Liste von Wegpunkten der Form $ \{(x_1, y_1), (x_2, y_2), ...\} $
+\item der aktuelle absolute Winkel zum Zielwegpunkt $\theta_{ziel}$, berechnet von der Fahrzeugposition aus zu den Zielkoordinaten
+\item der kleinsten Winkeldifferenz zum Zielwinkel, berechnet aus der aktuellen Ausrichtung des Fahrzeugs $\theta_{pos}$ und dem Zielwinkel $\theta_{ziel}$
+\end{itemize}
+
+Der Winkel $\theta_{ziel}$ von der aktuellen Position $(x_n, y_n)$ zum Ziel wird zunächst absolut nach Gleichung  \ref{equ:AbsoluterZielwinkel} bestimmt.
+\begin{equation}
+\theta_{ziel} = atan2(y_n - y_{pos}, x_n - x_{pos})
+\label{equ:AbsoluterZielwinkel}
+\end{equation}
+
+Anschließend wird der kürzeste Winkel $\theta_{rel}$ (relativer Zielwinkel) von der aktuellen Ausrichtung des Fahrzeugs $\theta_{ziel}$ berechnet (siehe Gleichung \ref{equ:relativerZielwinkel}).
+
+\begin{equation}
+\theta_{rel} = \left\{
+\begin{array}{ll}
+(-\theta_{ziel} + \theta_{pos}) , & (360.0 - \theta_{ziel} + \theta_{pos}) > 180.0 \\
+(360.0f - \theta_{ziel} + \theta_{pos}), & sonst.
+\end{array}
+\right.
+\label{equ:relativerZielwinkel}
+\end{equation}
+
+Entsprechend der Berechnungen der notwendigen Zielwinkel und Koordinaten wird der Zustandsautomat in Bild \ref{fig:Zustandsautomat} durchlaufen.
+
+\begin{figure}[hbtp]
+\centering
+\includegraphics[scale=1.5]{images/chapter5/StateModel.pdf}
+\caption{Zustandsautomat der Bewegungssteuerung}
+\label{fig:Zustandsautomat}
+\end{figure}
