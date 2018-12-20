@@ -309,7 +309,7 @@ Die Bewegungssteuerung wandelt den berechneten Pfad der Wegefindung in Befehle f
 \subsection{Algorithmus}
 Grundlage für den Algorithmus zur Anfahrt eines Wegpunktes ist ein einfacher Zustandsautomat. Dieser arbeitet die zur Verfügung gestellten Wegpunkte nacheinander ab. Die folgenden Eingabedaten werden dazu verarbeitet:
 \begin{itemize}
-\item aktuelle Position ($x_{pos}$, $y_{pos}$, und Winkel $ \theta $)
+\item aktuelle Position ($x_{pos}$, $y_{pos}$, und Winkel $ \theta_{pos} $)
 \item der Pfad, eine Liste von Wegpunkten der Form $ \{(x_1, y_1), (x_2, y_2), ...\} $
 \item der aktuelle absolute Winkel zum Zielwegpunkt $\theta_{ziel}$, berechnet von der Fahrzeugposition aus zu den Zielkoordinaten
 \item der kleinsten Winkeldifferenz zum Zielwinkel, berechnet aus der aktuellen Ausrichtung des Fahrzeugs $\theta_{pos}$ und dem Zielwinkel $\theta_{ziel}$
@@ -326,14 +326,41 @@ Anschließend wird der kürzeste Winkel $\theta_{rel}$ (relativer Zielwinkel) vo
 \begin{equation}
 \theta_{rel} = \left\{
 \begin{array}{ll}
-(-\theta_{ziel} + \theta_{pos}) , & (360.0 - \theta_{ziel} + \theta_{pos}) > 180.0 \\
-(360.0f - \theta_{ziel} + \theta_{pos}), & sonst.
+(-\theta_{ziel} + \theta_{pos}) , & ((360 - \theta_{ziel} + \theta_{pos}) > 180) \wedge ((-\theta_{ziel} + \theta_{pos}) \leq 180) \\
+(-\theta_{ziel} + \theta_{pos}) , & ((360 - \theta_{ziel} + \theta_{pos}) > 180) \wedge ((-\theta_{ziel} + \theta_{pos}) > 180) \\
+(360 - \theta_{ziel} + \theta_{pos}), & sonst.
 \end{array}
 \right.
 \label{equ:relativerZielwinkel}
 \end{equation}
 
-Entsprechend der Berechnungen der notwendigen Zielwinkel und Koordinaten wird der Zustandsautomat in Bild \ref{fig:Zustandsautomat} durchlaufen.
+Zu beachten ist, dass die Winkel $\theta_{pos}$ und $\theta_{ziel}$ jeweils nur Werte im Intervall $[-180.0, 180.0]$ annehmen dürfen. Negative Winkel stehen hierbei für eine Ausrichtung im Uhrzeigersinn (mathematisch negativ), positive Winkel für eine Ausrichtung gegen den Uhrzeigersinn (mathematisch positiv).
+
+Entsprechend der Berechnungen der notwendigen Zielwinkel und Koordinaten wird der Zustandsautomat in Bild \ref{fig:Zustandsautomat} durchlaufen. Die einzelnen Zustände sind in Tabelle \ref{tab:ZustaendeBewegungssteuerung} aufgeführt.
+
+\begin{table}
+\texttt{
+\begin{tabular}{|c|p{7cm}|}
+\hline 
+\rule[-1ex]{0pt}{2.5ex} STATE\_INIT & Initialzustand nach Programmstart \\ 
+\hline 
+\rule[-1ex]{0pt}{2.5ex} STATE\_SCAN & Drehen um die eigene z-Achse, 360.0° Erfassung der Lidar Karte \\ 
+\hline 
+\rule[-1ex]{0pt}{2.5ex} STATE\_FETCH\_PATHS & Erfassung des geplanten Pfades aus Datei \\ 
+\hline 
+\rule[-1ex]{0pt}{2.5ex} STATE\_GET\_NEXT\_WAYPOINT & nächsten Wegpunkt ermitteln \\ 
+\hline 
+\rule[-1ex]{0pt}{2.5ex} STATE\_TRAVEL & Fahren zum nächsten Wegpunkt \\ 
+\hline 
+\rule[-1ex]{0pt}{2.5ex} STATE\_REVERSE\_BACKWARD & Rückwärts Fahren und gleichzeitig drehen, um nächsten Wegpunkt zu erreichen \\ 
+\hline 
+\rule[-1ex]{0pt}{2.5ex} STATE\_REVERSE\_FORWARD & Vorwärts Fahren und gleichzeitig drehen, um nächsten Wegpunkt zu erreichen \\ 
+\hline 
+\end{tabular}
+}
+\caption{Übersicht über die Zustände der Bewegungssteuerung}
+\label{tab:ZustaendeBewegungssteuerung}
+\end{table} 
 
 \begin{figure}[hbtp]
 \centering
