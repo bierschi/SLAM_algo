@@ -31,7 +31,26 @@ Die Daten werden für jeden erfassten Punkt jeweils im Abstand von 0,35° als En
 \section{Interface Board}
 \label{sec:InterfaceBoard}
 \subsection{Konzept und Aufbau}
-Das ALF verfügt über folgende zusätzliche Komponenten:
+
+Um die verwendeten Sensoren und Aktuatoren in einer deterministischen Zeit kontrollieren und auslesen zu können, wurde neben dem Raspberry Pi 3B+ Board ein zweites Hardwaremodul verwendet. Es handelt sich hierbei um ein \textit{STM32 F334R8 Nucleo Board} der Firma STMicroelectronics \footnote{www.st.com}. Auf dem Board befindet sich ein ARM Cortex M4 Microcontroller, der für beliebige Mess- und Regelungsaufgaben programmiert werden kann. Folgen Vorteile und Eigenschaften bietet das eingesetzte Board:
+\begin{itemize}
+\item ARM Cortex - M4 Controller mit 64 MHz und 64 kByte Flash
+\item Arduino$^{\textregistered}$ kompatibler Erweiterungssteckplatz
+\item viele 3.3V I/Os, einige davon 5V tolerant
+\item OnBoard ST-LINK$^{\textregistered}$ V2 Debugger
+\end{itemize}
+
+Abbildung \ref{pic:STM32NucleoBoardPicture} zeigt das verwendete Board in der Übersicht.
+
+\begin{figure}[hbtp]
+\centering
+\includegraphics[scale=0.4]{images/chapter5/STMNucleoBoardPicture.png}
+\caption{Verwendetes STM32 Nucleo Board Übersicht}
+\label{pic:STM32NucleoBoardPicture}
+\end{figure}
+
+
+Zusätzlich verfügt das ALF über folgende Komponenten:
 \begin{itemize}
 \item 1 Fahrmotor
 \item 1 Servo für die Lenkung
@@ -39,7 +58,7 @@ Das ALF verfügt über folgende zusätzliche Komponenten:
 \item 1 kombinierter Beschleunigungssensor und Gyroskop (IMU MPU6050, verbunden über I$^{2}$C)
 \end{itemize}
 
-Um diese Komponenten in einer deterministischen Zeit kontrollieren und auslesen zu können, wurde neben dem Raspberry Pi 3B+ Board ein zweites Hardwaremodul verwendet. Es handelt sich hierbei um ein \textit{STM32 F334R8 Nucleo Board} der Firma STMicroelectronics \footnote{www.st.com}. Auf dem Board befindet sich ein ARM Cortex M4 Microcontroller, der für beliebige Mess- und Regelungsaufgaben programmiert werden kann. Er übernimmt in die folgenden Aufgaben:
+Die Aufgaben des Boards lauten demnach wie folgt:
 \begin{itemize}
 \item Auslesen der 3 Ultraschall Sensoren (SRF08 Module) im 75ms Takt (I$^{2}$C)
 \item Auslesen des Beschleunigungssensors und Gyroskops MPU6050 im 50ms Takt (I$^{2}$C)
@@ -47,7 +66,7 @@ Um diese Komponenten in einer deterministischen Zeit kontrollieren und auslesen 
 \item Steuerung des Servomotors für die Lenkung (PWM)
 \item Steuerung der Richtung und Geschwindigkeit des Fahrmotors (GPIO, PWM)
 \end{itemize}
-Da das verwendete Raspberry Pi Betriebssystem kein Echtzeitbetriebssystem ist, können die notwendigen Echtzeitaufgaben damit auf den ARM Controller ausgelagert werden. Das Bild \ref{fig:IfBoardHWUebersicht} zeigt die grobe Übersicht über die momentane Hardwarearchitektur des Interface Boards in Kombination mit dem Raspberry Pi. Über die Erweiterungsschnittstelle des STM Boards wurde zudem die Stromversorgung realisiert. Die Akkuspannung (Nennwert 7.2V) wird von einem Step-Down Reglermodul auf die Spannung von 5V konvertiert. Die 5V Logikspannung wird dann an das STM32 Board selbst, an die angeschlossenen Sensoren, und den Raspberry Pi verteilt.
+Das Bild \ref{fig:IfBoardHWUebersicht} zeigt die grobe Übersicht über die momentane Hardwarearchitektur des Interface Boards in Kombination mit dem Raspberry Pi. Über die Erweiterungsschnittstelle des STM Boards wurde zudem die Stromversorgung realisiert. Die Akkuspannung (Nennwert 7.2V) wird von einem Step-Down Reglermodul auf die Spannung von 5V konvertiert. Die 5V Logikspannung wird dann an das STM32 Board selbst, an die angeschlossenen Sensoren, und den Raspberry Pi verteilt.
 
 \begin{figure}[hbtp]
 \centering
@@ -57,7 +76,7 @@ Da das verwendete Raspberry Pi Betriebssystem kein Echtzeitbetriebssystem ist, k
 
 \subsection{Datenübertragung}
 
-Zwischen dem Interface Board und dem Raspberry Pi findet ein regelmäßiger Datenaustausch statt. Dieser soll den Programmablauf der Software möglichst nicht unterbrechen, um Echtzeitverhalten sicherzustellen. Deshalb wurde bei der Datenübertragung auf die DMA Hardware des STM32 Controllers zurückgegriffen. Bei jedem Datentransfer, der vom Raspberry Pi (SPI Master) zum Interface Board (SPI Slave) erfolgt, ist die Unterbrechungsdauer des ARM Prozessors auf dem Interface Board so minimal wie möglich. Die Daten werden in einen definierten Speicherbereich geschrieben, und können bei Bedarf von dort abgeholt werden.
+Zwischen dem Interface Board und dem Raspberry Pi findet ein regelmäßiger Datenaustausch statt. Dieser soll den Programmablauf der Firmware auf dem STM32 Controller möglichst nicht unterbrechen, um Echtzeitverhalten sicherzustellen. Deshalb wurde bei der Datenübertragung auf die DMA Hardware des STM32 Controllers zurückgegriffen. Bei jedem Datentransfer, der vom Raspberry Pi (SPI Master) zum Interface Board (SPI Slave) erfolgt, ist die Unterbrechungsdauer des ARM Prozessors auf dem Interface Board so auf einem Minimum reduziert. Die Daten werden in einen definierten Speicherbereich auf dem ARM Controller geschrieben, und können bei Bedarf von dort abgeholt werden.
 
 
 
@@ -310,7 +329,7 @@ Die Bewegungssteuerung wandelt den berechneten Pfad der Wegefindung in Befehle f
 Grundlage für den Algorithmus zur Anfahrt eines Wegpunktes ist ein einfacher Zustandsautomat. Dieser arbeitet die zur Verfügung gestellten Wegpunkte nacheinander ab. Die folgenden Eingabedaten werden dazu verarbeitet:
 \begin{itemize}
 \item aktuelle Position ($x_{pos}$, $y_{pos}$, und Winkel $ \theta_{pos} $)
-\item der Pfad, eine Liste von Wegpunkten der Form $ \{(x_1, y_1), (x_2, y_2), ...\} $
+\item der Pfad, eine Liste von Wegpunkten der Form $ \{(x_1, y_1), (x_2, y_2), ..., (x_n, y_n)\} $
 \item der aktuelle absolute Winkel zum Zielwegpunkt $\theta_{ziel}$, berechnet von der Fahrzeugposition aus zu den Zielkoordinaten
 \item der kleinsten Winkeldifferenz zum Zielwinkel, berechnet aus der aktuellen Ausrichtung des Fahrzeugs $\theta_{pos}$ und dem Zielwinkel $\theta_{ziel}$
 \end{itemize}
@@ -321,7 +340,7 @@ Der Winkel $\theta_{ziel}$ von der aktuellen Position $(x_n, y_n)$ zum Ziel wird
 \label{equ:AbsoluterZielwinkel}
 \end{equation}
 
-Anschließend wird der kürzeste Winkel $\theta_{rel}$ (relativer Zielwinkel) von der aktuellen Ausrichtung des Fahrzeugs $\theta_{ziel}$ berechnet (siehe Gleichung \ref{equ:relativerZielwinkel}).
+Anschließend wird der kleinste Winkel $\theta_{rel}$ (relativer Zielwinkel) von der aktuellen Ausrichtung des Fahrzeugs $\theta_{ziel}$ berechnet (siehe Gleichung \ref{equ:relativerZielwinkel}).
 
 \begin{equation}
 \theta_{rel} = \left\{
@@ -334,9 +353,9 @@ Anschließend wird der kürzeste Winkel $\theta_{rel}$ (relativer Zielwinkel) vo
 \label{equ:relativerZielwinkel}
 \end{equation}
 
-Zu beachten ist, dass die Winkel $\theta_{pos}$ und $\theta_{ziel}$ jeweils nur Werte im Intervall $[-180.0, 180.0]$ annehmen dürfen. Negative Winkel stehen hierbei für eine Ausrichtung im Uhrzeigersinn (mathematisch negativ), positive Winkel für eine Ausrichtung gegen den Uhrzeigersinn (mathematisch positiv).
+Zu beachten ist, dass die Winkel $\theta_{pos}$ und $\theta_{ziel}$ jeweils nur Werte im Intervall \\ $[-180.0, 180.0]$ annehmen dürfen. Negative Winkel stehen hierbei für eine Ausrichtung im Uhrzeigersinn (mathematisch negativ), positive Winkel für eine Ausrichtung gegen den Uhrzeigersinn (mathematisch positiv).
 
-Entsprechend der Berechnungen der notwendigen Zielwinkel und Koordinaten wird der Zustandsautomat in Bild \ref{fig:Zustandsautomat} durchlaufen. Die einzelnen Zustände sind in Tabelle \ref{tab:ZustaendeBewegungssteuerung} aufgeführt.
+Entsprechend der Berechnungen der notwendigen Zielwinkel und Koordinaten wird der Zustandsautomat in Bild \ref{fig:Zustandsautomat} durchlaufen. Die einzelnen Zustände sind in Tabelle \ref{tab:ZustaendeBewegungssteuerung} aufgeführt. In jedem dieser Zustände wird eine Datenübertragung vom Raspberry Pi zum Interface Board initiiert, um konstant die aktuelle Geschwindigkeit, den Lenkwinkel, und die Fahrtrichtung zu synchronisieren.
 
 \begin{table}
 \texttt{
