@@ -20,12 +20,14 @@ Nachfolgend werden alle Konfigurationen erläutert, um ein neues Image zu flashe
 \begin{lstlisting}
 $ sudo CURL_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt rpi-update
 \end{lstlisting}
+\vspace{-0.8cm}
 
 oder alternativ:\\
 
 \begin{lstlisting}
 $ sudo BRANCH=stable rpi-update
 \end{lstlisting}
+\vspace{-0.8cm}
 
 5. Raspberry Pi 2/3 herunterfahren und diese SD-Karte in den Raspberry Pi 3b+ einstecken. Der Pi sollte dann wie gewünscht booten. 
 
@@ -36,6 +38,7 @@ $ sudo BRANCH=stable rpi-update
 \begin{lstlisting}
 $ sudo cp -r /lib/firmware/brcm /path_to_usb
 \end{lstlisting}
+\vspace{-0.8cm}
 
 8. Starte den Raspberry Pi 3b+ mit der SD-Karte auf der Ubuntu Mate installiert ist. 
 
@@ -44,6 +47,7 @@ $ sudo cp -r /lib/firmware/brcm /path_to_usb
 \begin{lstlisting}
 $ sudo cp -r /path_to_usb/lib/firmware/brcm /lib/firmware/brcm
 \end{lstlisting}
+\vspace{-0.8cm}
 
 10. Führe einen Neustart durch und eine Wlan-Verbindung sollte verfügbar sein.
 
@@ -58,6 +62,12 @@ Aktueller Hostname und Passwort um per SSH auf den Raspberry Pi zugreifen zu kö
 \textbf{Hostname: hsp}\\
 \textbf{Passwort: hsp}
 
+
+
+
+
+
+
 \section{Installation des Frameworks Robot Operating System (ROS)}
 
 Nachfolgend wird Installation des Frameworks ROS durchgeführt. Dazu auf dem Betriebssystem Ubuntu Mate ein Terminal öffnen und folgende Befehle eingeben:
@@ -67,24 +77,28 @@ Nachfolgend wird Installation des Frameworks ROS durchgeführt. Dazu auf dem Bet
 \begin{lstlisting}
 $ sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
 \end{lstlisting}
+\vspace{-0.8cm}
 
 2. Einrichten der keys\\
 
 \begin{lstlisting}
 $ wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
 \end{lstlisting}
+\vspace{-0.8cm}
 
 3. Update der Packages\\
 
 \begin{lstlisting}
 $ sudo apt-get update
 \end{lstlisting}
+\vspace{-0.8cm}
 
 4. Installation des ros-kinetic-desktop-full\\
 
 \begin{lstlisting}
 $ sudo apt-get install ros-kinetic-desktop-full
 \end{lstlisting}
+\vspace{-0.8cm}
 
 5. Initialisierung und Update der Rosdep\\
 
@@ -95,18 +109,21 @@ $ sudo rosdep init
 \begin{lstlisting}
 $ rosdep update
 \end{lstlisting}
+\vspace{-0.8cm}
 
 6. Einrichten der ROS Umgebungsvariablen\\
 
 \begin{lstlisting}
 $ echo "source /opt/ros/kinetic/setup.bash" >> ~/.bashrc
 \end{lstlisting}
+\vspace{-0.8cm}
 
 Neues Terminal öffnen oder nachfolgenden Befehl eingeben:\\
 
 \begin{lstlisting}
 $ source ~/.bashrc
 \end{lstlisting}
+\vspace{-0.8cm}
 
 7. Erstellen eines catkin workspaces \\
 
@@ -125,6 +142,7 @@ $ catkin_make
 \begin{lstlisting}
 $ source ~/catkin_ws/devel/setup.bash
 \end{lstlisting}
+\vspace{-0.8cm}
 
 Durch nachfolgenden Befehl hat man von überall im Linux System Zugriff auf die im catkin workspace gebildeten Packages:\\ 
 
@@ -132,12 +150,29 @@ Durch nachfolgenden Befehl hat man von überall im Linux System Zugriff auf die 
 $ echo `source ~/catkin_ws/devel/setup.bash` << ~/.bashrc
 \end{lstlisting}
 
+
+
+
+
+
+
 \section{Schreibzugriff auf den Hokuyo Port für den aktuellen Benutzer}
 Um nicht Root Rechte besitzen zu müssen um auf den Hokuyo Port zugreifen zu können, wurde der akuelle Benutzer in die Dialout Gruppe mit folgendem Befehl hinzugefügt:\\
 
 \begin{lstlisting}
-$ sudo adduser "user_name" dialout
+$ sudo adduser hsp dialout
 \end{lstlisting}
+
+\vspace{-1.2cm}
+
+
+
+
+
+
+
+
+
 
 \section{Roscore Master und Launch file als Systemd Service}
 Da sich die SLAM Map sofort nach dem Start aufbauen soll, wurde sich für systemd Services entschieden. Diese werden beim hochfahren des Raspberry Pi 3b+ ausgeführt, außerdem kann der jeweilige Service auch nachträglich per Kommando gestartet und gestoppt werden. 
@@ -156,6 +191,7 @@ ExecStart=/bin/bash -c "source /opt/ros/kinetic/setup.bash; /usr/bin/python /opt
 WantedBy=multi-user.target
 \end{lstlisting}
 
+\vspace{-0.9cm}
 Um das ROS launch File hokuyo\_hector\_slam.launch als Service auszuführen, wurde eine Datei hector.service in /etc/systemd/service mit folgendem Inhalt erstellt.\\
 
 \begin{lstlisting}
@@ -165,7 +201,6 @@ Description=starts hokuyo_hector_slam launch file as a systemd service
 [Service]
 Type=simple
 ExecStart=/bin/bash -c "source /opt/ros/kinetic/setup.bash; /usr/bin/python /opt/ros/kinetic/bin/roscore"
-ExecStop=
 Restart=on-failure
 
 [Install]
@@ -179,12 +214,21 @@ $ sudo systemctl enable roscore.service
 $ sudo systemctl enable hector.service
 \end{lstlisting}
 
-Um den aktuellen Status dieser Services zu begutachten, muss folgender Befehl eingegeben werden. Status kann auch durch \textit{restart} oder \textit{stop} ersetzt werden.\\ 
+Um den aktuellen Status dieser Services zu begutachten, muss folgender Befehl eingegeben werden. \textit{Status} kann auch durch \textit{restart} oder \textit{stop} ersetzt werden.\\ 
 
 \begin{lstlisting}
 $ sudo systemctl status roscore.service
 $ sudo systemctl status hector.service
 \end{lstlisting}
+\vspace{-1.1cm}
+
+
+
+
+
+
+
+
 
 \section{WiringPi Update}
 
@@ -193,12 +237,14 @@ Durch die Installation des Betriebssystems Ubuntu Mate kann es möglich sein, da
 \begin{lstlisting}
 $ gpio -v
 \end{lstlisting}
+\vspace{-0.8cm}
 
 Entfernen der aktuellen Version mit:\\
 
 \begin{lstlisting}
 $ sudo apt-get purge wiringpi
 \end{lstlisting}
+\vspace{-0.8cm}
 
 Zuerst muss die aktuellste Version geklont und anschließend kompiliert werden.\\
 
@@ -208,6 +254,7 @@ $ git clone git://git.drogon.net/wiringPi
 $ cd wiringPi
 $ ./build
 \end{lstlisting}
+\vspace{-0.8cm}
 
 Zuletzt noch die Funktionsweise überprüfen:\\
 
