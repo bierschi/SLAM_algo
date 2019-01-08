@@ -63,8 +63,8 @@ void PathfinderInterface::calcPath() {
 
     int x = 0, y = 0;
 
-    x_native_ = sm_.getPixelX();
-    y_native_ = sm_.getPixelY();
+    y_native_ = sm_.getPixelX();
+    x_native_ = sm_.getPixelY();
     theta_    = sm_.theta;
 
 

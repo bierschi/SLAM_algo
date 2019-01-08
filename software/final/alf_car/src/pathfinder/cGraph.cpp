@@ -95,7 +95,7 @@ vector<std::string> cGraph::addMap2Graph(map_t &map, int blockSize, std::string 
     for (int row = halfBlock + 1; row < map.size_x - halfBlock - 1; row+=blockSize)
         for (int column = halfBlock + 1; column < map.size_y - halfBlock - 1; column+=blockSize)
         {
-            if(map.array[row][column] > 5 && map.array[row][column] != GRAY_VALUE)
+            if(map.array[row][column] > 15 && map.array[row][column] != GRAY_VALUE)
             {
                 if (row == ego_row && column == ego_col)
                     destination = addPoint2Graph(map.array, row, column, map.size_x, map.size_y, blockSize, direction);
