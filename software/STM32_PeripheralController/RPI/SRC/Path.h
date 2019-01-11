@@ -8,6 +8,7 @@
 #ifndef PATH_H
 #define PATH_H
 
+#include <string>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -41,9 +42,9 @@ public:
 
 	/** determine path travels from file input */
 	void determinePathTravels(const char * inputFile);
+	/** determine path travels from internal sources */
+	void determinePathTravels(std::string &pathTravels);
 
-	/** [DUMMY]  determine path travels from internal sources */
-	void determinePathTravels(void);
 	void clearPathTravels(void);
 	bool getPathChanged(const char * inputFile);
 	bool pathAtIndexAvailable(int index);
