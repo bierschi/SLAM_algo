@@ -8,6 +8,7 @@
 #ifndef POSITIONUPDATER_H
 #define POSITIONUPDATER_H
 
+#include <iostream>
 #include <stdio.h>
 #include <unistd.h>
 #include <pthread.h>
@@ -21,15 +22,14 @@ typedef struct PositionStructure
 
 class PositionUpdater
 {
+    friend class StateModel;
 private:
-	PositionStructureType position = {0};
-
+    PositionStructureType position = {0};
 public:
 	PositionUpdater();
 	~PositionUpdater();
 	PositionStructureType getPosition(void);
 	void updatePosition(void);
-
 };
 
 #endif /* POSITIONUPDATER_H */

@@ -6,6 +6,9 @@
  */
 
 #include <Path.h>
+#include <iostream>
+#include <sstream>
+#include <string.h>
 
 PathTravel::PathTravel(float tX, float tY, float th) {
 	targetX = tX;
@@ -39,9 +42,9 @@ void PathGroup::determinePathTravels(const char * inputFile) {
 			&& (counter < MAX_NUM_PATH_TRAVELS)) {
 		printf("%s", buffer);
 		// parse informations from file
-		scanfError = sscanf(buffer, "%f;%f", &targetY, &targetX);
+		scanfError = sscanf(buffer, "%f;%f", &targetX, &targetY);
 
-		this->travels[counter] = new PathTravel(targetX, 200.0f - targetY, 0.0f);
+		this->travels[counter] = new PathTravel(targetX, targetY, 0.0f);
 
 		if (scanfError <= 0)
 			break;
@@ -54,9 +57,29 @@ void PathGroup::determinePathTravels(const char * inputFile) {
 	}
 }
 
-/** [DUMMY]  determine path travels from internal sources */
-void PathGroup::determinePathTravels(void) {
+/** determine path travels from internal sources */
+void PathGroup::determinePathTravels(std::string &pathTravels) {
+    int counter = 0;
+    std::istringstream paths(pathTravels);
+    std::string line;
+    int scanfError = 0;
+    float targetX, targetY;
 
+        while (std::getline(paths, line) && (counter < MAX_NUM_PATH_TRAVELS)) {
+
+            // print out read line
+            std::cout << line << std::endl;
+
+            // parse informations from file:
+            scanfError = sscanf(line.c_str(), "%f;%f", &targetX, &targetY);
+
+            this->travels[counter] = new PathTravel(targetX, targetY, 0.0f);
+
+            if (scanfError <= 0)
+                break;
+
+            counter++;
+        }
 }
 
 // clear all generated paths
