@@ -18,9 +18,9 @@ Nachfolgend wird das Design dieses Softwareprojekts dargestellt, sowie die leich
 
 \section{Verbindung zum Lidar}
 
-Der Lidar Sensor ist direkt via USB mit dem Raspberry Pi verbunden. Die Daten werden vom Lidar in Polarkoordinaten Darstellung geliefert. Um eine Karte aufbauen zu können, wurde ein Modul erstellt, das die Daten in kartesische Koordinaten transformiert. Somit ist es möglich nach jeder Messung des Lidars eine neue Karte mit der \"aktuellen Sicht\" des Sensors zu erstellen. Die Daten werden in einem Integer-Array gespeichert und können von einem SLAM Algorithmus verarbeitet werden . 
+Der Lidar Sensor ist direkt via USB mit dem Raspberry Pi verbunden. Die Daten werden vom Lidar in Polarkoordinaten Darstellung geliefert. Um eine Karte aufbauen zu können, wurde ein Modul erstellt, das die Daten in kartesische Koordinaten transformiert. Somit ist es möglich nach jeder Messung des Lidars eine neue Karte mit der "`aktuellen Sicht"' des Sensors zu erstellen. Die Daten werden in einem Integer-Array gespeichert und können von einem SLAM Algorithmus verarbeitet werden . 
 
-Das Modul verwendet zur Verbindung mit dem Lidar die unter der GNU GPL v3 stehende API \"URG04LX\". Mit ihr ist es möglich einen kompletten Scan des Lidars aufzuzeichnen. 
+Das Modul verwendet zur Verbindung mit dem Lidar die unter der GNU GPL v3 stehende \href{https://github.com/simondlevy/BreezyLidar}{API "URG04LX"}. Mit ihr ist es möglich einen kompletten Scan des Lidars aufzuzeichnen. 
 \vspace{0.4cm}
 
 \begin{lstlisting}
@@ -121,21 +121,27 @@ Um auch ohne das Framework ROS die erstellte Map zu erhalten, wurde ein Interfac
 
 \section{Wegefindung}
 
-
 Vorüberlegung:
 Das definierte Ziel ALF autonom einen Raum erkunden zu lassen, beinhaltet neben dem Erstellen einer Karte auch eine Wegberechnung zu unbekannten Flächen im Raum, die noch nicht vom Lidar erfasst wurden. Somit muss basierend auf der vom SLAM erstellten Karte ein Pfad zu den unbekannten Flächen gefunden werden.
-Dabei muss berücksichtigt werden, dass ALF durch seine Lenkung einen eingeschränkten Aktionsradius hat und es nicht möglich ist aus einer Geradeaus-Fahrt sofort nach Rechts oder links abzubiegen. somit ist es nicht möglich direkt an einer Wand entlang "ums Eck" zu fahren. Der Lenkwinkel muss in die Routenplanung mit einbezogen werden. 
+Zu berücksichtigen ist, dass ALF durch seine Lenkung einen eingeschränkten Aktionsradius hat und es nicht möglich ist aus einer Geradeaus-Fahrt einen spitzen Winkel einzuregeln. Der maximale Lenkwinkel beträgt 45° und muss in die Routenplanung mit einbezogen werden. 
 
 Eingabe: 
-- Karte als Matrix
-- Egoposition auf Karte
+\begin{itemize}
+\item Karte als Matrix
+\item Egoposition auf Karte
+\end{itemize}
 
 
-1) Übergabe Daten von SLAM
+\subsection{Datenschnittstelle zu SLAM Modul}
 
-Die vom SLAM erhaltenen Daten entsprechen der einer PGM-Datei. In einem 2-dimensionalen Integer-Array wird die erstellte Karte als Grauwerte übergeben. Mögliche Werte sind 
-erkanntes Objekt (Schwarz),  Unbekannte Fläche (Grau),  Freifläche(Weiß).
+Die vom SLAM erhaltenen Daten entsprechen der einer PGM-Datei. In einem 2-dimensionalen Integer-Array wird die erstellte Karte als Grauwerte übergeben. 
 
+Mögliche Werte sind:
+\begin{itemize}
+\item erkanntes Objekt (Schwarz)
+\item Unbekannte Fläche (Grau)
+\item Freifläche (Weiß)
+\end{itemize}
 
 Beispiel: 
 \begin{lstlisting}
@@ -150,27 +156,38 @@ Beispiel:
 0 = erkanntes Objekt
 127 = unbekannte Flaeche
 255 = Freiflaeche
-
 \end{lstlisting}
 
-2) Whiten
 
-Die vom SLAM erhaltene Karte kann unter Umständen nicht nur Schwarze, Weiße und fest definierten graue Punkte enthalten. Je nach verwendetem SLAM werden für Messpunkte, die nicht sicher als Objekt oder Freifläche definiert werden können, als Zwischengrauwert angegeben. Dies führt jedoch bei der weiteren Berechnung des Pfades zu Problemen. Daher wurde eine Grenze definiert, unter der alle Punkte als Objekt und über der alle als Freifläche angesehen werden. Somit kann im weiteren Programm von sauberen Werten (Objekt, Freifläche, Unbekannt) ausgegangen werden. 
+\subsection{Bereinigung der Karte}
 
-< Bild vor/nach whiten >
+Die vom SLAM erhaltene Karte kann unter Umständen nicht nur Schwarze, Weiße und fest definierte, graue Punkte enthalten. Je nach verwendetem SLAM werden für Messpunkte, die nicht sicher als Objekt oder Freifläche definiert werden können, als Zwischengrauwert angegeben. Dies führt jedoch bei der weiteren Berechnung des Pfades zu Problemen. Daher wurde eine Grenze definiert, die entscheidet, ob ein Grauwert als Freifläche oder Objekt betrachtet wird. Somit kann im weiteren Programm von bereinigten Werten (Objekt, Freifläche, Unbekannt) ausgegangen werden. 
+
+\begin{figure}
+    \subfigure[Karte mit ungenauen Messpunkten]{\includegraphics[width=0.49\textwidth]{images/chapter5/MapRegular.png}}
+    \subfigure[Karte mit bereinigten Punkten]{\includegraphics[width=0.49\textwidth]{images/chapter5/MapWhited.png}}
+\caption{Vergleich vor und nach Bereinigung der Grauwerte}
+\label{fig:ungenaueKarte}
+\end{figure}
 
 
-3) Gradientenfüllung
+\subsection{Flächengewichtung}
+\label{sec:gewichtung}
 
-Zur Realisierung der in der Einleitung genannten Lenkwinkel-Problematik, wurde die Karte mit selbst definierten Grauwerten eingefärbt. Je weiter das Fahrzeug von einem Gegenstand bzw. einer Wand entfernt ist, desto unkritischer wird die Navigation mit dem Lenkwinkel. 
-Freiflächen der Karte, die nahe an einer Wand liegen, sollen nach Möglichkeit gemieden werden. Punkte, die in der Mitte eines Raumes ohne Gegenstände liegen, werden als positiv für die Routenplanung angesehen. 
+Zur Realisierung der in der Einleitung genannten Lenkwinkel-Problematik, wurde die Karte mit selbst definierten Grauwerten eingefärbt. Je weiter das Fahrzeug von einem Gegenstand bzw. einer Wand entfernt ist, desto unkritischer wird die Navigation bezüglich des Lenkwinkels.
+Freiflächen in der Karte, die nahe an einer Wand liegen, sollen nach Möglichkeit gemieden werden. Punkte, die in der Mitte eines Raumes ohne Gegenstände liegen, werden als positiv für die Routenplanung angesehen. 
 Somit sollte der Pfad immer zuerst in die Mitte eines Raumes führen und sich erst am Zielpunkt wieder einer Wand nähern. 
 Umgesetzt wurde dies mit einer Grau-Gradientenfüllung der Karte, die später bei der Pfadberechnung als Gewichtung dienen. Die Freiflächenpunkte nahe einer Wand wurden mit einem hohen Gewicht (repräsentiert durch "dunkelgrau") belegt und verringern ihr Gewicht, je weiter sie von einer Wand entfernt liegen. 
 
-<Bild graymapped>
+\begin{figure}
+    \subfigure[Karte mit bereinigten Punkten]{\includegraphics[width=0.49\textwidth]{images/chapter5/MapWhited.png}}
+    \subfigure[Karte mit Gradientenfüllung]{\includegraphics[width=0.49\textwidth]{images/chapter5/MapRemarked.png}}
+\caption{Gradientenfüllung einer Karte basierend auf bereinigter Map}
+\end{figure}
 
 
-4) in Graphen wandeln
+
+\subsection{in Graphen wandeln}
 
 Um auf der bestehenden Karte einen Pfad berechnen zu können, muss die Matrix in einen Graphen überführt werden. Die einfachste (wenn auch nicht die performanteste) Methode war es jeden Freiflächen-Messpunkt des Lidars als eigenen Knoten anzusehen, der eine Verbindung zu den jeweilig benachbarten Messpunkten/Knoten hat. Als Kantengewicht wurde der entsprechende Grauwert des Nachbarknoten gewählt. Somit werden Pfade auf Freiflächen belohnt (Kantengewicht = 0) und Annäherungen an Gegenstände bestraft (Kantengewicht = steigender Grauwert). 
 Für unbekannte Flächen sowie erkannte Objekte wurden keine Knoten in den Graphen eingefügt und diese auch nicht als Nachbarn angesehen. 
@@ -190,42 +207,48 @@ Dass aus jedem Pixel ein eigener Knoten wird, hat zur Folge, dass es extrem viel
 
 
 
-5) mögliche Ziele definieren und finden
+\subsection{mögliche Ziele definieren und finden}
+\label{sec:ziele}
 
 Als Voraussetzung wird immer angenommen, dass die aktuelle Position des Fahrzeugs auf einer erkannten Freifläche liegt. Das übergeordnete Ziel einen Raum vollständig autonom zu erkunden, lässt sich nur erreichen, indem das Fahrzeug nicht zufällig durch den Raum fährt, sondern gezielt unbekannte Flächen ansteuert. Mögliche Ziele sind somit alle Übergänge von Freifläche zu unbekannter Fläche. 
 
 Probleme:
-Es kann passieren, dass der Lidar Sensor durch Reflektionen spiegelnder Oberflächen fehlerhafte Werte liefert. Somit entsteht bei der Verarbeitung der Daten mit dem SLAM der Eindruck, dass eine Freifläche hinter einer Wand erkannt wurde. Da es auch dort zu Übergängen zwischen Freifläche und Unbekanntem Bereich kommen kann, werden diese Punkte auch als mögliche, zu erkundende Ziele erkannt. Da es jedoch keinen Weg zu diesen separierten Freiflächen gibt, ist es nicht möglich einen Pfad zu berechnen. Da sich dies als großes, nur sehr schwierig zu lösendes Problem herausstellte, wurde als Workaround die Pfadsuche so implementiert, dass alle Ziele durchgetestet werden und die Pfadberechnung nur abgeschlossen ist, wenn ein gültiger Pfad gefunden werden konnte.
-
-<Evtl Bild von allen unbekannten Übergängen>
+Es kann passieren, dass der Lidar Sensor durch Reflektionen spiegelnder Oberflächen fehlerhafte Werte liefert. Somit entsteht bei der Verarbeitung der Daten mit dem SLAM der Eindruck, dass eine Freifläche hinter einer Wand erkannt wurde (siehe Abbildung \ref{fig:ungenaueKarte}). Da es auch dort zu Übergängen zwischen Freifläche und Unbekanntem Bereich kommen kann, werden diese Punkte auch als mögliche, zu erkundende Ziele erkannt. Da es jedoch keinen Weg zu diesen separierten Freiflächen gibt, ist es nicht möglich einen Pfad zu berechnen. Da sich dies als großes, nur sehr schwierig zu lösendes Problem herausstellte, wurde als Workaround die Pfadsuche so implementiert, dass alle Ziele durchgetestet werden und die Pfadberechnung nur abgeschlossen ist, wenn ein gültiger Pfad gefunden werden konnte.
 
 
-6) Dijkstra
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=15cm]{images/chapter5/MapUebergaenge_Markiert.png}
+\caption{potentielle Ziele markiert}
+\label{Map_aus_Graph}
+\end{center}
+\end{figure}
 
-Der erstellte Graph kann nun mit Hilfe eines Dijkstra-Algorithmus den kürzesten Weg von der Egoposition zum einem der möglichen, erkannten Ziele errechnen. Die in 3) eingeführte Gewichtung der Kanten führt nun dazu, dass ein Weg z.B. in der Mitte eines Ganges entlang errechnet wird. Bei 90° Winkeln wird eine leichte Biegung errechnet. Die Kantengewichtung ist auf dem kürzeren Pfad zwar schlechter, jedoch ist der Weg kürzer. Somit wird auch die Lenkwinkelproblematik entschärft. 
-
-Als Dijkstra-Implementierung wurde die Veröffentlichung von Mahmut Bulut als Grundlage verwendet und für das Projekt angepasst.
-
-// https://gist.github.com/vertexclique/7410577
 
 
-7) erstellter Pfad
+\subsection{Dijkstra}
+
+
+Der erstellte Graph kann nun mit Hilfe eines Dijkstra-Algorithmus den kürzesten Weg von der Egoposition zum einem der 
+\hyperref[sec:ziele]{\textcolor{blue}{möglichen, erkannten Ziele}} errechnen. Die \hyperref[sec:gewichtung]{\textcolor{blue}{zuvor eingeführte Gewichtung}} der Kanten führt nun dazu, dass ein Weg z.B. in der Mitte eines Ganges entlang errechnet wird. Bei 90° Winkeln wird eine leichte Biegung errechnet. Die Kantengewichtung ist auf dem kürzeren Pfad zwar schlechter, jedoch ist der Weg kürzer. Somit wird auch die Lenkwinkelproblematik entschärft. 
+
+Als Dijkstra-Implementierung wurde die \href{https://gist.github.com/vertexclique/7410577}{Veröffentlichung von Mahmut Bulut} als Grundlage verwendet und für das Projekt angepasst.
+
+
+
+\subsection{erstellter Pfad}
 
 Als Ergebnis des Dijkstra-Algorithmus wird ein Pfad von der Egoposition über die Freiflächen bis hin zu einer zufälligen, unbekannten Fläche erzeugt. Die Navigation des Fahrzeuges übernimmt das Bewegungssteuerungsmodul. Sobald das Ziel erreicht wurde, kann ein neuer Pfad zu den noch verbleibenden, unbekannten Flächen erzeugt werden.
 
 
-
-allgemeine Laufzeitoptimierung -> Blocks
+\subsection{Laufzeitoptimierung}
 
 Der verwendete SLAM liefert eine Auflösung von XXXX m / Pixel. Zur Berechnung eines Pfades ist diese Auflösung jedoch zu detailiert, sodass die gesamte Karte in Blocks mit Freiflächen eingeteilt werden kann. Um die Laufzeit des Dijkstra zu verringern, wurde nicht jeder Pixel als Knoten angesehen, sondern ein Block von z.B. 5x5 Pixeln als 1 Knoten. Dies verringert zwar die Genauigkeit des Pfades, durch die Lenkwinkelproblematik wird diese jedoch sowieso nicht benötigt.
 
-
-
 Ausgabe:
-Pfad von Egoposition zu Freifläche
-
-
-
+\begin{itemize}
+\item Pfad von Egoposition zu Freifläche
+\end{itemize}
 
 
 
