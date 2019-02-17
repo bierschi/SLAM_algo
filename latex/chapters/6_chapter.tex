@@ -39,7 +39,7 @@ Die Datenpunkte werden in polarkoordinaten Darstellung geliefert und müssen zur
 
 \begin{figure}[h]
 \begin{center}
-\includegraphics[width=10cm]{images/chapter5/LidarKoordRechnung.JPG}
+\includegraphics[width=10cm]{images/chapter6/LidarKoordRechnung.JPG}
 \caption{Koordinaten errechnen}
 \label{Koordinaten_errechnen}
 \end{center}
@@ -49,7 +49,7 @@ Die Umrechnung muss für alle aufgezeichneten Datenpunkte des Scans vorgenommen 
 
 \begin{figure}[h]
 \begin{center}
-\includegraphics[width=10cm]{images/chapter5/kartKoord.JPG}
+\includegraphics[width=10cm]{images/chapter6/kartKoord.JPG}
 \caption{Koordinaten Veranschaulichung}
 \label{Koordinaten_veranschaulichung}
 \end{center}
@@ -164,8 +164,8 @@ Beispiel:
 Die vom SLAM erhaltene Karte kann unter Umständen nicht nur Schwarze, Weiße und fest definierte, graue Punkte enthalten. Je nach verwendetem SLAM werden für Messpunkte, die nicht sicher als Objekt oder Freifläche definiert werden können, als Zwischengrauwert angegeben. Dies führt jedoch bei der weiteren Berechnung des Pfades zu Problemen. Daher wurde eine Grenze definiert, die entscheidet, ob ein Grauwert als Freifläche oder Objekt betrachtet wird. Somit kann im weiteren Programm von bereinigten Werten (Objekt, Freifläche, Unbekannt) ausgegangen werden. 
 
 \begin{figure}
-    \subfigure[Karte mit ungenauen Messpunkten]{\includegraphics[width=0.49\textwidth]{images/chapter5/MapRegular.png}}
-    \subfigure[Karte mit bereinigten Punkten]{\includegraphics[width=0.49\textwidth]{images/chapter5/MapWhited.png}}
+    \subfigure[Karte mit ungenauen Messpunkten]{\includegraphics[width=0.49\textwidth]{images/chapter6/MapRegular.png}}
+    \subfigure[Karte mit bereinigten Punkten]{\includegraphics[width=0.49\textwidth]{images/chapter6/MapWhited.png}}
 \caption{Vergleich vor und nach Bereinigung der Grauwerte}
 \label{fig:ungenaueKarte}
 \end{figure}
@@ -180,8 +180,8 @@ Somit sollte der Pfad immer zuerst in die Mitte eines Raumes führen und sich er
 Umgesetzt wurde dies mit einer Grau-Gradientenfüllung der Karte, die später bei der Pfadberechnung als Gewichtung dienen. Die Freiflächenpunkte nahe einer Wand wurden mit einem hohen Gewicht (repräsentiert durch "dunkelgrau") belegt und verringern ihr Gewicht, je weiter sie von einer Wand entfernt liegen. 
 
 \begin{figure}
-    \subfigure[Karte mit bereinigten Punkten]{\includegraphics[width=0.49\textwidth]{images/chapter5/MapWhited.png}}
-    \subfigure[Karte mit Gradientenfüllung]{\includegraphics[width=0.49\textwidth]{images/chapter5/MapRemarked.png}}
+    \subfigure[Karte mit bereinigten Punkten]{\includegraphics[width=0.49\textwidth]{images/chapter6/MapWhited.png}}
+    \subfigure[Karte mit Gradientenfüllung]{\includegraphics[width=0.49\textwidth]{images/chapter6/MapRemarked.png}}
 \caption{Gradientenfüllung einer Karte basierend auf bereinigter Map}
 \end{figure}
 
@@ -195,7 +195,7 @@ Für unbekannte Flächen sowie erkannte Objekte wurden keine Knoten in den Graph
 
 \begin{figure}[h]
 \begin{center}
-\includegraphics[width=15cm]{images/chapter5/GraphKnoten.JPG}
+\includegraphics[width=15cm]{images/chapter6/GraphKnoten.JPG}
 \caption{aus Map erstellter Graph}
 \label{Map_aus_Graph}
 \end{center}
@@ -218,7 +218,7 @@ Es kann passieren, dass der Lidar Sensor durch Reflektionen spiegelnder Oberflä
 
 \begin{figure}[h]
 \begin{center}
-\includegraphics[width=15cm]{images/chapter5/MapUebergaenge_Markiert.png}
+\includegraphics[width=15cm]{images/chapter6/MapUebergaenge_Markiert.png}
 \caption{potentielle Ziele markiert}
 \label{Map_aus_Graph}
 \end{center}
