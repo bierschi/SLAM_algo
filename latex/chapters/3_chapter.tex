@@ -4,6 +4,37 @@
 
 Im Kapitel 3 werden die Beweggründe für einen Neuaufbau dieses Projektes erläutert.
 
+\section{Historie}
+Das Projekt wurde schon von mehreren Gruppen in der Vergangenheit bearbeitet. Dabei hat jede Gruppe die Probleme der vorherigen Gruppe aufgefasst und versucht zu lösen. 
+
+1. Gruppe: 
+Das ursprüngliche Zeil war es das Fahrzeug einen Raum zu Kartographieren und die Lokalisierung an einem externen PC darzustellen. Dazu wurde ein Raspberry Pi als Steuereinheit verwendet. Der Lidar wurde über das ROS-Framework angesprochen und die ROS-Daten via WLAN an einen externen PC gesendet. Der externe PC stellt die Kart mit Rviz dar.
+
+2. Gruppe:
+Problem: ROS auf benötigt zu viele Ressourcen auf dem Raspberry Pi A
+Lösung: ROS entfernen und die Rohdaten über einen Socket manuell an ext. PC senden; externer PC baut die Rohdaten wieder zu Ros-Daten zusammen und stellt die Karte mit Rviz dar.
+
+3. Gruppe:
+Problem: Raspberry Pi A ohne ROS immer noch zu langsam, um Daten schnell genug an externen PC weiterzusenden.
+Lösung: Raspi entfernen, FPGA (NIOSII) mit OS FreeRTOS zur Kommunikation (über SPI, I2C, ...) verwenden. Die Hardware (Lidar, Ultraschallsensoren, Licht, etc.) geben Daten direkt an FPGA, das sie weitersendet. Hard Processor System (HPS) hat eigenes Linux auf interner SD-Karte, spricht FPGA (über Shared Memory) an und sendet Daten über WLAN an externen PC.
+
+4. Gruppe:
+Problem: kein Autonomes Fahren, keine erstellte Karte
+Lösung: Lidar übergibt HPS Rohdaten, HPS führt SLAM aus und erstellt Karte. Erstellte Karte wird an externen PC gesendet und dort dargestellt. Echtzeitverhalten des HPS soll durch angepasste Auslastung erreicht werden.
+
+Nach der 4. Gruppe traten folgende Probleme auf:
+\begin{itemize}
+\item  Hardware liefert keine zuverlässigen Odometriewerte
+\item  SLAM verwendet keine Odometrie (Probleme insbesondere bei 180° Drehungen)
+\item  Verbesserung des SLAM ohne Odometrie durch (Durchschnitts-Geschwindigkeit, Rad-Rotary-Encoder, MPU Beschleunigung und Rotationswerte) lieferten keine Verbesserungen der Karte.
+\end{itemize}
+
+
+
+
+
+
+
 \section{Probleme an der Hardware}
 
 %- die Daten der MPU gehen irgendwo auf dem Weg zwischen Sensor - FPGA - NIOS2 - Netzwerksocket - Empfang beim ext. Rechner verloren
@@ -15,5 +46,7 @@ Im Kapitel 3 werden die Beweggründe für einen Neuaufbau dieses Projektes erlä
 
 
 \section{Probleme an der Software}
+
+Da es viele Stationen zwischen Sensor und Darstellung auf externem PC gab, waren mögliche Fehler auf den Zwischenmodulen (FPGA, NIOS2, Netzwerksocket) nur sehr schwierig auszumachen. Zudem war die Dokumentation nur sehr unzureichend und schwer zu den Modulen zuordenbar. Nach einer längeren Einarbeitungszeit, in der die Module und der Projektverlauf aufgearbeitet wurde, war die einig sinnvolle entscheidung die gesamte Hardware sowie Software zu überarbeiten. Dabei wurde Wert auf die Trennung der Module und die Übersichtlichkeit gelegt.
 
 \section{Aktueller Aufbau des Autonomen Laser Fahrzeugs (Alf)}
