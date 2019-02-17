@@ -5,8 +5,8 @@
 
 using namespace std;
 
-static const string INPUT_FOLDER = "../SLAM_data/";
-static const string OUTPUT_FOLDER = "../PathFinder_data/";
+static const string INPUT_FOLDER = "../../SLAM_data/";
+static const string OUTPUT_FOLDER = "../../PathFinder_data/";
 
 int main()
 {
@@ -14,8 +14,8 @@ int main()
     cGraph g;
     int blockSize = 5;
     vector<std::string> posDestinations;
-    std::string inputMapName = "map_hector.pgm";
-    //std::string mapName = "map.pgm";
+    //std::string inputMapName = "map_hector.pgm";
+    std::string inputMapName = "map.pgm";
     //std::string mapName = "easy_map.pgm";
 
     std::cout << endl << "#####################################" << endl;
@@ -33,8 +33,8 @@ int main()
 
 
     std::cout << endl << "#####################################" << endl;
-    std::cout << "### fil map with gradientes and save map..." << endl;
-    fillGrayGradient(map, blockSize);
+    std::cout << "### fill map with gradientes and save map..." << endl;
+    //fillGrayGradient(map, blockSize);
     saveMapToFile(map, OUTPUT_FOLDER + "map_remarked.pgm", false);
 
 
@@ -50,6 +50,19 @@ int main()
     int times = 0;
     int start = 0;
 
+
+    /*
+     * for debugging reason only!!!
+     * remove to use data from position.txt
+     * */
+    ego_pos = "408;393";
+    x_native = 408;
+    y_native = 393;
+
+
+    /*
+     * map is clustered in blocks, ego position needs to be shifted into middle of block!
+     * */
     times = x_native / blockSize;
     start = blockSize / 2 + 1;
     x = times * blockSize + start;
@@ -68,6 +81,7 @@ int main()
     std::cout << endl << "#####################################" << endl;
     std::cout << "### trigger path calculation..." << endl;
     posDestinations = g.addMap2Graph(map, blockSize, ego_pos, getDirection(theta));
+    // possible destinations are transitions from gray nodes to white nodes!
 
 
 
@@ -75,18 +89,22 @@ int main()
     std::cout << endl << "#####################################" << endl;
     std::cout << "### read map again (to draw path)..." << endl;
     // choose map for vizualization
-    getDataFromFile(map, INPUT_FOLDER + inputMapName);
+    getDataFromFile(map, INPUT_FOLDER + "map_whited.pgm");
 
 
     bool found = false;
     std::string driveway = "";
 
+
+    /*
+     * search for path to possible destinations (transition from gray to white)
+     * if there is no path found from ego position to posDest -> test next posDest
+     * reasons for not finding a path could be posDest ist not reachable with white nodes (wall and gray nodes between start end destination
+     * or ego is at gray node (no connections to others)
+     * */
     for (std::string posDest : posDestinations)
     {
         driveway = "";
-//        std::string dest_node = "526;502";
-//        std::cout << "enter destination node: ";
-//        std::cin>>dest_node;
 
         std::cout << endl << "#####################################" << endl;
         std::cout << "### calculated path " << ego_pos << " -> " << posDest << endl;

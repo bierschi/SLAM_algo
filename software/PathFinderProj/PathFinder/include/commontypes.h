@@ -1,7 +1,8 @@
 #ifndef COMMONTYPES_H
 #define COMMONTYPES_H
 
-#define GRAY_VALUE 205
+#define GRAY_VALUE 127
+//205
 #define BLACK_VALUE 0
 #define WHITE_VALUE 255
 
