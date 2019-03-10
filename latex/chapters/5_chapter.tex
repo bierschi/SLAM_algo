@@ -1,12 +1,77 @@
 \chapter{Software}
 Nachfolgend wird das Design dieses Softwareprojekts dargestellt, sowie die leichte Erweiterung durch nachträgliche Module. Anschließend wird noch auf die bereits umgesetzten Module eingegangen und ihre Funktionsweise erklärt. 
 
+
+
+
+
+
 \section{Design des Projektes mit CMake}
 
 
-\subsection{Ordnerstruktur}
+\subsection*{Ordnerstruktur}
 
-\subsection{Umgesetzte Module}
+Als Build System wird das plattformunabhängige Programmierwerkzeug CMake verwendet. Dieses Cross-Plattform Tool bietet einige Vorteile \cite{cmake.2018}:
+
+\begin{itemize}
+\item Erzeugung von Makefiles
+\item Unterstützung verschiedener Compiler und Linker auf unterschiedlichen Plattformen
+\item Unterstützung von System-Introspection
+\item Erweiterbarkeit durch Makros
+\end{itemize} 
+
+Nachfolgend wird die verwendete Ordnerstruktur in diesem Projekt erklärt.
+
+\textbf{include} Ordner: Dieser Ordner ist für die Header-Files zuständig. Unterteilt wird dieser Ordner zudem in die einzelnen umgesetzten Module (\textit{communication, motioncontrol, pathfinder, slam})
+
+\textbf{launch} Ordner: Beinhaltet das ROS \textit{Launch File} für die Ausführung des Hector-SLAM Algorithmus
+
+\textbf{scripts} Ordner: Beinhaltet nützliche Skripte, wie das zurücksetzen der erstellten Karte
+
+\textbf{src} Ordner: Dieser Ordner ist für die Source-Files zuständig. Unterteilt ist dieser Ordner wieder in die einzelnen umgesetzten Module (\textit{communication, motioncontrol, pathfinder, slam})
+
+\vspace{0.5cm}
+\begin{lstlisting}
+/include
+	/communication
+	/motioncontrol
+	/pathfinder
+	/slam
+/launch
+	hokuyo_hector_slam.launch
+/srcipts
+	resetMap
+/src
+	/communication
+	/motioncontrol
+	/pathfinder
+	/slam
+CMakeLists.txt
+alf_main.cpp
+
+\end{lstlisting}
+\vspace{-0.5cm}
+
+Im Hauptverzeichnis (ROOT) befinden sich die Hauptdatei (\textit{alf\_main.cpp}) sowie das \textit{CMakeLists.txt} in welcher die aktuelle Projektstruktur definiert ist. Insbesondere bei der Erweiterung dieses Projektes wäre es erdenklich, für jedes umgesetzte Modul ein eigenes CMake File anzulegen und im Root-Verzeichnis\textit{CMakeLists.txt} dann rekursiv die einzelnen CMake Files der Unterordner (Module) einzubinden. 
+
+
+\subsection*{Umgesetzte Module}
+
+Die bisherigen umgesetzten Module sind: 
+
+\begin{itemize}
+\item \textit{communication}: Modul für eine Server/Client-Verbindung
+\item \textit{motioncontrol}: Modul für die Bewegungssteurung des ALF
+\item \textit{pathfinder}: Modul für die Wegefindung 
+\item \textit{slam}: Modul für die Interaktion mit dem SLAM Algorithmus
+\end{itemize}
+
+In den nachfolgenden Kapiteln werden die einzelnen Module genauer vorgestellt. 
+
+
+
+
+
 
 
 
@@ -16,7 +81,7 @@ Nachfolgend wird das Design dieses Softwareprojekts dargestellt, sowie die leich
 
 \section{Verbindung zum Lidar}
 
-Der Lidar Sensor ist direkt via USB mit dem Raspberry Pi verbunden. Die Daten werden vom Lidar in Polarkoordinaten Darstellung geliefert. Um eine Karte aufbauen zu können, wurde ein Modul erstellt, das die Daten in kartesische Koordinaten transformiert. Somit ist es möglich nach jeder Messung des Lidars eine neue Karte mit der "`aktuellen Sicht"' des Sensors zu erstellen. Die Daten werden in einem Integer-Array gespeichert und können von einem SLAM Algorithmus verarbeitet werden . 
+Der Lidar Sensor ist direkt via USB mit dem Raspberry Pi 3b+ verbunden. Die Daten werden vom Lidar in Polarkoordinaten Darstellung geliefert. Um eine Karte aufbauen zu können, wurde ein Modul erstellt, das die Daten in kartesische Koordinaten transformiert. Somit ist es möglich nach jeder Messung des Lidars eine neue Karte mit der "`aktuellen Sicht"' des Sensors zu erstellen. Die Daten werden in einem Integer-Array gespeichert und können von einem SLAM Algorithmus verarbeitet werden . 
 
 Das Modul verwendet zur Verbindung mit dem Lidar die unter der GNU GPL v3 stehende \href{https://github.com/simondlevy/BreezyLidar}{API "URG04LX"}. Mit ihr ist es möglich einen kompletten Scan des Lidars aufzuzeichnen. 
 \vspace{0.4cm}
@@ -37,17 +102,18 @@ Die Datenpunkte werden in polarkoordinaten Darstellung geliefert und müssen zur
 
 \begin{figure}[h]
 \begin{center}
-\includegraphics[width=10cm]{images/chapter6/LidarKoordRechnung.JPG}
-\caption{Koordinaten errechnen}
+\includegraphics[width=10cm]{images/chapter5/LidarKoordRechnung.JPG}
+\caption{Die Koordinaten berechnen}
 \label{Koordinaten_errechnen}
 \end{center}
 \end{figure}
 
 Die Umrechnung muss für alle aufgezeichneten Datenpunkte des Scans vorgenommen werden und liefert dann die Sicht des Lidars in einem Koordinatensystem:
 
+\vspace{0.4cm}
 \begin{figure}[h]
 \begin{center}
-\includegraphics[width=10cm]{images/chapter6/kartKoord.JPG}
+\includegraphics[width=10cm]{images/chapter5/kartKoord.JPG}
 \caption{Koordinaten Veranschaulichung}
 \label{Koordinaten_veranschaulichung}
 \end{center}
@@ -55,7 +121,10 @@ Die Umrechnung muss für alle aufgezeichneten Datenpunkte des Scans vorgenommen 
 
 
 
-Das Modul wird momentan nicht verwendet, da der SLAM Algorithmus mit Hilfe von ROS realisiert wurde und die entsprechende Library einen eigenen Connector zum Lidar bereitstellt. Um folgenden Gruppen jedoch die Arbeit zu erleichtern, wurde das Modul trotzdem vorbereitet.
+Das Modul wird momentan nicht verwendet, da der SLAM Algorithmus mit Hilfe von ROS realisiert wurde und die entsprechende Bibliothek einen eigenen Connector zum Lidar bereitstellt. Um folgenden Gruppen jedoch die Arbeit zu erleichtern, wurde das Modul trotzdem vorbereitet.
+
+
+
 
 
 
@@ -66,8 +135,7 @@ Das Modul wird momentan nicht verwendet, da der SLAM Algorithmus mit Hilfe von R
 
 \section{Laser Scan Matcher als Odometrie Quelle}
 
-Da zum aktuellen Zeitpunkt keine funktionierende Odometrie Quelle zur Verfügung steht, wird die Schätzung der Fahrzeugbewegung über einen Laser Scan Matcher realisiert. 
-
+Da zum aktuellen Zeitpunkt keine funktionierende Odometrie Quelle zur Verfügung steht, wird die Schätzung der Fahrzeugbewegung über einen Laser Scan Matcher realisiert. Ausführliche Dokumentation ist auf der ROS Wiki Seite verfügbar \href{http://wiki.ros.org/laser_scan_matcher}{Laser Scan Matcher}. Als Input dient wieder das \textit{/scan} Topic. Als Ausgabe erhält man die Position im \textit{/pose2D} Topic als x, y, $\theta$ Koordinaten. Diese Koordinaten werden dann anderen Modulen zur Verfügung gestellt. 
 
 
 
@@ -79,34 +147,36 @@ Da zum aktuellen Zeitpunkt keine funktionierende Odometrie Quelle zur Verfügung
 
 \section{SLAM}
 
-Um eine SLAM Map aufzubauen wurde erstmal eine Verbindung zum Lasersanner Hokuyo aufgebaut. Da bereits ein funktionierender ROS-Treiber vorhanden ist, konnte dieser übernommen werden. Dieser stellt ein neues Topic \textit{scan} zur Verfügung, welches dann als Eingangspunkt für den SLAM verwendet wird. 
+Um eine SLAM Karte aufzubauen wurde erstmal eine Verbindung zum Hokuyo Lidar aufgebaut. Da bereits ein funktionierender ROS-Treiber vorhanden ist, konnte dieser übernommen werden. Dieser stellt ein neues Topic \textit{/scan} zur Verfügung, welches dann als Eingangspunkt für den SLAM verwendet wird. 
 
-Um eine Map zu erhalten, wurde sich für den Hector-SLAM entschieden. Dieser benötigt zum einen ein Topic auf dem die Laserscans zur Verfügung stehen (scan), zum anderen muss der Transformationsbaum zwischen frame\_id map, odom, base\_link, und laser korrekt sein.  
+Um eine Map zu erhalten, wurde sich für den \href{http://wiki.ros.org/hector_mapping}{Hector-SLAM} entschieden. Dieser benötigt zum einen ein Topic auf dem die Laserscans zur Verfügung stehen (\textit{/scan}), zum anderen muss der Transformationsbaum zwischen dem Frame \textit{map}, \textit{odom}, \textit{base\_link} sowie \textit{laser} korrekt sein.  
 
 
 
 
 \subsection{Transformationsbaum}
 
-Nachfolgend der visualisierte zusammenhängende Transformationsbaum. Dieser ist zwingend notwendig, damit das Topic map erstellt wird. 
+Nachfolgend der visualisierte zusammenhängende Transformationsbaum. Dieser ist zwingend notwendig, damit das Topic \textit{/map} erstellt wird. 
 
 Bild TF
 
-Die Bedeutung der einzelnen Frame\_ids:
+Die Bedeutung der einzelnen Frames:
 
 \begin{itemize}
-\item \textbf{map}: Wird vom Hector Slam erstellt und ist nötig für die Lokalisierung in der Map
+\item \textbf{map}: Wird vom Hector-Slam erstellt und ist nötig für die Lokalisierung in der erstellten Map
 \item \textbf{odom}: Wird vom Laser Scan Matcher erstellt und dient der relativen Positionsschätzung
 \item \textbf{base\_link}: Wird auf den Schwerpunkt des ALF gelegt
-\item \textbf{laser}: Wird vom Hokuyo Treiber erstellt
+\item \textbf{laser}: Wird vom Hokuyo Lidar Treiber erstellt
 \end{itemize}
-
 
 
 
 \subsection{Interface Modul für den SLAM}
 
-Um auch ohne das Framework ROS die erstellte Map zu erhalten, wurde ein Interface Modul erstellt. Mit diesem kann man auf definierte Membervariablen zugreifen und erhält so diverse Informationen über die erstellte Map. Die Map wird dabei in einem Vektor mit Werten zwischen 0 und 255 abgespeichert und kann zur beliebiger Zeit abgefragt werden. 
+Um auch ohne das Framework ROS die erstellte Karte zu erhalten, wurde ein Interface Modul erstellt. Mit diesem kann man auf definierte Membervariablen zugreifen und erhält so diverse Informationen vom SLAM-Algorithmus sowie der aufgebauten Karte. Die Karte wird dabei in einem Vektor mit Werten zwischen 0 und 255 abgespeichert und kann zur beliebiger Zeit abgefragt werden. 
+
+
+
 
 
 
@@ -119,7 +189,8 @@ Um auch ohne das Framework ROS die erstellte Map zu erhalten, wurde ein Interfac
 
 \section{Wegefindung}
 
-Vorüberlegung:
+\textbf{Vorüberlegung:}
+
 Das definierte Ziel ALF autonom einen Raum erkunden zu lassen, beinhaltet neben dem Erstellen einer Karte auch eine Wegberechnung zu unbekannten Flächen im Raum, die noch nicht vom Lidar erfasst wurden. Somit muss basierend auf der vom SLAM erstellten Karte ein Pfad zu den unbekannten Flächen gefunden werden.
 Zu berücksichtigen ist, dass ALF durch seine Lenkung einen eingeschränkten Aktionsradius hat und es nicht möglich ist aus einer Geradeaus-Fahrt einen spitzen Winkel einzuregeln. Der maximale Lenkwinkel beträgt 45° und muss in die Routenplanung mit einbezogen werden. 
 
@@ -140,6 +211,8 @@ Mögliche Werte sind:
 \item Unbekannte Fläche (Grau)
 \item Freifläche (Weiß)
 \end{itemize}
+
+\vspace{0.5cm}
 
 Beispiel: 
 \begin{lstlisting}
@@ -162,8 +235,8 @@ Beispiel:
 Die vom SLAM erhaltene Karte kann unter Umständen nicht nur Schwarze, Weiße und fest definierte, graue Punkte enthalten. Je nach verwendetem SLAM werden für Messpunkte, die nicht sicher als Objekt oder Freifläche definiert werden können, als Zwischengrauwert angegeben. Dies führt jedoch bei der weiteren Berechnung des Pfades zu Problemen. Daher wurde eine Grenze definiert, die entscheidet, ob ein Grauwert als Freifläche oder Objekt betrachtet wird. Somit kann im weiteren Programm von bereinigten Werten (Objekt, Freifläche, Unbekannt) ausgegangen werden. 
 
 \begin{figure}
-    \subfigure[Karte mit ungenauen Messpunkten]{\includegraphics[width=0.49\textwidth]{images/chapter6/MapRegular.png}}
-    \subfigure[Karte mit bereinigten Punkten]{\includegraphics[width=0.49\textwidth]{images/chapter6/MapWhited.png}}
+    \subfigure[Karte mit ungenauen Messpunkten]{\includegraphics[width=0.49\textwidth]{images/chapter5/MapRegular.png}}
+    \subfigure[Karte mit bereinigten Punkten]{\includegraphics[width=0.49\textwidth]{images/chapter5/MapWhited.png}}
 \caption{Vergleich vor und nach Bereinigung der Grauwerte}
 \label{fig:ungenaueKarte}
 \end{figure}
@@ -178,22 +251,22 @@ Somit sollte der Pfad immer zuerst in die Mitte eines Raumes führen und sich er
 Umgesetzt wurde dies mit einer Grau-Gradientenfüllung der Karte, die später bei der Pfadberechnung als Gewichtung dienen. Die Freiflächenpunkte nahe einer Wand wurden mit einem hohen Gewicht (repräsentiert durch "dunkelgrau") belegt und verringern ihr Gewicht, je weiter sie von einer Wand entfernt liegen. 
 
 \begin{figure}
-    \subfigure[Karte mit bereinigten Punkten]{\includegraphics[width=0.49\textwidth]{images/chapter6/MapWhited.png}}
-    \subfigure[Karte mit Gradientenfüllung]{\includegraphics[width=0.49\textwidth]{images/chapter6/MapRemarked.png}}
+    \subfigure[Karte mit bereinigten Punkten]{\includegraphics[width=0.49\textwidth]{images/chapter5/MapWhited.png}}
+    \subfigure[Karte mit Gradientenfüllung]{\includegraphics[width=0.49\textwidth]{images/chapter5/MapRemarked.png}}
 \caption{Gradientenfüllung einer Karte basierend auf bereinigter Map}
 \end{figure}
 
 
 
-\subsection{in Graphen wandeln}
+\subsection{Umwandlung in Graphen}
 
 Um auf der bestehenden Karte einen Pfad berechnen zu können, muss die Matrix in einen Graphen überführt werden. Die einfachste (wenn auch nicht die performanteste) Methode war es jeden Freiflächen-Messpunkt des Lidars als eigenen Knoten anzusehen, der eine Verbindung zu den jeweilig benachbarten Messpunkten/Knoten hat. Als Kantengewicht wurde der entsprechende Grauwert des Nachbarknoten gewählt. Somit werden Pfade auf Freiflächen belohnt (Kantengewicht = 0) und Annäherungen an Gegenstände bestraft (Kantengewicht = steigender Grauwert). 
 Für unbekannte Flächen sowie erkannte Objekte wurden keine Knoten in den Graphen eingefügt und diese auch nicht als Nachbarn angesehen. 
 
-
+\vspace{0.5cm}
 \begin{figure}[h]
 \begin{center}
-\includegraphics[width=15cm]{images/chapter6/GraphKnoten.JPG}
+\includegraphics[width=15cm]{images/chapter5/GraphKnoten.JPG}
 \caption{aus Map erstellter Graph}
 \label{Map_aus_Graph}
 \end{center}
@@ -205,7 +278,7 @@ Dass aus jedem Pixel ein eigener Knoten wird, hat zur Folge, dass es extrem viel
 
 
 
-\subsection{mögliche Ziele definieren und finden}
+\subsection{Mögliche Ziele definieren und finden}
 \label{sec:ziele}
 
 Als Voraussetzung wird immer angenommen, dass die aktuelle Position des Fahrzeugs auf einer erkannten Freifläche liegt. Das übergeordnete Ziel einen Raum vollständig autonom zu erkunden, lässt sich nur erreichen, indem das Fahrzeug nicht zufällig durch den Raum fährt, sondern gezielt unbekannte Flächen ansteuert. Mögliche Ziele sind somit alle Übergänge von Freifläche zu unbekannter Fläche. 
@@ -216,7 +289,7 @@ Es kann passieren, dass der Lidar Sensor durch Reflektionen spiegelnder Oberflä
 
 \begin{figure}[h]
 \begin{center}
-\includegraphics[width=15cm]{images/chapter6/MapUebergaenge_Markiert.png}
+\includegraphics[width=15cm]{images/chapter5/MapUebergaenge_Markiert.png}
 \caption{potentielle Ziele markiert}
 \label{Map_aus_Graph}
 \end{center}
@@ -234,7 +307,7 @@ Als Dijkstra-Implementierung wurde die \href{https://gist.github.com/vertexcliqu
 
 
 
-\subsection{erstellter Pfad}
+\subsection{Erstellter Pfad}
 
 Als Ergebnis des Dijkstra-Algorithmus wird ein Pfad von der Egoposition über die Freiflächen bis hin zu einer zufälligen, unbekannten Fläche erzeugt. Die Navigation des Fahrzeuges übernimmt das Bewegungssteuerungsmodul. Sobald das Ziel erreicht wurde, kann ein neuer Pfad zu den noch verbleibenden, unbekannten Flächen erzeugt werden.
 
@@ -254,9 +327,14 @@ Ausgabe:
 
 
 
+
+
+
 \section{Bewegungssteuerung}
+
 \subsection{Datenstruktur}
-Die Bewegungssteuerung wandelt den berechneten Pfad der Wegefindung in Befehle für das Interface Board (\ref{sec:InterfaceBoard}) um. Der Pfad besteht aus Wegpunkten, die einzeln nacheinander angefahren werden. Die grundlegende Anfahrt eines Wegpunktes wird dabei über einzelne Befehle an das Interface Board übermittelt (Semantik: \texttt{[Lenkwinkel];[Fahrtrichtung];[Geschwindigkeit]}). Die Kommunikation erfolgt technisch über eine C - Datenstruktur, die sowohl im Bewegungssteuerungsmodul, als auch auf dem Interface Board identisch definiert ist. Die Datenstruktur kann per SPI vom Raspberry Pi aus regelmäßig auf das Interface Board übermittelt werden, um sowohl die Messdaten des Interface Boards zu lesen, als auch Befehle auf das Interface Board zu schreiben. Für dieses Projekt wurde eine Zykluszeit von 200ms gewählt, in der der Raspberry Pi die Datenstruktur mit dem Interface Board synchronisiert. Tabelle \ref{tab:COMStructureType} zeigt den genauen Aufbau der Datenstruktur.
+
+Die Bewegungssteuerung wandelt den berechneten Pfad der Wegefindung in Befehle für das Interface Board (\ref{sec:InterfaceBoard}) um. Der Pfad besteht aus Wegpunkten, die einzeln nacheinander angefahren werden. Die grundlegende Anfahrt eines Wegpunktes wird dabei über einzelne Befehle an das Interface Board übermittelt (Semantik: \texttt{[Lenkwinkel];[Fahrtrichtung];[Geschwindigkeit]}). Die Kommunikation erfolgt technisch über eine C - Datenstruktur, die sowohl im Bewegungssteuerungsmodul, als auch auf dem Interface Board identisch definiert ist. Die Datenstruktur kann per SPI vom Raspberry Pi aus regelmäßig auf das Interface Board übermittelt werden, um sowohl die Messdaten des Interface Boards zu lesen, als auch Befehle auf das Interface Board zu schreiben. Für dieses Projekt wurde eine Zykluszeit von 200ms gewählt, in der der Raspberry Pi 3b+ die Datenstruktur mit dem Interface Board synchronisiert. Tabelle \ref{tab:COMStructureType} zeigt den genauen Aufbau der Datenstruktur.
 
 \begin{table}
 \texttt{
@@ -294,8 +372,14 @@ Die Bewegungssteuerung wandelt den berechneten Pfad der Wegefindung in Befehle f
 \label{tab:COMStructureType}
 \end{table}
 
+
+
+
 \subsection{Algorithmus}
+
 Grundlage für den Algorithmus zur Anfahrt eines Wegpunktes ist ein einfacher Zustandsautomat. Dieser arbeitet die zur Verfügung gestellten Wegpunkte nacheinander ab. Die folgenden Eingabedaten werden dazu verarbeitet:
+
+
 \begin{itemize}
 \item aktuelle Position ($x_{pos}$, $y_{pos}$, und Winkel $ \theta_{pos} $)
 \item der Pfad, eine Liste von Wegpunkten der Form $ \{(x_1, y_1), (x_2, y_2), ..., (x_n, y_n)\} $
@@ -303,13 +387,17 @@ Grundlage für den Algorithmus zur Anfahrt eines Wegpunktes ist ein einfacher Zu
 \item der kleinsten Winkeldifferenz zum Zielwinkel, berechnet aus der aktuellen Ausrichtung des Fahrzeugs $\theta_{pos}$ und dem Zielwinkel $\theta_{ziel}$
 \end{itemize}
 
+
 Der Winkel $\theta_{ziel}$ von der aktuellen Position $(x_n, y_n)$ zum Ziel wird zunächst absolut nach Gleichung  \ref{equ:AbsoluterZielwinkel} bestimmt.
+
 \begin{equation}
 \theta_{ziel} = atan2(y_n - y_{pos}, x_n - x_{pos})
 \label{equ:AbsoluterZielwinkel}
 \end{equation}
 
+
 Anschließend wird der kleinste Winkel $\theta_{rel}$ (relativer Zielwinkel) von der aktuellen Ausrichtung des Fahrzeugs $\theta_{ziel}$ berechnet (siehe Gleichung \ref{equ:relativerZielwinkel}).
+
 
 \begin{equation}
 \theta_{rel} = \left\{
@@ -322,9 +410,10 @@ Anschließend wird der kleinste Winkel $\theta_{rel}$ (relativer Zielwinkel) von
 \label{equ:relativerZielwinkel}
 \end{equation}
 
+
 Zu beachten ist, dass die Winkel $\theta_{pos}$ und $\theta_{ziel}$ jeweils nur Werte im Intervall \\ $[-180.0, 180.0]$ annehmen dürfen. Negative Winkel stehen hierbei für eine Ausrichtung im Uhrzeigersinn (mathematisch negativ), positive Winkel für eine Ausrichtung gegen den Uhrzeigersinn (mathematisch positiv).
 
-Entsprechend der Berechnungen der notwendigen Zielwinkel und Koordinaten wird der Zustandsautomat in Bild \ref{fig:Zustandsautomat} durchlaufen. Die einzelnen Zustände sind in Tabelle \ref{tab:ZustaendeBewegungssteuerung} aufgeführt. In jedem dieser Zustände wird eine Datenübertragung vom Raspberry Pi zum Interface Board initiiert, um konstant die aktuelle Geschwindigkeit, den Lenkwinkel, und die Fahrtrichtung zu synchronisieren.
+Entsprechend der Berechnungen der notwendigen Zielwinkel und Koordinaten wird der Zustandsautomat in Bild \ref{fig:Zustandsautomat} durchlaufen. Die einzelnen Zustände sind in Tabelle \ref{tab:ZustaendeBewegungssteuerung} aufgeführt. In jedem dieser Zustände wird eine Datenübertragung vom Raspberry Pi 3b+ zum Interface Board initiiert, um konstant die aktuelle Geschwindigkeit, den Lenkwinkel und die Fahrtrichtung zu synchronisieren.
 
 \begin{table}
 \texttt{
