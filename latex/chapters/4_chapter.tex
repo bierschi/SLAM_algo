@@ -1,264 +1,118 @@
-\chapter{Verwendetes Betriebssystem}
-In diesem Kapitel wird die Installation des Betriebssystem Ubuntu Mate, sowie die Einrichtung des Frameworks ROS näher erläutert. Außerdem werden alle nötigen Konfigurationen gezeigt, um die Software kompilieren und ausführen zu können. 
+\chapter{Hardware}
 
+Im Kapitel 4 wird die verwendete Hardware vorgestellt. Dies sind der Hokuyo URG-04LX Lidar, der Einplatinencomputer Raspberry Pi 3b+ sowie das Interface Board STM32 mit seinen angschlossenen Sensoren. 
 
-\section{Installation von Ubuntu Mate auf Raspberry Pi 3b+}
-Aufgrund einer sehr großen Ubuntu Community und die gute Anbindung an das Framework ROS, wurde sich für das Betriebssystem Ubuntu Mate entschieden. Da keine durchgängige Echtzeitanbindung gefordert ist, werden hier der SLAM sowie die Wegefindung berechnet und ausgeführt. Die Sensoren der Motorsteuerung agieren dagegen auf einem STM Board um schneller auf Änderungen reagieren zu können. 
-Da zum aktuellen Zeitpunkt (25.10.2018) kein angepasstes Betriebssystem für den Raspberry Pi 3b+ zur Verfügung steht, mussten kleinere Konfigurationen stattfinden um das vorhandene Raspberry Pi 3 Image auf einem Rasperry Pi 3b+ zum laufen zu bekommen. 
-Problem ohne diese Konfigurationen: Der Raspberry Pi 3b+ startet nicht und es wird nur ein Regenbogen Bildschirm angezeigt!
 
-Nachfolgend werden alle Konfigurationen erläutert, um ein neues Image zu flashen. 
 
-1. Download eines Images für Raspberry  Pi 2/3 auf folgender Seite \href{https://ubuntu-mate.org/download/}{Ubuntu Mate}:
 
-2. Flashen des Images auf eine SD-Karte mit Win32DiskImages (Windows) oder dd (linux):
 
-3. Diese SD-Karte in einen \textbf{Raspberry Pi 2} oder \textbf{Raspberry Pi 3} einstecken und starten. 
 
-4. Danach ein Terminal öffnen und folgenden Befehl für ein Kernel Update eingeben:\\
+\section{Lidar}
 
-\begin{lstlisting}
-$ sudo CURL_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt rpi-update
-\end{lstlisting}
-\vspace{-0.8cm}
+Als Laserscanner wird der in Abbildung \ref{fig:hokuyo_lidar} Hokuyo URG-04LX verwendet.
 
-oder alternativ:\\
+\vspace{0.3cm}
 
-\begin{lstlisting}
-$ sudo BRANCH=stable rpi-update
-\end{lstlisting}
-\vspace{-0.8cm}
+\begin{figure}[hbtp]
+\centering
+\includegraphics[scale=0.6]{images/chapter4/lidar.png}
+\caption{Der Hokuyo URG-04LX Lidar \cite{hokuyo_lidar.2018}}
+\label{fig:hokuyo_lidar}
+\end{figure}
 
-5. Raspberry Pi 2/3 herunterfahren und diese SD-Karte in den Raspberry Pi 3b+ einstecken. Der Pi sollte dann wie gewünscht booten. 
 
-6. Zu diesem Zeitpunkt ist aber noch keine Wlan-Verbindung verfügbar. Installiere das neueste Raspbian Image von hier auf eine weitere SD-Karte. 
 
-7. Starte einen Raspberry Pi mit dem Raspbian Betriebssystem und kopiere folgenden Ordner auf einen USB-Stick.\\
+Dieser hat eine Auflösung von 360° / 1024 pro Step. Insgesamt kann ein Winkel von 240° (= 768 Datenpunkte) je Scan aufgezeichnet werden. Die Daten werden für jeden erfassten Punkt jeweils im Abstand von 0,35° als Entfernung geliefert. Die Punkte sind somit in Polarkoordinaten Darstellung vorhanden \cite{hokuyo.2018}.
 
-\begin{lstlisting}
-$ sudo cp -r /lib/firmware/brcm /path_to_usb
-\end{lstlisting}
-\vspace{-0.8cm}
 
-8. Starte den Raspberry Pi 3b+ mit der SD-Karte auf der Ubuntu Mate installiert ist. 
+\begin{figure}[htbp]
+  \subfigure[Lidar Erfassungsbereich]{\includegraphics[width=0.5\textwidth]{images/chapter4/LidarHardware.JPG}\label{lidar_erfassungsbereich}}
+  \subfigure[Lidar Übersicht]{\includegraphics[width=0.5\textwidth]{images/chapter4/LidarWinkeluebersicht.JPG}\label{lidar_uebersicht}}
+  \caption{Allgemeine Informationen zum Lidar}
+  \vspace{1cm}
+\end{figure}
 
-9. Ersetze den aktuellen /lib/firmware/brcm Ordner durch den am USB-Stick\\
 
-\begin{lstlisting}
-$ sudo cp -r /path_to_usb/lib/firmware/brcm /lib/firmware/brcm
-\end{lstlisting}
-\vspace{-0.8cm}
 
-10. Führe einen Neustart durch und eine Wlan-Verbindung sollte verfügbar sein.
 
-11. Aktiviere ssh durch folgenden Befehl\\
 
-\begin{lstlisting}
-$ sudo systemctl enable ssh
-\end{lstlisting}
 
 
-Aktueller Hostname und Passwort um per SSH auf den Raspberry Pi zugreifen zu können:\\
-\textbf{Hostname: hsp}\\
-\textbf{Passwort: hsp}
 
+\section{Raspberry Pi 3b+}
 
+Als Hauptrechner wurde sich für den Raspberry Pi 3b+ in Abbildung \ref{fig:raspberry} der aktuellsten Generation entschieden. Aufgrund seiner ausreichenden Leistung von 4 Kernen mit je 1.4 GHz und mit einem Arbeitsspeicher von 1 GB werden auf diesem Rechner der Slam Algorithmus sowie die Wegefindung ausgeführt. Außerdem bietet dieser noch ausreichend Kapazität für Erweiterungen in der Software und Hardware durch nachfolgende Gruppen.  
 
 
+\vspace{0.6cm}
+\begin{figure}[hbtp]
+\centering
+\includegraphics[scale=0.1]{images/chapter4/raspberry.png}
+\caption{Der Raspberry Pi 3b+ \cite{raspberry.2018}}
+\label{fig:raspberry}
+\end{figure}
 
 
 
-\section{Installation des Frameworks Robot Operating System (ROS)}
 
-Nachfolgend wird Installation des Frameworks ROS durchgeführt. Dazu auf dem Betriebssystem Ubuntu Mate ein Terminal öffnen und folgende Befehle eingeben:
 
-1. Einrichten der sources.list\\
 
-\begin{lstlisting}
-$ sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
-\end{lstlisting}
-\vspace{-0.8cm}
+\newpage
+\section{Interface Board STM32}
+\label{sec:InterfaceBoard}
+\subsection{Konzept und Aufbau}
 
-2. Einrichten der keys\\
+Um die verwendeten Sensoren und Aktuatoren in einer deterministischen Zeit kontrollieren und auslesen zu können, wurde neben dem Raspberry Pi 3B+ Board ein zweites Hardwaremodul verwendet. Es handelt sich hierbei um ein \textit{STM32 F334R8 Nucleo Board} der Firma STMicroelectronics \footnote{www.st.com}. Auf dem Board befindet sich ein ARM Cortex M4 Microcontroller, der für beliebige Mess- und Regelungsaufgaben programmiert werden kann. Folgende Vorteile und Eigenschaften bietet das eingesetzte Board:
 
-\begin{lstlisting}
-$ wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
-\end{lstlisting}
-\vspace{-0.8cm}
+\begin{itemize}
+\item ARM Cortex - M4 Controller mit 64 MHz und 64 kByte Flash
+\item Arduino$^{\textregistered}$ kompatibler Erweiterungssteckplatz
+\item viele 3.3V I/Os, einige davon 5V tolerant
+\item OnBoard ST-LINK$^{\textregistered}$ V2 Debugger
+\end{itemize}
 
-3. Update der Packages\\
+In Abbildung \ref{pic:STM32NucleoBoardPicture} wird das verwendete Board in der Übersicht dargestellt.
 
-\begin{lstlisting}
-$ sudo apt-get update
-\end{lstlisting}
-\vspace{-0.8cm}
+\begin{figure}[hbtp]
+\centering
+\includegraphics[scale=0.4]{images/chapter4/STMNucleoBoardPicture.png}
+\caption{Verwendetes STM32 Nucleo Board Übersicht}
+\label{pic:STM32NucleoBoardPicture}
+\end{figure}
 
-4. Installation des ros-kinetic-desktop-full\\
 
-\begin{lstlisting}
-$ sudo apt-get install ros-kinetic-desktop-full
-\end{lstlisting}
-\vspace{-0.8cm}
+Zusätzlich verfügt das ALF über folgende Komponenten:
+\begin{itemize}
+\item 1 Fahrmotor
+\item 1 Servo für die Lenkung
+\item 3 Ultraschallsensoren (verbunden über I$^{2}$C)
+\item 1 kombinierter Beschleunigungssensor und Gyroskop (\acrfull{imu} MPU6050, verbunden über I$^{2}$C)
+\end{itemize}
 
-5. Initialisierung und Update der Rosdep\\
+Die Aufgaben des Boards lauten demnach wie folgt:
+\begin{itemize}
+\item Auslesen der 3 Ultraschall Sensoren (SRF08 Module) im 75ms Takt (I$^{2}$C)
+\item Auslesen des Beschleunigungssensors und Gyroskops MPU6050 im 50ms Takt (I$^{2}$C)
+\item Kommunikation mit der Hauptrechnerplatine Raspberry Pi 3b+ über \acrfull{spi} (DMA)
+\item Steuerung des Servomotors für die Lenkung (\acrfull{pwm})
+\item Steuerung der Richtung und Geschwindigkeit des Fahrmotors (GPIO, PWM)
+\end{itemize}
 
-\begin{lstlisting}
-$ sudo rosdep init
-\end{lstlisting}
 
-\begin{lstlisting}
-$ rosdep update
-\end{lstlisting}
-\vspace{-0.8cm}
+Die Abbildung \ref{fig:IfBoardHWUebersicht} zeigt die grobe Übersicht über die momentane Hardwarearchitektur des Interface Boards in Kombination mit dem Raspberry Pi 3b+. Über die Erweiterungsschnittstelle des STM Boards wurde zudem die Stromversorgung realisiert. Die Akkuspannung (Nennwert 7.2V) wird von einem Step-Down Reglermodul auf die Spannung von 5V konvertiert. Die 5V Logikspannung wird dann an das STM32 Board selbst, an die angeschlossenen Sensoren, und den Raspberry Pi 3b+ verteilt.
 
-6. Einrichten der ROS Umgebungsvariablen\\
+\begin{figure}[hbtp]
+\centering
+\includegraphics[scale=0.5]{images/chapter4/HW-Architecture.pdf}
+\caption{Aktuelle Hardware Architektur des ALF \label{fig:IfBoardHWUebersicht}}
+\end{figure}
 
-\begin{lstlisting}
-$ echo "source /opt/ros/kinetic/setup.bash" >> ~/.bashrc
-\end{lstlisting}
-\vspace{-0.8cm}
+\subsection{Datenübertragung}
 
-Neues Terminal öffnen oder nachfolgenden Befehl eingeben:\\
+Zwischen dem Interface Board und dem Raspberry Pi 3b+ findet ein regelmäßiger Datenaustausch statt. Dieser soll den Programmablauf der Firmware auf dem STM32 Controller möglichst nicht unterbrechen, um Echtzeitverhalten sicherzustellen. Deshalb wurde bei der Datenübertragung auf die DMA Hardware des STM32 Controllers zurückgegriffen. Bei jedem Datentransfer, der vom Raspberry Pi (SPI Master) zum Interface Board (SPI Slave) erfolgt, ist die Unterbrechungsdauer des ARM Prozessors auf dem Interface Board so auf einem Minimum reduziert. Die Daten werden in einen definierten Speicherbereich auf dem ARM Controller geschrieben, und können bei Bedarf von dort abgeholt werden.
 
-\begin{lstlisting}
-$ source ~/.bashrc
-\end{lstlisting}
-\vspace{-0.8cm}
 
-7. Erstellen eines catkin workspaces \\
 
-\begin{lstlisting}
-$ mkdir -p ~/catkin_ws/src
-\end{lstlisting}
 
-\begin{lstlisting}
-$ cd ~/catkin_ws/
-\end{lstlisting}
 
-\begin{lstlisting}
-$ catkin_make
-\end{lstlisting}
 
-\begin{lstlisting}
-$ source ~/catkin_ws/devel/setup.bash
-\end{lstlisting}
-\vspace{-0.8cm}
-
-Durch nachfolgenden Befehl hat man von überall im Linux System Zugriff auf die im catkin workspace gebildeten Packages:\\ 
-
-\begin{lstlisting}
-$ echo `source ~/catkin_ws/devel/setup.bash` << ~/.bashrc
-\end{lstlisting}
-
-
-
-
-
-
-
-\section{Schreibzugriff auf den Hokuyo Port für den aktuellen Benutzer}
-Um nicht Root Rechte besitzen zu müssen um auf den Hokuyo Port zugreifen zu können, wurde der akuelle Benutzer in die Dialout Gruppe mit folgendem Befehl hinzugefügt:\\
-
-\begin{lstlisting}
-$ sudo adduser hsp dialout
-\end{lstlisting}
-
-\vspace{-1.2cm}
-
-
-
-
-
-
-
-
-
-
-\section{Roscore Master und Launch file als Systemd Service}
-Da sich die SLAM Map sofort nach dem Start aufbauen soll, wurde sich für systemd Services entschieden. Diese werden beim hochfahren des Raspberry Pi 3b+ ausgeführt, außerdem kann der jeweilige Service auch nachträglich per Kommando gestartet und gestoppt werden. 
-Da der roscore Master benötigt wird, um innerhalb des ROS Frameworks zu kommunizieren, wurde dieser als einzelner Service entworfen. Hierfür muss unter /etc/systemd/system eine Datei roscore.service mit folgendem Inhalt erstellt werden.\\
-
-
-\begin{lstlisting}
-[Unit]
-Description=starts roscore master as a systemd service
-
-[Service]
-Type=simple
-ExecStart=/bin/bash -c "source /opt/ros/kinetic/setup.bash; /usr/bin/python /opt/ros/kinetic/bin/roscore"
-
-[Install]
-WantedBy=multi-user.target
-\end{lstlisting}
-
-\vspace{-0.9cm}
-Um das ROS launch File hokuyo\_hector\_slam.launch als Service auszuführen, wurde eine Datei hector.service in /etc/systemd/service mit folgendem Inhalt erstellt.\\
-
-\begin{lstlisting}
-[Unit]
-Description=starts hokuyo_hector_slam launch file as a systemd service
-
-[Service]
-Type=simple
-ExecStart=/bin/bash -c "source /opt/ros/kinetic/setup.bash; /usr/bin/python /opt/ros/kinetic/bin/roscore"
-Restart=on-failure
-
-[Install]
-WantedBy=multi-user.target
-\end{lstlisting}
-
-Um diese Services beim hochfahren des Raspberry Pis zu starten, müssen diese erst mit nachfolgendem Befehl aktiviert werden.\\
-
-\begin{lstlisting}
-$ sudo systemctl enable roscore.service
-$ sudo systemctl enable hector.service
-\end{lstlisting}
-
-Um den aktuellen Status dieser Services zu begutachten, muss folgender Befehl eingegeben werden. \textit{Status} kann auch durch \textit{restart} oder \textit{stop} ersetzt werden.\\ 
-
-\begin{lstlisting}
-$ sudo systemctl status roscore.service
-$ sudo systemctl status hector.service
-\end{lstlisting}
-\vspace{-1.1cm}
-
-
-
-
-
-
-
-
-
-\section{WiringPi Update}
-
-Durch die Installation des Betriebssystems Ubuntu Mate kann es möglich sein, dass die Bibliothek \textbf{WiringPi} geupdated werden muss. Die Funktionsweise kann mit nachfolgendem Befehl überprüft werden, sollten Fehlermeldungen auftreten so muss die aktuelle Version durch die neueste Version ersetzt werden.\\
-
-\begin{lstlisting}
-$ gpio -v
-\end{lstlisting}
-\vspace{-0.8cm}
-
-Entfernen der aktuellen Version mit:\\
-
-\begin{lstlisting}
-$ sudo apt-get purge wiringpi
-\end{lstlisting}
-\vspace{-0.8cm}
-
-Zuerst muss die aktuellste Version geklont und anschließend kompiliert werden.\\
-
-\begin{lstlisting}
-$ sudo apt install git
-$ git clone git://git.drogon.net/wiringPi
-$ cd wiringPi
-$ ./build
-\end{lstlisting}
-\vspace{-0.8cm}
-
-Zuletzt noch die Funktionsweise überprüfen:\\
-
-\begin{lstlisting}
-$ gpio -v 
-$ gpio readall
-\end{lstlisting}
