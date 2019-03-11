@@ -5,4 +5,6 @@
 \addchap*{Abstract}
 
 
-Here is space for a fancy short summary.
+In diesem Projektstudium wurde ein verbesserter Aufbau eines autonomen Laser Fahrzeugs (ALF) durchgeführt. Das Ziel hierbei war es, das Fahrzeug autonom einen Raum erkunden zu lassen und zeitgleich eine Umgebungskarte aufzubauen.\\
+Bei der Hardware wurde als Hauptrechner ein Raspberry Pi 3b+ verwendet. Dieser besitzt genug Ressourcen um noch weitere Module zu entwickeln. Außerdem wurde für die Steuerung der Sensorik ein STM32 Board eingesetzt um diese in einer deterministischen Zeit auslesen und kontrollieren zu können.\\
+Die Software wurde in C++ entwickelt und die Projektstruktur mit dem Tool CMake aufgebaut. Somit wird sichergestellt, dass auch weitere Gruppen sich schnell einarbeiten und neue Module entwickeln können. Zum aktuellen Zeitpunkt wurden vier Module umgesetzt. Eine Server/Client Verbindung als \textit{communication}, eine Bewegungssteuerung als \textit{motioncontrol}, eine Wegfindung als \textit{pathfinder} und ein SLAM-Algorithmus als \textit{slam}. 
