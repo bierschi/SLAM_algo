@@ -10,9 +10,9 @@ A detailed documentation about the implementation of this project can be found i
 
 
 ## Modules
-This project were written in C++, build with [CMake](https://cmake.org/) and
-the framework [ROS](http://www.ros.org/) were also used.
-At the current time, 4 modules were implemented:
+This project were written in C++ and build with [CMake](https://cmake.org/)
+
+In the current state, 4 modules were implemented:
 
 - communication
 - motioncontrol
@@ -43,9 +43,19 @@ At the current time, 4 modules were implemented:
         /STM_data
         /alf_car
             /include
+                /communication
+                /motioncontrol
+                /pathfinder
+                /slam
             /launch
+                hokuyo_hector_slam.launch
             /scripts
+                resetMap
             /src
+                /communication
+                /motioncontrol
+                /pathfinder
+                /slam
             CMakeLists.txt
             alf_main.cpp
         /alf_gui
