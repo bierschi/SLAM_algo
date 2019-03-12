@@ -65,6 +65,7 @@ public:
 	void setScanAtStartup(bool scanAtStart);
     void updatePosition(uint16_t xpos, uint16_t ypos, float theta);
     void updatePathTravels(std::string &test);
+	bool isBusy(void);
 };
 
 #endif /* STATEMODEL_H */

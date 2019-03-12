@@ -502,3 +502,12 @@ void StateModel::updatePathTravels(std::string &pathTravels)
         this->ptrPathGroup->determinePathTravels(pathTravels);
     }
 }
+
+bool StateModel::isBusy(void)
+{
+    if(currentState != STATE_IDLE) {
+        return true; // controller is busy, perhaps we are currently travelling along a path
+    } else {
+        return false;
+    }
+}

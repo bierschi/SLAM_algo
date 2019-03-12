@@ -8,6 +8,7 @@
 #include "Server.h"
 #include "PathfinderInterface.h"
 #include "StateModel.h"
+#include "SPILibrary.h"
 
 // signalhandler for termination of program
 void sigIntHandler(int signum);
@@ -25,7 +26,6 @@ void sigIntHandler(int signum)
 
 int main(int argc, char** argv) {
 
-
     std::cout << "starting alf software" << std::endl;
 
     signal(SIGINT, sigIntHandler);
@@ -42,45 +42,60 @@ int main(int argc, char** argv) {
     // Create StateModel to control vehicle (SPIInterface to STM32)
     StateModel spiInterfaceStateModel;
 
-    spiInterfaceStateModel.setScanAtStartup(true);
-
     printf("Open SPI Interface...\n");
 	spiOpen();
 
-	printf("Create State Model...\n");
-    spiInterfaceStateModel.Init();
-    //################################################
+    // check if the SPI interface to the STM32 board is opened...
+    if(OPEN == spiIsOpen())
+    {
+        printf("Create State Model...\n");
+        spiInterfaceStateModel.Init();
+        //################################################
+        // scan area 360 degrees:
+        spiInterfaceStateModel.setScanAtStartup(true);
 
-    bool flag = true;
+        while(ros::ok() && exitProgram == false)
+        {
+            spiInterfaceStateModel.updatePosition(sm->getPixelX(),sm->getPixelY(), sm->theta);
+            spiInterfaceStateModel.Main();
 
-    while ( ros::ok() && exitProgram == false) {
-
-        if (sm->getMapInitFlag() & sm->getPoseInitFlag()) {
-
-            if (flag) {
-                std::cout <<"Map and Pose was succesfully initialised!" << std::endl;
-                pi->processPath();
-                spiInterfaceStateModel.updatePathTravels(test);
-                sm->setSaveMap(true);
-                flag = false;
-            }
-
-            std::cout << "x_pixel: " << sm->getPixelX() << " y_pixel: " << sm->getPixelY() << " theta: " << sm->theta << std::endl;
+            if(spiInterfaceStateModel.isBusy() == false) break;
+            usleep(200000);
+            ros::spinOnce();
         }
 
-        spiInterfaceStateModel.updatePosition(sm->getPixelX(),sm->getPixelY(), sm->theta);
-        spiInterfaceStateModel.Main();
+        // travel along path:
+        bool flag = true;
 
-        //sm->createTxtPositionFile();
-        //usleep(200000);
-        ros::spinOnce();
+        while ( ros::ok() && exitProgram == false) {
+
+            if (sm->getMapInitFlag() & sm->getPoseInitFlag()) {
+
+                if (flag) {
+                    std::cout <<"Map and Pose was succesfully initialised!" << std::endl;
+                    pi->processPath();
+                    spiInterfaceStateModel.updatePathTravels(test);
+                    sm->setSaveMap(true);
+                    flag = false;
+                }
+
+                std::cout << "x_pixel: " << sm->getPixelX() << " y_pixel: " << sm->getPixelY() << " theta: " << sm->theta << std::endl;
+            }
+
+            spiInterfaceStateModel.updatePosition(sm->getPixelX(),sm->getPixelY(), sm->theta);
+            spiInterfaceStateModel.Main();
+
+            //sm->createTxtPositionFile();
+            usleep(200000);
+            ros::spinOnce();
+        }
+
+        printf("Close Model...\n");
+        model.Close();
+
+        printf("Close SPI Interface...\n");
+        spiClose();
     }
-
-    printf("Close Model...\n");
-    model.Close();
-
-    printf("Close SPI Interface...\n");
-    spiClose();
 
     return 0;
 }
