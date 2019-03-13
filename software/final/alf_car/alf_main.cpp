@@ -78,12 +78,17 @@ int main(int argc, char** argv) {
                     sm->setSaveMap(true);
                     flag = false;
                 }
-
                 std::cout << "x_pixel: " << sm->getPixelX() << " y_pixel: " << sm->getPixelY() << " theta: " << sm->theta << std::endl;
             }
 
             spiInterfaceStateModel.updatePosition(sm->getPixelX(),sm->getPixelY(), sm->theta);
             spiInterfaceStateModel.Main();
+
+            // check if the travelled path end was reached, then get new path from PathFinder module (see next cycle)
+            if(spiInterfaceStateModel.isBusy() == false)
+            {
+                flag = true;
+            }
 
             //sm->createTxtPositionFile();
             usleep(200000);
