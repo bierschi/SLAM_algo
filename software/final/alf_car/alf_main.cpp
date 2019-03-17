@@ -56,11 +56,13 @@ int main(int argc, char** argv) {
 
         while(ros::ok() && exitProgram == false)
         {
-            spiInterfaceStateModel.updatePosition(sm->getPixelX(),sm->getPixelY(), sm->theta);
-            spiInterfaceStateModel.Main();
+            if (sm->getMapInitFlag() & sm->getPoseInitFlag()) {
+                spiInterfaceStateModel.updatePosition(sm->getPixelX(),sm->getPixelY(), sm->theta);
+                spiInterfaceStateModel.Main();
 
-            if(spiInterfaceStateModel.isBusy() == false) break;
-            usleep(200000);
+                if(spiInterfaceStateModel.isBusy() == false) break;
+                usleep(200000);
+            }
             ros::spinOnce();
         }
 
@@ -74,14 +76,14 @@ int main(int argc, char** argv) {
                 if (flag) {
                     std::cout <<"Map and Pose was succesfully initialised!" << std::endl;
                     pi->processPath();
-                    spiInterfaceStateModel.updatePathTravels(test);
+                    spiInterfaceStateModel.updatePathTravels(pi->drivewayPath);
                     sm->setSaveMap(true);
                     flag = false;
                 }
                 std::cout << "x_pixel: " << sm->getPixelX() << " y_pixel: " << sm->getPixelY() << " theta: " << sm->theta << std::endl;
             }
 
-            spiInterfaceStateModel.updatePosition(sm->getPixelX(),sm->getPixelY(), sm->theta);
+            spiInterfaceStateModel.updatePosition((uint16_t) sm->getPixelX(),(uint16_t) sm->getPixelY(), (float) sm->theta);
             spiInterfaceStateModel.Main();
 
             // check if the travelled path end was reached, then get new path from PathFinder module (see next cycle)
@@ -96,7 +98,7 @@ int main(int argc, char** argv) {
         }
 
         printf("Close Model...\n");
-        model.Close();
+        spiInterfaceStateModel.Close();
 
         printf("Close SPI Interface...\n");
         spiClose();

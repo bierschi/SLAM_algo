@@ -483,6 +483,7 @@ void StateModel::Close(void)
 void StateModel::setScanAtStartup(bool scanAtStart)
 {
 	this->scanAtStart = scanAtStart;
+	this->currentState = STATE_SCAN_AREA;
 }
 
 void StateModel::updatePosition(uint16_t xpos, uint16_t ypos, float theta)
