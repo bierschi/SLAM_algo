@@ -57,7 +57,8 @@ int main(int argc, char** argv) {
         while(ros::ok() && exitProgram == false)
         {
             if (sm->getMapInitFlag() & sm->getPoseInitFlag()) {
-                spiInterfaceStateModel.updatePosition(sm->getPixelX(),sm->getPixelY(), sm->theta);
+                std::cout << "x_pixel: " << sm->getPixelX() << " y_pixel: " << sm->getPixelY() << " theta: " << sm->theta << std::endl;
+                spiInterfaceStateModel.updatePosition((float) sm->getPixelX(),(float) sm->getPixelY(), (float) sm->theta);
                 spiInterfaceStateModel.Main();
 
                 if(spiInterfaceStateModel.isBusy() == false) break;
@@ -83,7 +84,7 @@ int main(int argc, char** argv) {
                 std::cout << "x_pixel: " << sm->getPixelX() << " y_pixel: " << sm->getPixelY() << " theta: " << sm->theta << std::endl;
             }
 
-            spiInterfaceStateModel.updatePosition((uint16_t) sm->getPixelX(),(uint16_t) sm->getPixelY(), (float) sm->theta);
+            spiInterfaceStateModel.updatePosition((float) sm->getPixelX(),(float) sm->getPixelY(), (float) sm->theta);
             spiInterfaceStateModel.Main();
 
             // check if the travelled path end was reached, then get new path from PathFinder module (see next cycle)

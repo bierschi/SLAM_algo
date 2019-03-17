@@ -63,7 +63,7 @@ public:
 	void Main(void);
     void Close(void);
 	void setScanAtStartup(bool scanAtStart);
-    void updatePosition(uint16_t xpos, uint16_t ypos, float theta);
+    void updatePosition(float xpos, float ypos, float theta);
     void updatePathTravels(std::string &test);
 	bool isBusy(void);
 };

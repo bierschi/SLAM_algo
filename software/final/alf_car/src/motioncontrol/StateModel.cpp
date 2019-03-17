@@ -244,10 +244,10 @@ void StateModel::calcNextState(void) {
 	struct timespec ts_sleep = {0}, ts_remaining = {0};
 
 #ifndef SPIINTERFACE_STANDALONE
-	posUpdater->updatePosition();
 	position = posUpdater->getPosition(); // get current position from module / file
 #else
-    position = 
+	//posUpdater->updatePosition();
+    //position = 
 #endif
 
     spiSend(COM_StructTX, COM_StructRX);
@@ -486,7 +486,7 @@ void StateModel::setScanAtStartup(bool scanAtStart)
 	this->currentState = STATE_SCAN_AREA;
 }
 
-void StateModel::updatePosition(uint16_t xpos, uint16_t ypos, float theta)
+void StateModel::updatePosition(float xpos, float ypos, float theta)
 {
     if(NULL != this->posUpdater)
     {
