@@ -20,7 +20,7 @@ Als Build System wird das plattformunabhängige Programmierwerkzeug CMake verwen
 \item Erweiterbarkeit durch Makros
 \end{itemize} 
 
-Nachfolgend wird die verwendete Ordnerstruktur in diesem Projekt erklärt.
+Im folgenden wird die Ordnerstruktur dieses Projektes vorgestellt.
 
 \textbf{include} Ordner: Dieser Ordner ist für die Header-Files zuständig. Unterteilt wird dieser Ordner zudem in die einzelnen umgesetzten Module (\textit{communication, motioncontrol, pathfinder, slam})
 
@@ -60,10 +60,11 @@ Im Hauptverzeichnis (ROOT) befinden sich die Hauptdatei (\textit{alf\_main.cpp})
 Die bisherigen umgesetzten Module sind: 
 
 \begin{itemize}
-\item \textit{communication}: Modul für eine Server/Client-Verbindung
 \item \textit{motioncontrol}: Modul für die Bewegungssteurung des ALF
 \item \textit{pathfinder}: Modul für die Wegefindung 
 \item \textit{slam}: Modul für die Interaktion mit dem SLAM Algorithmus
+
+\item \textit{communication, lidar\_connect}: Modul für eine Server/Client-Verbindung, Modul für die Verbindung zum Lidar (Vorbereitet für die Verwendung für weiterführende Gruppen, jedoch in diesem Projekt nicht aktiv eingesetzt.
 \end{itemize}
 
 In den nachfolgenden Kapiteln werden die einzelnen Module genauer vorgestellt. 
