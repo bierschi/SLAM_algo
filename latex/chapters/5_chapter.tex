@@ -82,9 +82,9 @@ In den nachfolgenden Kapiteln werden die einzelnen Module genauer vorgestellt.
 
 \section{Verbindung zum Lidar}
 
-Der Lidar Sensor ist direkt via USB mit dem Raspberry Pi 3b+ verbunden. Die Daten werden vom Lidar in Polarkoordinaten Darstellung geliefert. Um eine Karte aufbauen zu können, wurde ein Modul erstellt, das die Daten in kartesische Koordinaten transformiert. Somit ist es möglich nach jeder Messung des Lidars eine neue Karte mit der "`aktuellen Sicht"' des Sensors zu erstellen. Die Daten werden in einem Integer-Array gespeichert und können von einem SLAM Algorithmus verarbeitet werden . 
+Der Lidar Sensor ist direkt via USB mit dem Raspberry Pi 3b+ verbunden. Die Daten werden vom Lidar in Polarkoordinaten Darstellung geliefert. 0Um eine Karte aufbauen zu können, wurde ein Modul erstellt, das die Daten in kartesische Koordinaten transformiert. Somit ist es möglich nach jeder Messung des Lidars eine neue Karte mit der "`aktuellen Sicht"' des Sensors zu erstellen. Die Daten werden in einem Integer-Array gespeichert und können von einem SLAM Algorithmus verarbeitet werden . 
 
-Das Modul verwendet zur Verbindung mit dem Lidar die unter der GNU GPL v3 stehende \href{https://github.com/simondlevy/BreezyLidar}{API "URG04LX"}. Mit ihr ist es möglich einen kompletten Scan des Lidars aufzuzeichnen. 
+Das Modul verwendet zur Verbindung mit dem Lidar die unter der GNU GPL v3 stehende \href{https://github.com/simondlevy/BreezyLidar}{API "URG04LX"} \cite{breezylidar.2018}. Mit ihr ist es möglich einen kompletten Scan des Lidars aufzuzeichnen. 
 \vspace{0.4cm}
 
 \begin{lstlisting}
@@ -304,7 +304,7 @@ Es kann passieren, dass der Lidar Sensor durch Reflektionen spiegelnder Oberflä
 Der erstellte Graph kann nun mit Hilfe eines Dijkstra-Algorithmus den kürzesten Weg von der Egoposition zum einem der 
 \hyperref[sec:ziele]{\textcolor{blue}{möglichen, erkannten Ziele}} errechnen. Die \hyperref[sec:gewichtung]{\textcolor{blue}{zuvor eingeführte Gewichtung}} der Kanten führt nun dazu, dass ein Weg z.B. in der Mitte eines Ganges entlang errechnet wird. Bei 90° Winkeln wird eine leichte Biegung errechnet. Die Kantengewichtung ist auf dem kürzeren Pfad zwar schlechter, jedoch ist der Weg kürzer. Somit wird auch die Lenkwinkelproblematik entschärft. 
 
-Als Dijkstra-Implementierung wurde die \href{https://gist.github.com/vertexclique/7410577}{Veröffentlichung von Mahmut Bulut} als Grundlage verwendet und für das Projekt angepasst.
+Als Dijkstra-Implementierung wurde die \href{https://gist.github.com/vertexclique/7410577}{Veröffentlichung von Mahmut Bulut} als Grundlage verwendet und für das Projekt angepasst \cite{dijkstra.2018}.
 
 
 
