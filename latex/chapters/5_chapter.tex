@@ -82,7 +82,7 @@ In den nachfolgenden Kapiteln werden die einzelnen Module genauer vorgestellt.
 
 \section{Verbindung zum Lidar}
 
-Der Lidar Sensor ist direkt via USB mit dem Raspberry Pi 3b+ verbunden. Die Daten werden vom Lidar in Polarkoordinaten Darstellung geliefert. 0Um eine Karte aufbauen zu können, wurde ein Modul erstellt, das die Daten in kartesische Koordinaten transformiert. Somit ist es möglich nach jeder Messung des Lidars eine neue Karte mit der "`aktuellen Sicht"' des Sensors zu erstellen. Die Daten werden in einem Integer-Array gespeichert und können von einem SLAM Algorithmus verarbeitet werden . 
+Der Lidar Sensor ist direkt via USB mit dem Raspberry Pi 3b+ verbunden. Die Daten werden vom Lidar in Polarkoordinaten Darstellung geliefert. Um eine Karte aufbauen zu können, wurde ein Modul erstellt, das die Daten in kartesische Koordinaten transformiert. Somit ist es möglich nach jeder Messung des Lidars eine neue Karte mit der "`aktuellen Sicht"' des Sensors zu erstellen. Die Daten werden in einem Integer-Array gespeichert und können von einem SLAM Algorithmus verarbeitet werden . 
 
 Das Modul verwendet zur Verbindung mit dem Lidar die unter der GNU GPL v3 stehende \href{https://github.com/simondlevy/BreezyLidar}{API "URG04LX"} \cite{breezylidar.2018}. Mit ihr ist es möglich einen kompletten Scan des Lidars aufzuzeichnen. 
 \vspace{0.4cm}
@@ -159,13 +159,20 @@ Um eine Map zu erhalten, wurde sich für den \href{http://wiki.ros.org/hector_ma
 
 Nachfolgend der visualisierte zusammenhängende Transformationsbaum. Dieser ist zwingend notwendig, damit das Topic \textit{/map} erstellt wird. 
 
-Bild TF
+
+\begin{figure}[hbtp]
+\centering
+\includegraphics[scale=0.15]{images/chapter5/tf_alf.png}
+\caption{Der aufgebaute Transformationsbaum}
+\label{fig:tf_alf}
+\end{figure}
+
 
 Die Bedeutung der einzelnen Frames:
 
 \begin{itemize}
 \item \textbf{map}: Wird vom Hector-Slam erstellt und ist nötig für die Lokalisierung in der erstellten Map
-\item \textbf{odom}: Wird vom Laser Scan Matcher erstellt und dient der relativen Positionsschätzung
+\item \textbf{scanmatcher\_frame}: Wird vom Laser Scan Matcher erstellt und dient der relativen Positionsschätzung
 \item \textbf{base\_link}: Wird auf den Schwerpunkt des ALF gelegt
 \item \textbf{laser}: Wird vom Hokuyo Lidar Treiber erstellt
 \end{itemize}
