@@ -71,7 +71,7 @@ void PathGroup::determinePathTravels(std::string &pathTravels) {
             std::cout << line << std::endl;
 
             // parse informations from file:
-            scanfError = sscanf(line.c_str(), "%f;%f", &targetX, &targetY);
+            scanfError = sscanf(line.c_str(), "%f;%f", &targetY, &targetX);
 
             this->travels[counter] = new PathTravel(targetX, 200.0f - targetY, 0.0f);
 
