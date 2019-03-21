@@ -26,30 +26,29 @@ PositionStructureType PositionUpdater::getPosition(void)
 
 void PositionUpdater::updatePosition(void)
 {
-	FILE * file = NULL;
-	file = fopen(POSITION_FILE, "r");
-	char buffer[100] = {0};
+	ifstream f_position(POSITION_FILE);
+	
+	if(false == f_position.is_open()) cout << "Error reading file!" << endl;
 
-	if(file != NULL)
-	{
-		int num;
-		// parse position information from lines of file
+    std::string line;
 
-		// get x position:
-		fgets(buffer, 99, file);
-		num = sscanf(buffer, "%f", &position.x);
+    // get map size from file
+    std::getline(f_position, line);  // x
+    position.x = std::atoi(line.c_str());
 
-		// get y position:
-		fgets(buffer, 99, file);
-		num = sscanf(buffer, "%f", &position.y);
+    std::getline(f_position, line);  // y
+    position.y = 200 - std::atoi(line.c_str());
 
-		// get theta of position:
-		fgets(buffer, 99, file);
-		num = sscanf(buffer, "%f", &position.theta);
-        
-	}
-	else
-	{
-		printf("PositionUpdater: Error opening file input!\n");
-	}
+    std::getline(f_position, line);  // theta
+    position.theta = std::atof(line.c_str());
+
+    f_position.close();
+	
+}
+
+void PositionUpdater::updatePosition(float xpos, float ypos, float theta)
+{
+	position.x = xpos;
+	position.y = 200 - ypos;
+	position.theta = theta;
 }

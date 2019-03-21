@@ -42,9 +42,9 @@ void PathGroup::determinePathTravels(const char * inputFile) {
 			&& (counter < MAX_NUM_PATH_TRAVELS)) {
 		printf("%s", buffer);
 		// parse informations from file
-		scanfError = sscanf(buffer, "%f;%f", &targetX, &targetY);
+		scanfError = sscanf(buffer, "%f;%f", &targetY, &targetX);
 
-		this->travels[counter] = new PathTravel(targetX, targetY, 0.0f);
+		this->travels[counter] = new PathTravel(targetX, 200.0f - targetY, 0.0f);
 
 		if (scanfError <= 0)
 			break;
@@ -73,7 +73,7 @@ void PathGroup::determinePathTravels(std::string &pathTravels) {
             // parse informations from file:
             scanfError = sscanf(line.c_str(), "%f;%f", &targetX, &targetY);
 
-            this->travels[counter] = new PathTravel(targetX, targetY, 0.0f);
+            this->travels[counter] = new PathTravel(targetX, 200.0f - targetY, 0.0f);
 
             if (scanfError <= 0)
                 break;
