@@ -12,6 +12,9 @@
 #include "PositionUpdater.h"
 #include "StateModel.h"
 
+#include <iostream>
+#include <fstream>
+
 PositionUpdater::PositionUpdater() {
 }
 
@@ -26,9 +29,9 @@ PositionStructureType PositionUpdater::getPosition(void)
 
 void PositionUpdater::updatePosition(void)
 {
-	ifstream f_position(POSITION_FILE);
+	std::ifstream f_position(POSITION_FILE);
 	
-	if(false == f_position.is_open()) cout << "Error reading file!" << endl;
+	if(false == f_position.is_open()) std::cout << "Error reading file!" << std::endl;
 
     std::string line;
 

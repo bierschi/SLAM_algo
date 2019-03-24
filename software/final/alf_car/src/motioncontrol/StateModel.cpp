@@ -490,7 +490,7 @@ void StateModel::updatePosition(float xpos, float ypos, float theta)
 {
     if(NULL != this->posUpdater)
     {
-        this->posUpdater.updatePosition(xpos, ypos, theta);
+        this->posUpdater->updatePosition(xpos, ypos, theta);
     }
 }
 
