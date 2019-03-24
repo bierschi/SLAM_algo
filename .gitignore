@@ -86,6 +86,7 @@ fabric.properties
 /latex/*.synctex.gz
 /latex/*.toc
 /latex/**/*.aux
+/latex/**/*.log
 
 #Project
 /images/*
