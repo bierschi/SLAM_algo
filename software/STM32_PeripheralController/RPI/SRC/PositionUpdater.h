@@ -30,6 +30,7 @@ public:
 	~PositionUpdater();
 	PositionStructureType getPosition(void);
 	void updatePosition(void);
+	void updatePosition(float xpos, float ypos, float theta);
 };
 
 #endif /* POSITIONUPDATER_H */

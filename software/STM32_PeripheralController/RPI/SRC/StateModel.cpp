@@ -244,10 +244,10 @@ void StateModel::calcNextState(void) {
 	struct timespec ts_sleep = {0}, ts_remaining = {0};
 
 #ifndef SPIINTERFACE_STANDALONE
-	posUpdater->updatePosition();
 	position = posUpdater->getPosition(); // get current position from module / file
 #else
-    position = 
+	//posUpdater->updatePosition();
+    //position = 
 #endif
 
     spiSend(COM_StructTX, COM_StructRX);
@@ -483,15 +483,14 @@ void StateModel::Close(void)
 void StateModel::setScanAtStartup(bool scanAtStart)
 {
 	this->scanAtStart = scanAtStart;
+	this->currentState = STATE_SCAN_AREA;
 }
 
-void StateModel::updatePosition(uint16_t xpos, uint16_t ypos, float theta)
+void StateModel::updatePosition(float xpos, float ypos, float theta)
 {
     if(NULL != this->posUpdater)
     {
-        posUpdater->position.x = xpos;
-        posUpdater->position.y = ypos;
-        posUpdater->position.theta = theta;
+        this->posUpdater->updatePosition(xpos, ypos, theta);
     }
 }
 
@@ -500,5 +499,14 @@ void StateModel::updatePathTravels(std::string &pathTravels)
     if(NULL != this->ptrPathGroup)
     {
         this->ptrPathGroup->determinePathTravels(pathTravels);
+    }
+}
+
+bool StateModel::isBusy(void)
+{
+    if(currentState != STATE_IDLE) {
+        return true; // controller is busy, perhaps we are currently travelling along a path
+    } else {
+        return false;
     }
 }

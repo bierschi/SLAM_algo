@@ -21,9 +21,9 @@
 
 // define some initialization values for the communication structure
 #define COM_STEERING_SPEED_ZERO 0u
-#define COM_STEERING_DIRECTON_ZERO 0u
 #define COM_STEERING_DIRECTION_FORWARD 1u
 #define COM_STEERING_DIRECTION_REVERSE 0u
+#define COM_STEERING_DIRECTON_ZERO 0u
 #define COM_STEERING_ANGLE_ZERO 0.0f
 
 // adjust packing size for SPI Transfer Data Compression purposes
