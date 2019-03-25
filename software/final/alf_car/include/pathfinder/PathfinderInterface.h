@@ -31,6 +31,7 @@ private:
 public:
     PathfinderInterface(SlamMap& sm);
     ~PathfinderInterface();
+    std::string drivewayPath;
 
     void processPath();
     void initSlamMap();

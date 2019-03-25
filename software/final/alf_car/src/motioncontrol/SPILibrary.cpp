@@ -72,3 +72,17 @@ void spiClose(void)
     }
 #endif
 }
+
+SpiOpenStatusType spiIsOpen(void)
+{
+#ifndef OFFLINE_SIMU
+    if(fdToSpiDev != 0 && true == initialized)
+    {
+        return OPEN;
+    } else {
+        return CLOSED;
+    }
+#else
+    return OPEN;
+#endif
+}

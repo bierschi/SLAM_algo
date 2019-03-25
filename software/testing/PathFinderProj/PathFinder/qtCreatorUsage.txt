@@ -1,0 +1,8 @@
+to configure project in QT Creator:
+Open Project -> Load CMakeLists.txt
+-> build Project
+-> execute
+
+Executable location: build/pathfinder
+-> InputData: ../../SLAM_data/			(map, position)
+-> OutputData: ../../PathFinder_data/		(whited map, remarked map, map with path)

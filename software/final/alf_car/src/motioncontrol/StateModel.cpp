@@ -8,7 +8,6 @@
 #include <StateModel.h>
 #include <unistd.h>
 #include <math.h>
-#include <signal.h>
 
 #include "ComStructure.h"
 #include "SPILibrary.h"
@@ -28,10 +27,6 @@
     COM_StructTX.CurrentSteeringDirection = this->defaultMotorDirection; \
     COM_StructTX.CurrentSteeringSpeed = COM_STEERING_SPEED_ZERO; \
     } while(0);
-
-// signalhandler for termination of program
-void sigIntHandler(int signum);
-bool exitProgram = false;
 
 // global communication structures
 ComStructureType COM_StructRX = {0};
@@ -240,8 +235,6 @@ void StateModel::Init(void)
         this->currentState = STATE_SCAN_AREA;
         this->lastPosition.theta = 20.0f;
     }
-
-    signal(SIGINT, sigIntHandler);
 }
 
 void StateModel::calcNextState(void) {
@@ -250,8 +243,12 @@ void StateModel::calcNextState(void) {
 	float degree = 0.0f;
 	struct timespec ts_sleep = {0}, ts_remaining = {0};
 
-	posUpdater->updatePosition();
+#ifndef SPIINTERFACE_STANDALONE
 	position = posUpdater->getPosition(); // get current position from module / file
+#else
+	//posUpdater->updatePosition();
+    //position = 
+#endif
 
     spiSend(COM_StructTX, COM_StructRX);
 
@@ -470,32 +467,46 @@ void StateModel::Main(void)
 {
 	struct timespec ts_sleep = {0}, ts_remaining = {0};
 	ts_sleep.tv_nsec = STATE_MACHINE_CYCLE_TIME; // 200 ms delay
-	Init();
 
-	while(exitProgram == false)
-	{
-		printf("Calculating Next State...\n");
-		calcNextState();
-		nanosleep(&ts_sleep, &ts_remaining);
-	}
+    calcNextState();
 
-	SWITCH_MOTOR_OFF();
+	nanosleep(&ts_sleep, &ts_remaining);
+}
+
+void StateModel::Close(void)
+{
+    SWITCH_MOTOR_OFF();
 	spiSend(COM_StructTX, COM_StructRX);
-	printf("MotorShutdown!\n");
+    printf("MotorShutdown!\n");
 }
 
 void StateModel::setScanAtStartup(bool scanAtStart)
 {
 	this->scanAtStart = scanAtStart;
+	this->currentState = STATE_SCAN_AREA;
 }
 
-
-// #########################################################################################
-// signal handlers
-// #########################################################################################
-
-void sigIntHandler(int signum)
+void StateModel::updatePosition(float xpos, float ypos, float theta)
 {
-	exitProgram = true;
+    if(NULL != this->posUpdater)
+    {
+        this->posUpdater->updatePosition(xpos, ypos, theta);
+    }
 }
 
+void StateModel::updatePathTravels(std::string &pathTravels)
+{
+    if(NULL != this->ptrPathGroup)
+    {
+        this->ptrPathGroup->determinePathTravels(pathTravels);
+    }
+}
+
+bool StateModel::isBusy(void)
+{
+    if(currentState != STATE_IDLE) {
+        return true; // controller is busy, perhaps we are currently travelling along a path
+    } else {
+        return false;
+    }
+}

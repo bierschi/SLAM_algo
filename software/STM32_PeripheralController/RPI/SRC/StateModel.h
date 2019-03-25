@@ -8,12 +8,12 @@
 #ifndef STATEMODEL_H
 #define STATEMODEL_H
 
+#include <iostream>
 #include "PositionUpdater.h"
 #include "ComStructure.h"
 #include "Path.h"
 
 #define PATH_FILE "../PathFinder_data/driveway.txt"
-//#define POSITION_FILE "../PathFinder_data/egoPosAtMap.txt"
 #define POSITION_FILE "../SLAM_data/position.txt"
 #define MOTOR_STATE_FILE "../STM_data/motor.txt"
 #define ULTRASONIC_FILE "../STM_data/ultrasonic.txt"
@@ -61,7 +61,11 @@ public:
 	void calcNextState(void);
 	void Init(void);
 	void Main(void);
+    void Close(void);
 	void setScanAtStartup(bool scanAtStart);
+    void updatePosition(float xpos, float ypos, float theta);
+    void updatePathTravels(std::string &test);
+	bool isBusy(void);
 };
 
 #endif /* STATEMODEL_H */

@@ -28,8 +28,8 @@ file(GLOB CLIENT_SRCS ${CMAKE_CURRENT_LIST_DIR}/src/communication/client/*.cpp)
 
 # set *.cpp and *.h files for submodule motioncontrol
 include_directories(${CMAKE_CURRENT_LIST_DIR}/include/motioncontrol)
+#    ${CMAKE_CURRENT_LIST_DIR}/src/motioncontrol/SPIInterface.cpp
 set(SPIINTERFACE_SRCS
-    ${CMAKE_CURRENT_LIST_DIR}/src/motioncontrol/SPIInterface.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/motioncontrol/SPILibrary.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/motioncontrol/Path.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/motioncontrol/PositionUpdater.cpp
@@ -45,7 +45,7 @@ include_directories(${CMAKE_CURRENT_LIST_DIR}/include/slam)
 file(GLOB SLAM_SRCS ${CMAKE_CURRENT_LIST_DIR}/src/slam/*.cpp)
 
 # build the executable "alf" with all sources
-add_executable(alf "alf_main.cpp" ${SLAM_SRCS} ${SERVER_SRCS} ${PATHFINDER_SRCS})
+add_executable(alf "alf_main.cpp" ${SLAM_SRCS} ${SERVER_SRCS} ${PATHFINDER_SRCS} ${SPIINTERFACE_SRCS})
 target_link_libraries(alf ${catkin_LIBRARIES})
 target_link_libraries(alf ${CMAKE_THREAD_LIBS_INIT})
 
@@ -66,7 +66,7 @@ target_link_libraries(alf ${CMAKE_THREAD_LIBS_INIT})
 #file(GLOB SERVER "server_main.cpp" "src/communication/server/*.cpp")
 #file(GLOB CLIENT "client_main.cpp" "src/communication/client/*.cpp")
 
-add_executable(SPIInterface ${SPIINTERFACE_SRCS})
+#add_executable(SPIInterface ${SPIINTERFACE_SRCS})
 
 #add_executable(pathfinder ${PATHFINDER})
 

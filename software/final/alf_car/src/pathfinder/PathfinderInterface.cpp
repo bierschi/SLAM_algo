@@ -131,7 +131,8 @@ void PathfinderInterface::calcPath() {
         if(found == true)
             break;
     }
-
+    
+    this->drivewayPath = driveway;
 
     saveMapToFile(map, OUTPUT_FOLDER + "map_withPath.pgm");
     savePathToFile(driveway, OUTPUT_FOLDER + "driveway.txt");

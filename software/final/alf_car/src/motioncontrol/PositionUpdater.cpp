@@ -15,8 +15,6 @@
 #include <iostream>
 #include <fstream>
 
-using namespace std;
-
 PositionUpdater::PositionUpdater() {
 }
 
@@ -31,38 +29,9 @@ PositionStructureType PositionUpdater::getPosition(void)
 
 void PositionUpdater::updatePosition(void)
 {
-	/*FILE * file = NULL;
-	file = fopen(POSITION_FILE, "r");
-	char buffer[100] = {0};
-
-	if(file != NULL)
-	{
-		int num;
-		// parse position information from lines of file
-
-		// get x position:
-		fgets(buffer, 99, file);
-		num = sscanf(buffer, "%f", &position.x);
-
-		// get y position:
-		fgets(buffer, 99, file);
-		num = sscanf(buffer, "%f", &position.y);
-
-		// get theta of position:
-		fgets(buffer, 99, file);
-		num = sscanf(buffer, "%f", &position.theta);
-        
-	}
-	else
-	{
-		printf("PositionUpdater: Error opening file input!\n");
-	}
+	std::ifstream f_position(POSITION_FILE);
 	
-	fclose(file);*/
-	
-	ifstream f_position(POSITION_FILE);
-	
-	if(false == f_position.is_open()) cout << "Error reading file!" << endl;
+	if(false == f_position.is_open()) std::cout << "Error reading file!" << std::endl;
 
     std::string line;
 
@@ -78,4 +47,11 @@ void PositionUpdater::updatePosition(void)
 
     f_position.close();
 	
+}
+
+void PositionUpdater::updatePosition(float xpos, float ypos, float theta)
+{
+	position.x = xpos;
+	position.y = 200 - ypos;
+	position.theta = theta;
 }
